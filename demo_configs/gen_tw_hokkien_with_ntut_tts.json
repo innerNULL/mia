@@ -1,0 +1,5 @@
+{
+  "output_dir": "./_gen_tw_hokkien_with_ntut_tts",
+  "text_path": "./demo_data/gen_tw_hokkien_with_ntut_tts_texts.jsonl", 
+  "driver": "chrome"
+}
