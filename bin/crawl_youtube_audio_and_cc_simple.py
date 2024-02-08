@@ -28,10 +28,10 @@ from audiopipeline.struct import audio_metadata_to_json_obj
 from audiopipeline.utils import chunk_audio_with_subtitle_chunks
 
 
-YOUTUBE_DL_BIN: Final[str] = os.path.join(
+YOUTUBE_DL_BIN: str = os.path.join(
     os.path.dirname(sys.executable), "youtube-dl"
 )
-YOUTUBE_DL_CMD_TEMP: Final[str] = "youtube-dl --extract-audio --audio-format mp3 --write-sub --all-subs --abort-on-error --output \"${ID}.%(ext)s\" ${URL}"
+YOUTUBE_DL_CMD_TEMP: Final[str] = "${YOUTUBE_DL} --extract-audio --audio-format mp3 --write-sub --all-subs --abort-on-error --output \"${ID}.%(ext)s\" ${URL}"
 
 
 def get_raw_data(
@@ -55,6 +55,7 @@ def get_raw_data(
         
         print("Fetching {}".format(raw_sample))
         cmd: str = YOUTUBE_DL_CMD_TEMP\
+            .replace("${YOUTUBE_DL}", YOUTUBE_DL_BIN)\
             .replace("${ID}", resource_id)\
             .replace("${URL}", url)
         os.system("cd %s && %s" % (raw_data_dir, cmd))
@@ -72,14 +73,19 @@ def chunking_subtitle(path: str) -> List[SubtitleChunk]:
         x for x in open(path, "r").read().split("\n\n")
         if x not in {""}
     ][1:]
-    for chunk_metadata in tqdm(chunks_metadata):
+    for chunk_metadata in chunks_metadata:
         time_part: str = ""
         subtitle: str = ""
         start_time: str = ""
         end_time: str = ""
 
-        time_part, subtitle = chunk_metadata.split("\n")
-        start_time, end_time = time_part.split(" --> ")
+        try:
+            time_part, subtitle = chunk_metadata.split("\n")
+            start_time, end_time = time_part.split(" --> ")
+        except Exception as e:
+            print("Warning: %s" % str(e))
+            print(chunk_metadata)
+            continue
 
         subtitle_chunk: SubtitleChunk = subtitle_chunk_new(
             start_time, end_time, subtitle
@@ -97,6 +103,13 @@ if __name__ == "__main__":
     output_dir: str = os.path.abspath(conf["output_dir"])
     lang: str = conf["lang"]
     youtube_urls: List[str] = conf["youtube_urls"]
+    
+    if not os.path.exists(YOUTUBE_DL_BIN):
+        YOUTUBE_DL_BIN = os.path.join(
+            os.path.expanduser("~"), ".local", "bin", "youtube-dl"
+        )
+    if not os.path.exists(YOUTUBE_DL_BIN):
+        YOUTUBE_DL_BIN = "youtube-dl"
 
     raw_data_dir: str = os.path.join(output_dir, "raw")
     dataset_dir: str = os.path.join(output_dir, "dataset")

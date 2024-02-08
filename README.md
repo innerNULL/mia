@@ -3,7 +3,7 @@ This is a collection of audio/speech pipelines. So far focus more on data part
 (crawler, ETL). The intention is, some unpopular languages' public audio dataset 
 are quite limited. For example, Hokkien, although there is a quite good dataset 
 [TAT](https://sites.google.com/nycu.edu.tw/fsw/home/tat-phase-i?authuser=0), but 
-sadly they didn't open source it, which means you will meet difficuty on finding 
+sadly they didn't open source it, which means you will meet difficulty on finding 
 corpus when you are working on Taiwanese ASR model training.
  
 Here this repo has following functionalities:
@@ -20,7 +20,15 @@ Before all you should build your pyton environments:
 python3 -m venv ./_venv --copies
 source ./_venv/bin/activate
 python -m pip install -r requirements.txt
+# deactivate
 ```
+
+**NOTE**
+If you are not use `python -m venv`, then please make sure you've configed `PATH` 
+to make which include `youtube-dl` bin. On Linux, if you use globle Python to 
+install dependencies, then `youtube-dl` should be `~/.local/bin/youtube-dl`, if 
+that's the case of you, then you do not need do anything since there is a 
+simple automatically `youtube-dl` seeking mechanism to handle this case.
 
 ### `bin/crawl_youtube_audio_and_cc_simple.py`
 Here is an example usage:
