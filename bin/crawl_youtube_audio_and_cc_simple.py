@@ -28,10 +28,10 @@ from audiopipeline.struct import audio_metadata_to_json_obj
 from audiopipeline.utils import chunk_audio_with_subtitle_chunks
 
 
-YOUTUBE_DL_BIN: Final[str] = os.path.join(
+YOUTUBE_DL_BIN: str = os.path.join(
     os.path.dirname(sys.executable), "youtube-dl"
 )
-YOUTUBE_DL_CMD_TEMP: Final[str] = "youtube-dl --extract-audio --audio-format mp3 --write-sub --all-subs --abort-on-error --output \"${ID}.%(ext)s\" ${URL}"
+YOUTUBE_DL_CMD_TEMP: Final[str] = "${YOUTUBE_DL} --extract-audio --audio-format mp3 --write-sub --all-subs --abort-on-error --output \"${ID}.%(ext)s\" ${URL}"
 
 
 def get_raw_data(
@@ -55,6 +55,7 @@ def get_raw_data(
         
         print("Fetching {}".format(raw_sample))
         cmd: str = YOUTUBE_DL_CMD_TEMP\
+            .replace("${YOUTUBE_DL}", YOUTUBE_DL_BIN)\
             .replace("${ID}", resource_id)\
             .replace("${URL}", url)
         os.system("cd %s && %s" % (raw_data_dir, cmd))
@@ -102,6 +103,11 @@ if __name__ == "__main__":
     output_dir: str = os.path.abspath(conf["output_dir"])
     lang: str = conf["lang"]
     youtube_urls: List[str] = conf["youtube_urls"]
+    
+    if not os.path.exists(YOUTUBE_DL_BIN):
+        YOUTUBE_DL_BIN = os.path.join(
+            os.path.expanduser("~"), ".local", "bin", "youtube-dl"
+        )
 
     raw_data_dir: str = os.path.join(output_dir, "raw")
     dataset_dir: str = os.path.join(output_dir, "dataset")
