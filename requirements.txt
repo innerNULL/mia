@@ -4,4 +4,4 @@ requests==2.31.0
 tqdm==4.66.1
 librosa==0.10.1
 soundfile==0.12.1
-git+https://github.com/ytdl-org/youtube-dl.git
+git+https://github.com/ytdl-org/youtube-dl.git@4416f82c809a81737d68875dcb201e366d58dabd
