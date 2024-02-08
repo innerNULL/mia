@@ -78,8 +78,13 @@ def chunking_subtitle(path: str) -> List[SubtitleChunk]:
         start_time: str = ""
         end_time: str = ""
 
-        time_part, subtitle = chunk_metadata.split("\n")
-        start_time, end_time = time_part.split(" --> ")
+        try:
+            time_part, subtitle = chunk_metadata.split("\n")
+            start_time, end_time = time_part.split(" --> ")
+        except Exception as e:
+            print("Warning: %s" % str(e))
+            print(chunk_metadata)
+            continue
 
         subtitle_chunk: SubtitleChunk = subtitle_chunk_new(
             start_time, end_time, subtitle
