@@ -72,7 +72,7 @@ def chunking_subtitle(path: str) -> List[SubtitleChunk]:
         x for x in open(path, "r").read().split("\n\n")
         if x not in {""}
     ][1:]
-    for chunk_metadata in tqdm(chunks_metadata):
+    for chunk_metadata in chunks_metadata:
         time_part: str = ""
         subtitle: str = ""
         start_time: str = ""
