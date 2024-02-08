@@ -1,0 +1,26 @@
+{
+  "output_dir": "./_data/crawl_youtube_audio_and_cc_simple/tw_hukkien_medical",
+  "lang": "zh-TW",
+  "youtube_urls": [
+    "https://www.youtube.com/watch?v=GcuHrUT-6XQ",
+    "https://www.youtube.com/watch?v=I1o61AffWWs",
+    "https://www.youtube.com/watch?v=cHLGy8Y9j5I",
+    "https://www.youtube.com/watch?v=LLBmS7oJMK0", 
+    "https://www.youtube.com/watch?v=USpbSj3nq-k",
+    "https://www.youtube.com/watch?v=Vy_DJoaFBy0",
+    "https://www.youtube.com/watch?v=hf6F5SBrPpc",
+    "https://www.youtube.com/watch?v=msEjPRIgx3s",
+    "https://www.youtube.com/watch?v=ZauTzpMOj4o",
+    "https://www.youtube.com/watch?v=cPHBsRSrCYU",
+    "https://www.youtube.com/watch?v=H3ZFLQzPtLw",
+    "https://www.youtube.com/watch?v=Qwmn1qnWLLc",
+    "https://www.youtube.com/watch?v=_446I769Mks",
+    "https://www.youtube.com/watch?v=tKPk-xB0eTs",
+    "https://www.youtube.com/watch?v=6LyGAVfLYxg",
+    "https://www.youtube.com/watch?v=e8CaGIiTp3c",
+    "https://www.youtube.com/watch?v=OrdHWCJQzCk",
+    "https://www.youtube.com/watch?v=V7RgkIN2YIw",
+    "https://www.youtube.com/watch?v=BgRSS3OuUVk",
+    "https://www.youtube.com/watch?v=UvnXl2s94xI"
+  ]
+}
