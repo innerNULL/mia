@@ -19,13 +19,13 @@ from typing import Dict, List, Final, Union, Optional
 sys.path.append(
     os.path.join(os.path.dirname(__file__), "..", "src")
 )
-from getspeech.struct import SubtitleChunk
-from getspeech.struct import AudioMetadata
-from getspeech.struct import subtitle_chunk_print
-from getspeech.struct import subtitle_chunk_new
-from getspeech.struct import subtitle_chunks_merge
-from getspeech.struct import audio_metadata_to_json_obj
-from getspeech.utils import chunk_audio_with_subtitle_chunks
+from audiopipeline.struct import SubtitleChunk
+from audiopipeline.struct import AudioMetadata
+from audiopipeline.struct import subtitle_chunk_print
+from audiopipeline.struct import subtitle_chunk_new
+from audiopipeline.struct import subtitle_chunks_merge
+from audiopipeline.struct import audio_metadata_to_json_obj
+from audiopipeline.utils import chunk_audio_with_subtitle_chunks
 
 
 YOUTUBE_DL_BIN: Final[str] = os.path.join(
