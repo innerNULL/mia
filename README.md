@@ -23,22 +23,63 @@ python -m pip install -r requirements.txt
 ```
 
 ### `bin/crawl_youtube_audio_and_cc_simple.py`
-Crawling ASR dataset from Youtube audios, this contains following stages:
+Here is an example usage:
+```shell
+python ./bin/crawl_youtube_audio_and_cc_simple.py ./demo_configs/crawl_youtube_audio_and_cc_simple.json
+```
+
+This will crawling ASR dataset from Youtube audios, after crawling 
+task finished, you should get a folder with following structure:
+```
+./_crawl_youtube_audio_and_cc_simple/
+├── dataset
+└── raw
+```
+The `raw` is the raw audio/subtitle data crawled from Youtube, and the dataset 
+is generated after following steps:
 * Crawling raw audio and subtitle files.
 * Chunking subtitle according timestamp blocks in it.
-* Merging adjacent subtitle chunks.
+* Merging adjacent subtitle chunks, the definition of 'adjacent' means current 
+  chunk's start time is same with previous chunk's end time.
 * Chunking audio into audio chunks according chunked & merged subtitle chunks' time scope.
 * Dumping metadata of chunked audios.
 
-```shell
-python ./bin/crawl_youtube_audio_and_cc_simple.py ./demo_configs/crawl_youtube_audio_and_cc_simple.json
+Here is the the structure of `raw` sub-directory:
+```
+./_crawl_youtube_audio_and_cc_simple/raw/
+├── OAjS5meBURk.mp3
+├── OAjS5meBURk.zh-TW.vtt
+├── kIMWtz9y8M8.mp3
+└── kIMWtz9y8M8.zh-TW.vtt
+```
+And here is the structure of `dataset` sub-directory:
+```
+./_crawl_youtube_audio_and_cc_simple/dataset/
+├── OAjS5meBURk_part0.mp3
+├── OAjS5meBURk_part1.mp3
+├── OAjS5meBURk_part10.mp3
+├── OAjS5meBURk_part100.mp3
+├── ...
+├── kIMWtz9y8M8_part96.mp3
+├── kIMWtz9y8M8_part97.mp3
+├── kIMWtz9y8M8_part98.mp3
+├── kIMWtz9y8M8_part99.mp3
+└── metadata.jsonl
+```
+The `metadata.jsonl` is in following format:
+```
+{"transcript": "這陣子我認真思考過 總算想通了 我打算離開這裡 重新規劃新人生", "path": "/_crawl_youtube_audio_and_cc_simple/dataset/OAjS5meBURk_part0.mp3"}
+{"transcript": "俊杰 你這麼做是不是因為 我和惠婷的關係", "path": "/_crawl_youtube_audio_and_cc_simple/dataset/OAjS5meBURk_part1.mp3"}
+{"transcript": "安康 別誤會", "path": "/_crawl_youtube_audio_and_cc_simple/dataset/OAjS5meBURk_part2.mp3"}
+...
 ```
 
 ### `bin/gen_tw_hokkien_with_ntut_tts.py`
 Generate Hokkien based on [NTUT's TTS service](http://tts001.iptcloud.net:8804/)
 ```shell
-python bin/gen_tw_hokkien_with_ntut_tts.py ./demo_configs/gen_tw_hokkien_with_ntut_tts.json
+python ./bin/gen_tw_hokkien_with_ntut_tts.py ./demo_configs/gen_tw_hokkien_with_ntut_tts.json
 ```
+This is just a casual one, not quite robust.
 
 ## Corpus
 ### Youtube Dramas with Subtitle
