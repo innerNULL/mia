@@ -23,7 +23,13 @@ python -m pip install -r requirements.txt
 ```
 
 ### `bin/crawl_youtube_audio_and_cc_simple.py`
-Crawling ASR dataset from Youtube audios.
+Crawling ASR dataset from Youtube audios, this contains following stages:
+* Crawling raw audio and subtitle files.
+* Chunking subtitle according timestamp blocks in it.
+* Merging adjacent subtitle chunks.
+* Chunking audio into audio chunks according chunked & merged subtitle chunks' time scope.
+* Dumping metadata of chunked audios.
+
 ```shell
 python ./bin/crawl_youtube_audio_and_cc_simple.py ./demo_configs/crawl_youtube_audio_and_cc_simple.json
 ```
