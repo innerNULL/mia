@@ -58,7 +58,11 @@ def get_raw_data(
             .replace("${ID}", resource_id)\
             .replace("${URL}", url)
         os.system("cd %s && %s" % (raw_data_dir, cmd))
-
+    
+    out = [
+        x for x in out 
+        if os.path.exists(x["subtitle_path"]) and os.path.exists(x["audio_path"]) 
+    ]
     return out
 
 
@@ -82,16 +86,6 @@ def chunking_subtitle(path: str) -> List[SubtitleChunk]:
         )
         output.append(subtitle_chunk)
     return subtitle_chunks_merge(output)
-
-
-def merge_subtitle_chunks(chunks: List[Dict]) -> List[Dict]:
-    pass
-
-
-def chunking_audio_with_subtitle_chunks(
-    output_dir: str, audio_path: str, subtitle_chunks: List[Dict]
-) -> List[Dict]:
-    pass
 
 
 if __name__ == "__main__":
