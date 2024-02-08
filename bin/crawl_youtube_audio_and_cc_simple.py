@@ -108,6 +108,8 @@ if __name__ == "__main__":
         YOUTUBE_DL_BIN = os.path.join(
             os.path.expanduser("~"), ".local", "bin", "youtube-dl"
         )
+    if not os.path.exists(YOUTUBE_DL_BIN):
+        YOUTUBE_DL_BIN = "youtube-dl"
 
     raw_data_dir: str = os.path.join(output_dir, "raw")
     dataset_dir: str = os.path.join(output_dir, "dataset")
