@@ -1,0 +1,8 @@
+{
+  "output_dir": "./_crawl_youtube_audio_and_cc_simple",
+  "lang": "zh-TW",
+  "youtube_urls": [
+    "https://www.youtube.com/watch?v=OAjS5meBURk", 
+    "https://www.youtube.com/watch?v=kIMWtz9y8M8"
+  ]
+}

@@ -2,3 +2,6 @@ transformers==4.37.2
 selenium==4.17.2
 requests==2.31.0
 tqdm==4.66.1
+librosa==0.10.1
+soundfile==0.12.1
+git+https://github.com/ytdl-org/youtube-dl.git
