@@ -15,7 +15,9 @@ Here this repo has following functionalities:
 
 
 ## Programs
-Before all you should build your pyton environments:
+### Build Environments
+Please first install [FFmpeg](https://ffmpeg.org/download.html) and then build your 
+python environments with:
 ```shell
 python3 -m venv ./_venv --copies
 source ./_venv/bin/activate
