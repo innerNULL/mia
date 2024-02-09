@@ -40,6 +40,7 @@ def get_raw_data(
     out: List[Dict[str, str]] = []
     
     for url in tqdm(youtube_urls):
+        url = url.split("?")[0] + "?" + url.split("?")[1].split("&")[0] 
         resource_id: str = url.split("v=")[-1]
         subtitle_path: str = os.path.join(raw_data_dir, "%s.%s.vtt" % (resource_id, lang))
         audio_path: str = os.path.join(raw_data_dir, "%s.mp3" % resource_id)
