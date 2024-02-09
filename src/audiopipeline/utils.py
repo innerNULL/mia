@@ -31,17 +31,23 @@ def chunk_audio_with_subtitle_chunks(
     for i, subtitle_chunk in enumerate(tqdm(subtitle_chunks)):
         audio_metadata: AudioMetadata = AudioMetadata()
         
-        start_sample_idx: int = int(round(subtitle_chunk.start_in_second * sample_rate, 0))
-        end_sample_idx: int = int(round(subtitle_chunk.end_in_second * sample_rate, 0))
-        segment: ndarray = audio[start_sample_idx:end_sample_idx]
-        
         file_path: str = os.path.join(
             output_dir, 
             "%s_part%i.%s" % (audio_name, i, audio_fmt)
         )
+        if os.path.exists(file_path):
+            print("Audio chunk '%s' already exists." % file_path)
+        else: 
+            start_sample_idx: int = int(
+                round(subtitle_chunk.start_in_second * sample_rate, 0)
+            )
+            end_sample_idx: int = int(
+                round(subtitle_chunk.end_in_second * sample_rate, 0)
+            )
+            segment: ndarray = audio[start_sample_idx:end_sample_idx]
 
-        sf.write(file_path, segment, sample_rate)
-        #print("Finished saving chunk audio '%s'" % file_path)
+            sf.write(file_path, segment, sample_rate)
+            #print("Finished saving chunk audio '%s'" % file_path)
 
         audio_metadata.transcript = subtitle_chunk.subtitle
         audio_metadata.path = file_path
