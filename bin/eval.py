@@ -17,7 +17,7 @@ from typing import Dict, List
 from torchmetrics.text import CharErrorRate
 
 
-def text_norm(input_string):
+def run_text_norm(input_string):
     # Remove Chinese and English punctuations
     chinese_punctuations = '，。！？【】（）《》“”‘’：；“”'
     english_punctuations = r'''!()-[]{};:'"\,<>./?@#$%^&*_~'''
@@ -47,8 +47,8 @@ def eval(
     outputs: List[str] = [x[output_col] for x in asr_results]
 
     if text_norm:
-        targets = [text_norm(x) for x in targets]
-        outputs = [text_norm(x) for x in outputs]
+        targets = [run_text_norm(x) for x in targets]
+        outputs = [run_text_norm(x) for x in outputs]
 
     assert(len(targets) == len(outputs))
 
