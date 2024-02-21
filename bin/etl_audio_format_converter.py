@@ -26,7 +26,7 @@ if __name__ == "__main__":
     print(configs)
 
     metadata_path: str = configs["metadata_jsonl_path"]
-    output_dir: str = configs["output_dir"]
+    output_dir: str = os.path.abspath(configs["output_dir"])
     target_fmt: str = configs["target_fmt"]
     target_sample_rate: int = configs["target_sample_rate"]
     target_bit_depth: int = configs["target_bit_depth"]
