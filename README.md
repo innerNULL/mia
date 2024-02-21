@@ -106,8 +106,8 @@ This is just a casual one, not quite robust.
             * [大林學校 A Fool Like Me](https://www.youtube.com/playlist?list=PLc8M1wVJOpHzcXp3D15E3v2SAOJO9uqgD)
             * [慈悲的滋味 Taste of Compassion](https://www.youtube.com/playlist?list=PLc8M1wVJOpHxAHhq9lPS0To2zNc_iwVaI)
             * [最佳配角](https://www.youtube.com/playlist?list=PLc8M1wVJOpHyIAViBj6Vf_LwvvOJY4rhK)
-            * [丘醫師的願望 Selfless Giving of Dr. Chiu](https://www.youtube.com/playlist?list=PLc8M1wVJOpHzH8922CpOGsdVSSjxvukgi)
-            * [(白袍的約定)](https://www.youtube.com/playlist?list=PLc8M1wVJOpHzexPvfep4vqpdGFNpWGgjL)
+            * ~[丘醫師的願望 Selfless Giving of Dr. Chiu](https://www.youtube.com/playlist?list=PLc8M1wVJOpHzH8922CpOGsdVSSjxvukgi)~
+            * ~[(白袍的約定)](https://www.youtube.com/playlist?list=PLc8M1wVJOpHzexPvfep4vqpdGFNpWGgjL)~
             * [(烏陰天的好日子)](https://www.youtube.com/playlist?list=PLzgAweye8Ud6ZWZ2ikBx1ee2uYszHa0cp)
     * Life Related
         * Dramas
@@ -122,3 +122,4 @@ This is just a casual one, not quite robust.
         * Dramas
             * [白色巨塔](https://www.youtube.com/playlist?list=PLZB1HSq1adjj9Nd7G7R3ylRSt06XIkTT1)
             * [白袍之恋White Robe of Love](https://www.youtube.com/playlist?list=PLzt2yjwjKLWutCvoaH-5HgsTewH7ZJ7D6)
+            * [菊島醫師情 Doctor from the Neighborhood](https://www.youtube.com/playlist?list=PLc8M1wVJOpHx_hZNDYc4L1TA6PXcHBnVG)

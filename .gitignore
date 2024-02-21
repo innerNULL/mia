@@ -161,6 +161,7 @@ cython_debug/
 
 # Others
 _venv
+_data
 *.un~
 *.jsonl
 *.mp3
