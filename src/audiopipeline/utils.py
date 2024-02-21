@@ -4,6 +4,7 @@
 
 
 import os
+import json
 import librosa
 import soundfile as sf
 from tqdm import tqdm
@@ -55,3 +56,10 @@ def chunk_audio_with_subtitle_chunks(
 
     return out
 
+
+def json_objs2jsonl_file(path: str, json_objs: List[Dict]) -> str:
+    file = open(path, "w")
+    for record in json_objs:
+        file.write(json.dumps(record, ensure_ascii=False) + "\n")
+    file.close()
+    return path
