@@ -82,7 +82,6 @@ def run_webdriver(
     record: Dict = {
         "text": text, "path": audio_dump_path
     }
-    print(record)
     return record
 
 
@@ -132,11 +131,17 @@ if __name__ == "__main__":
         json.loads(x) for x in open(text_path, "r").read().split("\n") if x not in {""}
     ]
     out_metadata_path: str = os.path.join(output_dir, "metadata.jsonl")
-    out_metadata_file = open(out_metadata_path, "w")
-    for record in tqdm(text_data):
+    print("out_metadata_path: %s" % out_metadata_path)
+    for i, record in enumerate(tqdm(text_data)):
+        if i == 0:
+            out_metadata_file = open(out_metadata_path, "w")
+        else:
+            out_metadata_file = open(out_metadata_path, "a")
+
         sample: Dict = run_webdriver(webdriver, record["text"], output_dir)
+        print("Writing:", sample)
         out_metadata_file.write(json.dumps(sample, ensure_ascii=False) + "\n")
+        out_metadata_file.close()
     
-    out_metadata_file.close()
     webdriver.quit()
     display.stop()
