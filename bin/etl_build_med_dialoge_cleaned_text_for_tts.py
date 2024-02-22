@@ -26,6 +26,7 @@ if __name__ == "__main__":
     for data_group in tqdm(raw_data):
         for record in data_group:
             record = record.replace("病人：", "").replace("医生：", "")
-            out_file.write(record + "\n")
+            out_data: Dict = {"text": record}
+            out_file.write(json.dumps(out_data, ensure_ascii=False) + "\n")
 
     out_file.close()
