@@ -21,6 +21,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.remote.webelement import WebElement
+from pyvirtualdisplay import Display
 
 
 DEBUG: Final[bool] = False
@@ -83,6 +84,9 @@ if __name__ == "__main__":
     text_path: str = conf["text_path"]
 
     os.system("mkdir -p %s" % output_dir)
+    
+    display: Display = Display(visible=0, size=(800, 600))
+    display.start()
 
     webdriver: Optional[Union[Chrome, Firefox]] = None
     options: Optional[Union[ChromeOptions, FirefoxOptions]] = None
@@ -96,15 +100,22 @@ if __name__ == "__main__":
             "safebrowsing.enabled": False,
             "profile.default_content_setting_values.notifications": 2,
             "safebrowsing.disable_download_protection": True,
-            
+            "excludeSwitches": ['enable-automation'],
         }
         options.add_experimental_option("prefs", expt_prefs)
         options.add_argument('--user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"')
         options.add_argument("--start-maximized")
-        options.add_argument("--disable-popup-blocking");
+        options.add_argument("--disable-popup-blocking")
+        options.add_argument('--disable-extensions')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-gpu')
+        options.add_argument('--disable-browser-side-navigation')
         #options.add_argument("--headless")
         
         webdriver = Chrome(options=options)
+        params = {'behavior': 'allow', 'downloadPath': output_dir}
+        webdriver.execute_cdp_cmd('Page.setDownloadBehavior', params)
     
     text_data: List[Dict] = [
         json.loads(x) for x in open(text_path, "r").read().split("\n") if x not in {""}
@@ -117,3 +128,4 @@ if __name__ == "__main__":
     
     out_metadata_file.close()
     webdriver.quit()
+    display.stop()
