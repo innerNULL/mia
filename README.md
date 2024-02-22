@@ -32,7 +32,8 @@ install dependencies, then `youtube-dl` should be `~/.local/bin/youtube-dl`, if
 that's the case of you, then you do not need do anything since there is a 
 simple automatically `youtube-dl` seeking mechanism to handle this case.
 
-### `bin/crawl_youtube_audio_and_cc_simple.py`
+### Crawlers
+#### `bin/crawl_youtube_audio_and_cc_simple.py`
 Here is an example usage:
 ```shell
 python ./bin/crawl_youtube_audio_and_cc_simple.py ./demo_configs/crawl_youtube_audio_and_cc_simple.json
@@ -84,13 +85,21 @@ The `metadata.jsonl` is in following format:
 ...
 ```
 
-### `bin/crawl_generated_tw_hokkien_speech_with_ntut_tts.py`
+#### `bin/crawl_generated_tw_hokkien_speech_with_ntut_tts.py`
 Generate Hokkien based on [NTUT's TTS service](http://tts001.iptcloud.net:8804/)
 ```shell
 python ./bin/crawl_generated_tw_hokkien_speech_with_ntut_tts.py demo_configs/crawl_generated_tw_hokkien_speech_with_ntut_tts.json
 ```
 The generated dataset structure is similar as above.
 
+### ETLs
+#### `bin/etl_build_med_dialoge_cleaned_text_for_tts.py`
+Download [pre-processed training dataset](https://drive.google.com/drive/folders/11sglwm6-cY7gjeqlZaMxL_MDKDMLdhym) 
+in [Medical-Dialogue-System](https://github.com/UCSD-AI4H/Medical-Dialogue-System), make it into a list of text 
+format for Hokkien text-to-speech purpose
+```shell
+python bin/etl_build_med_dialoge_cleaned_text_for_tts.py demo_configs/etl_build_med_dialoge_cleaned_text_for_tts.json
+```
 
 ## Corpus
 ### Youtube Videos with Subtitle
