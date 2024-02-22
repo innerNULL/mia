@@ -1,0 +1,8 @@
+{
+  "hf_token": "",
+  "version": "16_1", 
+  "langs": ["zh-TW", "zh-HK"], 
+  "splits": ["train", "dev", "test"], 
+  "workspace_dir": "./_common_voice", 
+  "output_path": "./common_voice_16_1.jsonl"
+}
