@@ -6,7 +6,18 @@
 # http://tts001.iptcloud.net:8804/
 #
 # Try:
-# python bin/gen_tw_hokkien_with_ntut_tts.py ./demo_configs/gen_tw_hokkien_with_ntut_tts.json
+# python ./bin/crawl_generated_tw_hokkien_speech_with_ntut_tts.py demo_configs/crawl_generated_tw_hokkien_speech_with_ntut_tts.json
+#
+# And here are some references
+#
+# Run Selenium Python script without headless mode on Linux Server:
+# https://unix.stackexchange.com/questions/516212/run-selenium-python-script-without-headless-mode-on-linux-server
+#
+# How to click and select download audio file using selenium and python in chrome for this particular link
+# https://stackoverflow.com/questions/69927668/how-to-click-and-select-download-audio-file-using-selenium-and-python-in-chrome
+# 
+# Install older versions of google-chrome-stable, on ubuntu 14.10
+# https://unix.stackexchange.com/questions/233185/install-older-versions-of-google-chrome-stable-on-ubuntu-14-10
 
 
 import sys

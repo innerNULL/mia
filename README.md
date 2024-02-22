@@ -84,12 +84,13 @@ The `metadata.jsonl` is in following format:
 ...
 ```
 
-### `bin/gen_tw_hokkien_with_ntut_tts.py`
+### `bin/crawl_generated_tw_hokkien_speech_with_ntut_tts.py`
 Generate Hokkien based on [NTUT's TTS service](http://tts001.iptcloud.net:8804/)
 ```shell
-python ./bin/gen_tw_hokkien_with_ntut_tts.py ./demo_configs/gen_tw_hokkien_with_ntut_tts.json
+python ./bin/crawl_generated_tw_hokkien_speech_with_ntut_tts.py demo_configs/crawl_generated_tw_hokkien_speech_with_ntut_tts.json
 ```
-This is just a casual one, not quite robust.
+The generated dataset structure is similar as above.
+
 
 ## Corpus
 ### Youtube Videos with Subtitle
