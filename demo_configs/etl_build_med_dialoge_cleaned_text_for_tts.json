@@ -1,4 +1,6 @@
 {
   "raw_file_path": "./train_data.json",
-  "out_file_path": "med_dialoge_cleaned_text_for_tts.jsonl"
+  "out_file_path": "med_dialoge_cleaned_text_for_tts.jsonl",
+  "min_chars": 10,
+  "max_chars": 50
 }

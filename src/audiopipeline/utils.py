@@ -5,6 +5,7 @@
 
 import os
 import json
+import re
 import librosa
 import soundfile as sf
 from tqdm import tqdm
@@ -63,3 +64,16 @@ def json_objs2jsonl_file(path: str, json_objs: List[Dict]) -> str:
         file.write(json.dumps(record, ensure_ascii=False) + "\n")
     file.close()
     return path
+
+
+def split_text_by_chinese_punctuation(sentence):
+    # Define Chinese punctuation marks
+    chinese_punctuation = '！？｡。，：；、'
+
+    # Use regular expression to split sentence by Chinese punctuation marks
+    split_sentences = re.split(r'([' + chinese_punctuation + '])', sentence)
+
+    # Remove empty strings and punctuation marks from the list
+    split_sentences = [s for s in split_sentences if s and s not in chinese_punctuation]
+
+    return split_sentences
