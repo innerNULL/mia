@@ -50,16 +50,20 @@ def run_webdriver(
     accent_option: WebElement = webdriver.find_element("id", "accent")
     accent_selector: Select = Select(accent_option)
     if random.random() <= 0.5:
-        accent_selector.select_by_visible_text("強勢腔（高雄腔）")
+        # 強勢腔（高雄腔）
+        accent_selector.select_by_index(0)
     else:
-        accent_selector.select_by_visible_text("次強勢腔（台北腔）")
+        # 次強勢腔（台北腔）
+        accent_selector.select_by_index(1)
 
     gender_option: WebElement = webdriver.find_element("id", "gender")
     gender_selector: Select = Select(gender_option)
     if random.random() <= 0.5:
-        gender_selector.select_by_visible_text("男聲")
+        # 男聲
+        gender_selector.select_by_index(0)
     else:
-        gender_selector.select_by_visible_text("女聲")
+        # 女聲
+        gender_selector.select_by_index(1)
 
     text_frame: WebElement = webdriver.find_element("id", "js-input")
     text_frame.send_keys(text)
@@ -104,8 +108,6 @@ def run_webdriver(
 if __name__ == "__main__":
     conf: Dict = json.loads(open(sys.argv[1], "r").read()) 
     print(conf)
-
-    random.seed(8)
 
     output_dir: str = os.path.abspath(conf["output_dir"])
     browser: str = conf["driver"]
