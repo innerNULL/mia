@@ -26,6 +26,7 @@ import json
 import time
 import requests
 import random
+import hashlib
 from tqdm import tqdm
 from typing import Dict, List, Final, Union, Optional
 from selenium.webdriver import Chrome, Firefox
@@ -41,66 +42,80 @@ DEBUG: Final[bool] = False
 NTUT_HOKKIEN_TTS_URL: Final[str] = "http://tts001.iptcloud.net:8804/"
 
 
+def get_downloaded_wav_file_name(transcript: str) -> str:
+    md5_hash = hashlib.md5()
+    md5_hash.update(transcript.encode('utf-8'))
+    return md5_hash.hexdigest() + ".wav"
+
+
 def run_webdriver(
     webdriver: Optional[Union[Chrome, Firefox]], text: str, download_dir: str,  
     sleep: int=1
 ) -> Dict:
-    webdriver.get(NTUT_HOKKIEN_TTS_URL)
-
-    accent_option: WebElement = webdriver.find_element("id", "accent")
-    accent_selector: Select = Select(accent_option)
-    if random.random() <= 0.5:
-        # 強勢腔（高雄腔）
-        accent_selector.select_by_index(0)
-    else:
-        # 次強勢腔（台北腔）
-        accent_selector.select_by_index(1)
-
-    gender_option: WebElement = webdriver.find_element("id", "gender")
-    gender_selector: Select = Select(gender_option)
-    if random.random() <= 0.5:
-        # 男聲
-        gender_selector.select_by_index(0)
-    else:
-        # 女聲
-        gender_selector.select_by_index(1)
-
-    text_frame: WebElement = webdriver.find_element("id", "js-input")
-    text_frame.send_keys(text)
-    time.sleep(0.5)
-
-    trans2pinyin_btn: WebElement = webdriver.find_element("id", "js-translate")
-    trans2pinyin_btn.click()
-    time.sleep(1)
+    audio_final_file: str = get_downloaded_wav_file_name(text) 
+    audio_final_path: str = os.path.join(download_dir, audio_final_file)
     
-    tts_btn: WebElement = webdriver.find_element("id", "button1")
-    tts_btn.click()
-    
-    audio: WebElement = webdriver.find_element("id", "audio1")
-    audio_source_url: str = ""
-    audio_file: str = ""
-    while audio_source_url == "":
-        audio_source_url = audio.get_attribute("src")
-        time.sleep(0.1)
+    if not os.path.exists(audio_final_path):
+        webdriver.get(NTUT_HOKKIEN_TTS_URL)
 
-    audio_file = audio_source_url.split("/")[-1] + ".wav"
+        accent_option: WebElement = webdriver.find_element("id", "accent")
+        accent_selector: Select = Select(accent_option)
+        if random.random() <= 0.5:
+            # 強勢腔（高雄腔）
+            accent_selector.select_by_index(0)
+        else:
+            # 次強勢腔（台北腔）
+            accent_selector.select_by_index(1)
 
-    webdriver.get(audio_source_url)
-    webdriver.execute_script("""
-        let aLink = document.createElement("a");
-        let videoSrc = document.querySelector("video").firstChild.src;
-        aLink.href = videoSrc;
-		aLink.download = "";
-		aLink.click();
-		aLink.remove();
-	""")
+        gender_option: WebElement = webdriver.find_element("id", "gender")
+        gender_selector: Select = Select(gender_option)
+        if random.random() <= 0.5:
+            # 男聲
+            gender_selector.select_by_index(0)
+        else:
+            # 女聲
+            gender_selector.select_by_index(1)
 
-    audio_dump_path: str = os.path.join(download_dir, audio_file)
-    while not os.path.exists(audio_dump_path):
-        time.sleep(0.1)
+        text_frame: WebElement = webdriver.find_element("id", "js-input")
+        text_frame.send_keys(text)
+        time.sleep(0.5)
+
+        trans2pinyin_btn: WebElement = webdriver.find_element("id", "js-translate")
+        trans2pinyin_btn.click()
+        time.sleep(1)
+        
+        tts_btn: WebElement = webdriver.find_element("id", "button1")
+        tts_btn.click()
+        
+        audio: WebElement = webdriver.find_element("id", "audio1")
+        audio_source_url: str = ""
+        audio_file: str = ""
+        while audio_source_url == "":
+            audio_source_url = audio.get_attribute("src")
+            time.sleep(0.1)
+
+        audio_file = audio_source_url.split("/")[-1] + ".wav"
+
+        webdriver.get(audio_source_url)
+        webdriver.execute_script("""
+            let aLink = document.createElement("a");
+            let videoSrc = document.querySelector("video").firstChild.src;
+            aLink.href = videoSrc;
+            aLink.download = "";
+            aLink.click();
+            aLink.remove();
+        """)
+
+        audio_dump_path: str = os.path.join(download_dir, audio_file)
+        while not os.path.exists(audio_dump_path):
+            time.sleep(0.1)
+
+        os.system("mv %s %s" % (audio_dump_path, audio_final_path))
+    else:
+        print("Audio %s already exists" % audio_final_path)
 
     record: Dict = {
-        "text": text, "path": audio_dump_path
+        "text": text, "path": audio_final_path
     }
     return record
 
