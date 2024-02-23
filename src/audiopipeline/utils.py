@@ -81,8 +81,8 @@ def split_text_by_chinese_punctuation(sentence):
 
 def remove_punctuations_alphabets(input_string):
     # Remove Chinese and English punctuations
-    chinese_punctuations = '，。！？【】（）《》“”‘’：；“”'
-    english_punctuations = r'''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+    chinese_punctuations = '【】（）《》“”‘’：“”'
+    english_punctuations = r'''()-[]{}:'"\<>/@#$%^&*_~+*-'''
     punctuations_pattern = f"[{re.escape(chinese_punctuations)}{re.escape(english_punctuations)}]"
 
     # Remove alphabets and numbers

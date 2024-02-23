@@ -57,6 +57,7 @@ def run_webdriver(
     webdriver: Optional[Union[Chrome, Firefox]], text: str, download_dir: str,  
     sleep: int=1
 ) -> Dict:
+    print("Calling TTS with: %s" % text)
     audio_final_file: str = get_downloaded_wav_file_name(text) 
     audio_final_path: str = os.path.join(download_dir, audio_final_file)
     
@@ -133,6 +134,8 @@ if __name__ == "__main__":
     browser: str = conf["driver"]
     text_path: str = conf["text_path"]
     headless: bool = conf["headless"]
+    min_char_num: int = conf["min_char_num"]
+    max_char_num: int = conf["max_char_num"]
 
     os.system("mkdir -p %s" % output_dir)
     
@@ -180,9 +183,15 @@ if __name__ == "__main__":
         else:
             out_metadata_file = open(out_metadata_path, "a")
 
-        sample: Dict = run_webdriver(
-            webdriver, remove_punctuations_alphabets(record["text"]), output_dir
-        )
+        processed_text: str = remove_punctuations_alphabets(record["text"])
+        
+        if len(processed_text) < min_char_num:
+            print("Skip %s" % processed_text)
+            continue
+        if len(processed_text) >  max_char_num:
+            processed_text = processed_text[:max_char_num]
+
+        sample: Dict = run_webdriver(webdriver, processed_text, output_dir)
         print("Writing:", sample)
         out_metadata_file.write(json.dumps(sample, ensure_ascii=False) + "\n")
         out_metadata_file.close()
