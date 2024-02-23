@@ -25,10 +25,12 @@ import os
 import json
 import time
 import requests
+import random
 from tqdm import tqdm
 from typing import Dict, List, Final, Union, Optional
 from selenium.webdriver import Chrome, Firefox
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.remote.webelement import WebElement
@@ -44,6 +46,20 @@ def run_webdriver(
     sleep: int=1
 ) -> Dict:
     webdriver.get(NTUT_HOKKIEN_TTS_URL)
+
+    accent_option: WebElement = webdriver.find_element("id", "accent")
+    accent_selector: Select = Select(accent_option)
+    if random.random() <= 0.5:
+        accent_selector.select_by_visible_text("強勢腔（高雄腔）")
+    else:
+        accent_selector.select_by_visible_text("次強勢腔（台北腔）")
+
+    gender_option: WebElement = webdriver.find_element("id", "gender")
+    gender_selector: Select = Select(gender_option)
+    if random.random() <= 0.5:
+        gender_selector.select_by_visible_text("男聲")
+    else:
+        gender_selector.select_by_visible_text("女聲")
 
     text_frame: WebElement = webdriver.find_element("id", "js-input")
     text_frame.send_keys(text)
@@ -88,6 +104,8 @@ def run_webdriver(
 if __name__ == "__main__":
     conf: Dict = json.loads(open(sys.argv[1], "r").read()) 
     print(conf)
+
+    random.seed(8)
 
     output_dir: str = os.path.abspath(conf["output_dir"])
     browser: str = conf["driver"]
