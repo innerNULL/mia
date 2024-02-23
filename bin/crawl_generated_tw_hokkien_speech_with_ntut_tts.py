@@ -37,6 +37,11 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.remote.webelement import WebElement
 from pyvirtualdisplay import Display
 
+sys.path.append(
+    os.path.join(os.path.dirname(__file__), "..", "src")
+)
+from audiopipeline.utils import remove_punctuations_alphabets
+
 
 DEBUG: Final[bool] = False
 NTUT_HOKKIEN_TTS_URL: Final[str] = "http://tts001.iptcloud.net:8804/"
@@ -175,7 +180,9 @@ if __name__ == "__main__":
         else:
             out_metadata_file = open(out_metadata_path, "a")
 
-        sample: Dict = run_webdriver(webdriver, record["text"], output_dir)
+        sample: Dict = run_webdriver(
+            webdriver, remove_punctuations_alphabets(record["text"]), output_dir
+        )
         print("Writing:", sample)
         out_metadata_file.write(json.dumps(sample, ensure_ascii=False) + "\n")
         out_metadata_file.close()
