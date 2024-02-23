@@ -27,6 +27,7 @@ import time
 import requests
 import random
 import hashlib
+import opencc
 from tqdm import tqdm
 from typing import Dict, List, Final, Union, Optional
 from selenium.webdriver import Chrome, Firefox
@@ -185,7 +186,9 @@ if __name__ == "__main__":
         else:
             out_metadata_file = open(out_metadata_path, "a")
 
-        processed_text: str = remove_punctuations_alphabets(record["text"])
+        processed_text: str = opencc.OpenCC('s2tw.json').convert(
+            remove_punctuations_alphabets(record["text"])
+        )
         
         if len(processed_text) < min_char_num:
             print("Skip %s" % processed_text)
