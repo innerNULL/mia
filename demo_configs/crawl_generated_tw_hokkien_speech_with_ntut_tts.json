@@ -4,5 +4,6 @@
   "driver": "chrome",
   "headless": true,
   "min_char_num": 10,
-  "max_char_num": 50
+  "max_char_num": 50,
+  "sleep": 0.5
 }

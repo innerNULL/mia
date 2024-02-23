@@ -117,6 +117,7 @@ def run_webdriver(
             time.sleep(0.1)
 
         os.system("mv %s %s" % (audio_dump_path, audio_final_path))
+        time.sleep(sleep)
     else:
         print("Audio %s already exists" % audio_final_path)
 
@@ -136,6 +137,7 @@ if __name__ == "__main__":
     headless: bool = conf["headless"]
     min_char_num: int = conf["min_char_num"]
     max_char_num: int = conf["max_char_num"]
+    sleep_sec: int = conf["sleep"]
 
     os.system("mkdir -p %s" % output_dir)
     
@@ -191,7 +193,7 @@ if __name__ == "__main__":
         if len(processed_text) >  max_char_num:
             processed_text = processed_text[:max_char_num]
 
-        sample: Dict = run_webdriver(webdriver, processed_text, output_dir)
+        sample: Dict = run_webdriver(webdriver, processed_text, output_dir, sleep_sec)
         print("Writing:", sample)
         out_metadata_file.write(json.dumps(sample, ensure_ascii=False) + "\n")
         out_metadata_file.close()
