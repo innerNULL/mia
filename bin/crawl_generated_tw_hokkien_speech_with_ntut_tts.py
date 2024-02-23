@@ -110,11 +110,13 @@ if __name__ == "__main__":
     output_dir: str = os.path.abspath(conf["output_dir"])
     browser: str = conf["driver"]
     text_path: str = conf["text_path"]
+    headless: bool = conf["headless"]
 
     os.system("mkdir -p %s" % output_dir)
     
-    display: Display = Display(visible=0, size=(800, 600))
-    display.start()
+    if headless:
+        display: Display = Display(visible=0, size=(800, 600))
+        display.start()
 
     webdriver: Optional[Union[Chrome, Firefox]] = None
     options: Optional[Union[ChromeOptions, FirefoxOptions]] = None
@@ -162,4 +164,5 @@ if __name__ == "__main__":
         out_metadata_file.close()
     
     webdriver.quit()
-    display.stop()
+    if headless:
+        display.stop()

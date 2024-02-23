@@ -1,5 +1,6 @@
 {
   "output_dir": "./_crawl_generated_tw_hokkien_speech_with_ntut_tts",
   "text_path": "./demo_data/crawl_generated_tw_hokkien_speech_with_ntut_tts.jsonl", 
-  "driver": "chrome"
+  "driver": "chrome",
+  "headless": false
 }
