@@ -63,34 +63,42 @@ def run_webdriver(
     audio_final_path: str = os.path.join(download_dir, audio_final_file)
     
     if not os.path.exists(audio_final_path):
+        print("webdriver: Opening %s" % NTUT_HOKKIEN_TTS_URL)
         webdriver.get(NTUT_HOKKIEN_TTS_URL)
 
         accent_option: WebElement = webdriver.find_element("id", "accent")
         accent_selector: Select = Select(accent_option)
         if random.random() <= 0.5:
             # 強勢腔（高雄腔）
+            print("webdriver: Switch to 強勢腔（高雄腔）accent")
             accent_selector.select_by_index(0)
         else:
             # 次強勢腔（台北腔）
+            print("webdriver: Switch to 次強勢腔（台北腔）accent")
             accent_selector.select_by_index(1)
 
         gender_option: WebElement = webdriver.find_element("id", "gender")
         gender_selector: Select = Select(gender_option)
         if random.random() <= 0.5:
             # 男聲
+            print("webdriver: Switch to 男聲")
             gender_selector.select_by_index(0)
         else:
             # 女聲
+            print("webdriver: Switch to 女聲")
             gender_selector.select_by_index(1)
 
+        print("webdriver: Copy text to text frame")
         text_frame: WebElement = webdriver.find_element("id", "js-input")
         text_frame.send_keys(text)
         time.sleep(0.5)
 
+        print("webdriver: Generate Taiwanese pinyin")
         trans2pinyin_btn: WebElement = webdriver.find_element("id", "js-translate")
         trans2pinyin_btn.click()
         time.sleep(1)
-        
+       
+        print("webdriver: Generate audio")
         tts_btn: WebElement = webdriver.find_element("id", "button1")
         tts_btn.click()
         
@@ -100,9 +108,10 @@ def run_webdriver(
         while audio_source_url == "":
             audio_source_url = audio.get_attribute("src")
             time.sleep(0.1)
-
+       
         audio_file = audio_source_url.split("/")[-1] + ".wav"
-
+        
+        print("webdriver: Download generated audio")
         webdriver.get(audio_source_url)
         webdriver.execute_script("""
             let aLink = document.createElement("a");
