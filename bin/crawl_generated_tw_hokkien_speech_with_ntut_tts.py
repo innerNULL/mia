@@ -29,7 +29,7 @@ import random
 import hashlib
 import opencc
 from tqdm import tqdm
-from typing import Dict, List, Final, Union, Optional
+from typing import Dict, List, Final, Union, Optional, Any
 from selenium.webdriver import Chrome, Firefox
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
@@ -127,25 +127,7 @@ def run_webdriver(
     }
     return record
 
-
-if __name__ == "__main__":
-    conf: Dict = json.loads(open(sys.argv[1], "r").read()) 
-    print(conf)
-
-    output_dir: str = os.path.abspath(conf["output_dir"])
-    browser: str = conf["driver"]
-    text_path: str = conf["text_path"]
-    headless: bool = conf["headless"]
-    min_char_num: int = conf["min_char_num"]
-    max_char_num: int = conf["max_char_num"]
-    sleep_sec: int = conf["sleep"]
-
-    os.system("mkdir -p %s" % output_dir)
-    
-    if headless:
-        display: Display = Display(visible=0, size=(800, 600))
-        display.start()
-
+def webdriver_init(browser: str) -> Any:
     webdriver: Optional[Union[Chrome, Firefox]] = None
     options: Optional[Union[ChromeOptions, FirefoxOptions]] = None
     
@@ -174,7 +156,32 @@ if __name__ == "__main__":
         webdriver = Chrome(options=options)
         params = {'behavior': 'allow', 'downloadPath': output_dir}
         webdriver.execute_cdp_cmd('Page.setDownloadBehavior', params)
+
+    return webdriver
+
+
+if __name__ == "__main__":
+    os.environ["DBUS_SESSION_BUS_ADDRESS"] = "/some/nonsense"
+
+    conf: Dict = json.loads(open(sys.argv[1], "r").read()) 
+    print(conf)
+
+    output_dir: str = os.path.abspath(conf["output_dir"])
+    browser: str = conf["driver"]
+    text_path: str = conf["text_path"]
+    headless: bool = conf["headless"]
+    min_char_num: int = conf["min_char_num"]
+    max_char_num: int = conf["max_char_num"]
+    sleep_sec: int = conf["sleep"]
+
+    os.system("mkdir -p %s" % output_dir)
     
+    if headless:
+        display: Display = Display(visible=0, size=(800, 600))
+        display.start()
+    
+    webdriver: Any = webdriver_init(browser)
+        
     text_data: List[Dict] = [
         json.loads(x) for x in open(text_path, "r").read().split("\n") if x not in {""}
     ]
