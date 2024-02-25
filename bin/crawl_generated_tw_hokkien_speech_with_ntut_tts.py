@@ -105,9 +105,15 @@ def run_webdriver(
         audio: WebElement = webdriver.find_element("id", "audio1")
         audio_source_url: str = ""
         audio_file: str = ""
+        accu_secs: int = 0
         while audio_source_url == "":
+            if accu_secs > 30:
+                print("webdriver: Timeout in audio generation, will re-run")
+                return run_webdriver(webdriver, text, download_dir, sleep) 
+
             audio_source_url = audio.get_attribute("src")
             time.sleep(0.1)
+            accu_secs += 0.1
        
         audio_file = audio_source_url.split("/")[-1] + ".wav"
         
