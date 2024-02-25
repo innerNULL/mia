@@ -210,7 +210,7 @@ if __name__ == "__main__":
 
         processed_text: str = opencc.OpenCC('s2tw.json').convert(
             remove_punctuations_alphabets(record["text"])
-        )
+        ).strip(" ").strip("\t").strip("\n")
         
         if len(processed_text) < min_char_num:
             print("Skip %s" % processed_text)
