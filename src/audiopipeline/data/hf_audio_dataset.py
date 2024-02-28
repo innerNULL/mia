@@ -69,6 +69,7 @@ class HfAudioDataset:
     def get_final_datasets(self, argumentation_splits: List[str]="train") -> DatasetDict:
         datasets: DatasetDict = copy.deepcopy(self.static_datasets)
         for split in datasets:
+            print("Building final %s dataset" % split)
             dataset: Dataset = datasets[split].shuffle()
             dataset.cleanup_cache_files()
 
@@ -121,6 +122,7 @@ class DataArgumentationCallback(TrainerCallback):
 def datasetdict_load_jsonl(
     train_data_path: str, dev_data_path: str, test_data_path: str
 ) -> DatasetDict:
+    print("Runing dataset dict JSONL loader")
     dataset: DatasetDict = DatasetDict()
 
     if train_data_path is not None:
@@ -137,6 +139,7 @@ def dataset_load_audio(
     jsonl_dataset: Dataset, 
     sampling_rate: int=16000, audio_path_col: str="path", audio_col: str="audio"
 ) -> Dataset:
+    print("Running dataset audio loader")
     dataset: Dataset = jsonl_dataset.add_column(
         audio_col, jsonl_dataset[audio_path_col]
     )
@@ -160,6 +163,7 @@ def sample_audio_time_domain_argumentation(
 def dataset_audio_time_domain_argumentation(
     audio_dataset: Dataset, audio_col: str, sample_rate: int
 ) -> Dataset:
+    print("Running time domain data argumentation")
     return audio_dataset.map(
         sample_audio_time_domain_argumentation, 
         fn_kwargs={"audio_col": audio_col, "sample_rate": sample_rate}
@@ -169,8 +173,10 @@ def dataset_audio_time_domain_argumentation(
 def dataset_raw_transcript_processor(
     audio_dataset: Dataset, text_col: str, lang: str
 ) -> Dataset:
+    print("Running dataset raw text pre-processing")
     dataset: Dataset = audio_dataset
     if lang in {"zh-TW", "mandarin"}:
+        print("Converting %s to simplified Chinese" % lang)
         def convert_text(example: Dict, text_col: str) -> Dict:
             converter: opencc.OpenCC = opencc.OpenCC('tw2s.json')
             example[text_col] = converter.convert(example[text_col])
@@ -199,6 +205,7 @@ def dataset_run_hf_processor(
     audio_col: str, text_col: str, 
     duration_col: str="input_length"
 ) -> Dataset:
+    print("Running dataset HuggingFace processor")
     dataset: Dataset = audio_dataset.map(
         sample_hf_processor, 
         fn_kwargs={
@@ -211,6 +218,7 @@ def dataset_run_hf_processor(
 
 
 def dataset_audio_freq_domain_argumentation(spectrum_dataset: Dataset) -> Dataset:
+    print("Running dataset frequent domain data argumentation")
     return spectrum_dataset
 
 
@@ -232,6 +240,7 @@ def dataset_filter(
     min_duration: int, max_duration: int, max_label_len: int,
     duration_col: str="input_length"
 ) -> Dataset:
+    print("Running dataset filter")
     dataset: Dataset = hf_processed_dataset.filter(
         sample_filter_flag, 
         input_columns=[duration_col, "labels"],

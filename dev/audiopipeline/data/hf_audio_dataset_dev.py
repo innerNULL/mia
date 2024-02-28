@@ -9,6 +9,7 @@
 import pdb
 import sys
 import os
+from datasets import disable_caching
 from typing import Dict, List
 from datasets import DatasetDict, Dataset
 from transformers import WhisperProcessor
@@ -29,32 +30,12 @@ DURATION_COL: str = "input_length"
 if __name__ == "__main__":
     jsonl_data_path: str = sys.argv[1]
 
+    disable_caching()
+
     processor: WhisperProcessor = WhisperProcessor.from_pretrained(
         "openai/whisper-small", language="mandarin", task="transcribe"
     )
 
-    """
-    raw_datasets: DatasetDict = hf_audio_dataset.datasetdict_load_jsonl(
-        jsonl_data_path, jsonl_data_path, jsonl_data_path
-    )
-    print("Finished generate `raw_datasets`")
-    
-    for split in raw_datasets:
-        dataset: Dataset = raw_datasets[split]
-        print(dataset[0])
-        dataset = hf_audio_dataset.dataset_load_audio(dataset)
-        print(dataset[0])
-        dataset = hf_audio_dataset.dataset_audio_time_domain_argumentation(dataset)
-        print(dataset[0])
-        dataset = hf_audio_dataset.dataset_raw_transcript_processor(
-            dataset, text_col=TRANSCRIPT_COL, lang=LANG
-        )
-        print(dataset[0])
-        dataset = hf_audio_dataset.dataset_run_hf_processor(
-            dataset, processor, AUDIO_COL, TRANSCRIPT_COL, DURATION_COL
-        )
-        #print(dataset[0])
-    """
     dataset: HfAudioDataset = HfAudioDataset(
         jsonl_data_path, jsonl_data_path, jsonl_data_path, processor, 
         sampling_rate=16000, 
@@ -63,8 +44,13 @@ if __name__ == "__main__":
         audio_col=AUDIO_COL, duration_col=DURATION_COL,
         max_duration=3
     )
-    final_datasets: DatasetDict = dataset.get_final_datasets()
-    train_dataset: Dataset = final_datasets["train"]
-    print(train_dataset[0]["text"])
-    print(dataset.get_final_datasets()["train"][0]["text"])
+
+    final_data0 = dataset.get_final_datasets()
+    final_data1 = dataset.get_final_datasets()
+
+    print(final_data0["train"][0]["text"])
+    print(final_data1["train"][0]["text"])
+    
+    print([x["text"] for x in final_data1["train"]][:50])
+    print([x["text"] for x in dataset.static_datasets["train"]][:50])
     #pdb.set_trace()
