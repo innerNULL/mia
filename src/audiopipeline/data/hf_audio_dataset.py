@@ -124,6 +124,7 @@ class DataArgumentationCallback(TrainerCallback):
             pass
         else:
             print("Re-constructing training dataset")
+            self.trainer.train_dataset = None
             self.trainer.train_dataset = self.dataset.get_final_datasets()["train"]
 
 
