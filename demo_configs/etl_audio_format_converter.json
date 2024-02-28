@@ -1,0 +1,11 @@
+{
+  "metadata_jsonl_path": "src_metadata.jsonl",
+  "output_dir": "_converted_audios",
+  "target_fmt": "wav",
+  "target_sample_rate": 16000,
+  "target_bit_depth": 16,
+  "channels": 1,
+  "ffmpeg": "/usr/bin/ffmpeg",
+  "path_col": "path",
+  "transcript_col": "transcript"
+}

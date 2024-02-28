@@ -4,6 +4,8 @@
 
 
 import os
+import json
+import re
 import librosa
 import soundfile as sf
 from tqdm import tqdm
@@ -55,3 +57,42 @@ def chunk_audio_with_subtitle_chunks(
 
     return out
 
+
+def json_objs2jsonl_file(path: str, json_objs: List[Dict]) -> str:
+    file = open(path, "w")
+    for record in json_objs:
+        file.write(json.dumps(record, ensure_ascii=False) + "\n")
+    file.close()
+    return path
+
+
+def split_text_by_chinese_punctuation(sentence):
+    # Define Chinese punctuation marks
+    chinese_punctuation = '！？｡。，：；、'
+
+    # Use regular expression to split sentence by Chinese punctuation marks
+    split_sentences = re.split(r'([' + chinese_punctuation + '])', sentence)
+
+    # Remove empty strings and punctuation marks from the list
+    split_sentences = [s for s in split_sentences if s and s not in chinese_punctuation]
+
+    return split_sentences
+
+
+def remove_punctuations_alphabets(input_string):
+    # Remove Chinese and English punctuations
+    chinese_punctuations = '【】（）《》“”‘’：“”'
+    english_punctuations = r'''()-[]{}:'"\<>/@#$%^&*_~+*-'''
+    punctuations_pattern = f"[{re.escape(chinese_punctuations)}{re.escape(english_punctuations)}]"
+
+    # Remove alphabets and numbers
+    #alphanum_pattern = r'[A-Za-z0-9]'
+    alphanum_pattern = r'[A-Za-z]'
+
+    # Combine patterns
+    combined_pattern = f'{punctuations_pattern}|{alphanum_pattern}'
+
+    # Remove specified characters using regex
+    result = re.sub(combined_pattern, '', input_string)
+
+    return result

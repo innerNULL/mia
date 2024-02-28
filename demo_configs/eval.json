@@ -1,0 +1,7 @@
+{
+  "asr_results_path": "asr_results.jsonl",
+  "target_col": "transcript",
+  "output_col": "asr", 
+  "lang": "zh-tw",
+  "text_norm": false
+}
