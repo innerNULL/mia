@@ -1,3 +1,0 @@
--r ./requirements.txt
-accelerate==0.27.2
-augly==1.0.0
