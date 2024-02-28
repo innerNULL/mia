@@ -28,7 +28,8 @@ class HfAudioDataset:
         audio_col: str="audio",
         duration_col: str="input_length",
         min_duration: int=0, max_duration: int=30, 
-        max_label_len: int=448
+        max_label_len: int=448,
+        num_proc: int=4
     ):
         self.processor: WhisperProcessor = processor
         self.train_data_path: str = train_data_path
@@ -43,6 +44,7 @@ class HfAudioDataset:
         self.min_duration: int = min_duration
         self.max_duration: int = max_duration
         self.max_label_len: int = max_label_len
+        self.num_proc: int = num_proc
 
         self.static_datasets: DatasetDict = None
 
@@ -75,18 +77,20 @@ class HfAudioDataset:
 
             if split in argumentation_splits:
                 dataset = dataset_audio_time_domain_argumentation(
-                    dataset, self.audio_col, self.sampling_rate
+                    dataset, self.audio_col, self.sampling_rate, 
+                    num_proc=self.num_proc
                 )
                 dataset.cleanup_cache_files()
 
             dataset = dataset_raw_transcript_processor(
-                dataset, text_col=self.text_col, lang=self.lang
+                dataset, text_col=self.text_col, lang=self.lang, num_proc=self.num_proc
             )
             dataset.cleanup_cache_files()
 
             dataset = dataset_run_hf_processor(
                 dataset, 
-                self.processor, self.audio_col, self.text_col, self.duration_col 
+                self.processor, self.audio_col, self.text_col, self.duration_col, 
+                num_proc=self.num_proc
             )
             dataset.cleanup_cache_files()
 
@@ -165,17 +169,20 @@ def sample_audio_time_domain_argumentation(
 
 
 def dataset_audio_time_domain_argumentation(
-    audio_dataset: Dataset, audio_col: str, sample_rate: int
+    audio_dataset: Dataset, audio_col: str, sample_rate: int, 
+    num_proc: int=4
 ) -> Dataset:
     print("Running time domain data argumentation")
     return audio_dataset.map(
         sample_audio_time_domain_argumentation, 
-        fn_kwargs={"audio_col": audio_col, "sample_rate": sample_rate}
+        fn_kwargs={"audio_col": audio_col, "sample_rate": sample_rate},
+        num_proc=num_proc
     )
 
 
 def dataset_raw_transcript_processor(
-    audio_dataset: Dataset, text_col: str, lang: str
+    audio_dataset: Dataset, text_col: str, lang: str,
+    num_proc: int=4
 ) -> Dataset:
     print("Running dataset raw text pre-processing")
     dataset: Dataset = audio_dataset
@@ -186,7 +193,8 @@ def dataset_raw_transcript_processor(
             example[text_col] = converter.convert(example[text_col])
             return example
         dataset = dataset.map(
-            convert_text, fn_kwargs={"text_col": text_col}
+            convert_text, fn_kwargs={"text_col": text_col}, 
+            num_proc=num_proc
         )
     return dataset
 
@@ -207,7 +215,8 @@ def sample_hf_processor(
 def dataset_run_hf_processor(
     audio_dataset: Dataset, processor: WhisperProcessor, 
     audio_col: str, text_col: str, 
-    duration_col: str="input_length"
+    duration_col: str="input_length", 
+    num_proc: int=4
 ) -> Dataset:
     print("Running dataset HuggingFace processor")
     dataset: Dataset = audio_dataset.map(
@@ -216,7 +225,8 @@ def dataset_run_hf_processor(
             "processor": processor, 
             "audio_col": audio_col, "text_col": text_col, 
             "duration_col": duration_col
-        }
+        },
+        num_proc=num_proc
     )
     return dataset
 
