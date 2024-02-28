@@ -10,10 +10,10 @@ pandas==2.2.0
 git+https://github.com/ytdl-org/youtube-dl.git@4416f82c809a81737d68875dcb201e366d58dabd
 # Model related
 numba==0.58.1
-numpy==1.26.3
-torch==2.1.2
-torchaudio==2.1.2
-datasets==2.16.1
+numpy>=1.26.3
+torch>=2.1.2
+torchaudio>=2.1.2
+datasets>=2.16.1
 tqdm==4.66.1
 more-itertools==10.2.0
 tiktoken==0.5.2
