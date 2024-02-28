@@ -116,7 +116,11 @@ class DataArgumentationCallback(TrainerCallback):
         args: TrainingArguments, state: TrainerState, control: TrainerControl, 
         **kwargs
     ):
-        self.trainer.train_dataset = self.dataset.get_final_datasets()["train"]
+        if state.epoch == 0 and self.trainer.train_dataset is not None:
+            pass
+        else:
+            print("Re-constructing training dataset")
+            self.trainer.train_dataset = self.dataset.get_final_datasets()["train"]
 
 
 def datasetdict_load_jsonl(
