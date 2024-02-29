@@ -31,7 +31,9 @@ class HfAudioDataset:
         min_duration: int=0, max_duration: int=30, 
         max_label_len: int=448,
         num_proc: int=4, 
-        keep_static_data: bool=False
+        keep_static_data: bool=False,
+        waveform_argument_splits: List[str]=["train"],
+        spec_argument_splits: List[str]=["train"]
     ):
         self.processor: WhisperProcessor = processor
         self.train_data_path: str = train_data_path
@@ -48,6 +50,8 @@ class HfAudioDataset:
         self.max_label_len: int = max_label_len
         self.num_proc: int = num_proc
         self.keep_static_data: bool = keep_static_data
+        self.waveform_argument_splits: List[str] = waveform_argument_splits
+        self.spec_argument_splits: List[str] = spec_argument_splits
 
         self.static_datasets: DatasetDict = None
         
@@ -75,11 +79,7 @@ class HfAudioDataset:
 
         return datasets
 
-    def get_final_datasets(
-        self, 
-        waveform_argument_splits: List[str]=["train"],
-        spec_argument_splits: List[str]=["train"],
-    ) -> DatasetDict:
+    def get_final_datasets(self) -> DatasetDict:
         datasets: DatasetDict = None
         if self.keep_static_data and self.static_datasets is not None:
             print("Re-use pre-computed static dataset")
@@ -93,7 +93,7 @@ class HfAudioDataset:
             dataset: Dataset = datasets[split].shuffle()
             dataset.cleanup_cache_files()
 
-            if split in waveform_argument_splits:
+            if split in self.waveform_argument_splits:
                 dataset = dataset_audio_time_domain_argumentation(
                     dataset, self.audio_col, self.sampling_rate, 
                     num_proc=self.num_proc
@@ -112,7 +112,7 @@ class HfAudioDataset:
             )
             dataset.cleanup_cache_files()
 
-            if split in spec_argument_splits:
+            if split in self.spec_argument_splits:
                 dataset = dataset_audio_freq_domain_argumentation(dataset)
                 dataset.cleanup_cache_files()
 

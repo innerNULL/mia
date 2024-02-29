@@ -42,11 +42,13 @@ if __name__ == "__main__":
         lang=LANG, 
         audio_path_col="path", text_col=TRANSCRIPT_COL, 
         audio_col=AUDIO_COL, duration_col=DURATION_COL,
-        max_duration=3
+        max_duration=3, 
+        waveform_argument_splits=[],
+        spec_argument_splits=["train"]
     )
 
-    final_data0 = dataset.get_final_datasets([], ["train"])
-    final_data1 = dataset.get_final_datasets([], ["train"])
+    final_data0 = dataset.get_final_datasets()
+    final_data1 = dataset.get_final_datasets()
 
     print(final_data0["train"][0]["text"])
     print(final_data1["train"][0]["text"])
