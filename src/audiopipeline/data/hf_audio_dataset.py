@@ -29,7 +29,8 @@ class HfAudioDataset:
         duration_col: str="input_length",
         min_duration: int=0, max_duration: int=30, 
         max_label_len: int=448,
-        num_proc: int=4
+        num_proc: int=4, 
+        keep_static_data: bool=False
     ):
         self.processor: WhisperProcessor = processor
         self.train_data_path: str = train_data_path
@@ -45,10 +46,15 @@ class HfAudioDataset:
         self.max_duration: int = max_duration
         self.max_label_len: int = max_label_len
         self.num_proc: int = num_proc
+        self.keep_static_data: bool = keep_static_data
 
         self.static_datasets: DatasetDict = None
-
-        self.init_static_datasets()
+        
+        if self.keep_static_data:
+            print("Pre-compute and keep static dataset")
+            self.static_datasets = self.init_static_datasets()
+        else:
+            print("Static dataset will not be kept in memory")
 
     def init_static_datasets(self) -> None:
         datasets: DatasetDict = datasetdict_load_jsonl(
@@ -66,10 +72,17 @@ class HfAudioDataset:
             dataset.cleanup_cache_files()
             datasets[split] = dataset
 
-        self.static_datasets = datasets
+        return datasets
 
     def get_final_datasets(self, argumentation_splits: List[str]="train") -> DatasetDict:
-        datasets: DatasetDict = copy.deepcopy(self.static_datasets)
+        datasets: DatasetDict = None
+        if self.keep_static_data and self.static_datasets is not None:
+            print("Re-use pre-computed static dataset")
+            datasets = copy.deepcopy(self.static_datasets)
+        else:
+            print("Constructing static dataset")
+            datasets = self.init_static_datasets() 
+
         for split in datasets:
             print("Building final %s dataset" % split)
             dataset: Dataset = datasets[split].shuffle()
@@ -131,7 +144,7 @@ class DataArgumentationCallback(TrainerCallback):
 def datasetdict_load_jsonl(
     train_data_path: str, dev_data_path: str, test_data_path: str
 ) -> DatasetDict:
-    print("Runing dataset dict JSONL loader")
+    print("Running dataset dict JSONL loader")
     dataset: DatasetDict = DatasetDict()
 
     if train_data_path is not None:
