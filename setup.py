@@ -41,7 +41,7 @@ if __name__ == "__main__":
         author_email="",
         description="Lib for Audio Pipelines",
         url="https://github.com/innerNULL/audiopipeline",
-        python_requires='>=3.9, <=3.11',
+        python_requires='>=3.8, <=3.11',
         install_requires=get_install_deps()[0], 
         dependency_links=get_install_deps()[1],
         package_dir={"": "src"},
