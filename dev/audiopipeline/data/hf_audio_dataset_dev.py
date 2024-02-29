@@ -52,5 +52,5 @@ if __name__ == "__main__":
     print(final_data1["train"][0]["text"])
     
     print([x["text"] for x in final_data1["train"]][:50])
-    print([x["text"] for x in dataset.static_datasets["train"]][:50])
+    print([x["text"] for x in dataset.get_static_datasets()["train"]][:50])
     #pdb.set_trace()

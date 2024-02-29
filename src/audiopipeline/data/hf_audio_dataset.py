@@ -52,11 +52,11 @@ class HfAudioDataset:
         
         if self.keep_static_data:
             print("Pre-compute and keep static dataset")
-            self.static_datasets = self.init_static_datasets()
+            self.static_datasets = self.get_static_datasets()
         else:
             print("Static dataset will not be kept in memory")
 
-    def init_static_datasets(self) -> None:
+    def get_static_datasets(self) -> None:
         datasets: DatasetDict = datasetdict_load_jsonl(
             self.train_data_path, 
             self.dev_data_path, self.test_data_path
@@ -81,7 +81,7 @@ class HfAudioDataset:
             datasets = copy.deepcopy(self.static_datasets)
         else:
             print("Constructing static dataset")
-            datasets = self.init_static_datasets() 
+            datasets = self.get_static_datasets() 
 
         for split in datasets:
             print("Building final %s dataset" % split)
@@ -138,6 +138,7 @@ class DataArgumentationCallback(TrainerCallback):
         else:
             print("Re-constructing training dataset")
             self.trainer.train_dataset = None
+            print("Free existing final dataset")
             self.trainer.train_dataset = self.dataset.get_final_datasets()["train"]
 
 
