@@ -75,7 +75,11 @@ class HfAudioDataset:
 
         return datasets
 
-    def get_final_datasets(self, argumentation_splits: List[str]="train") -> DatasetDict:
+    def get_final_datasets(
+        self, 
+        waveform_argument_splits: List[str]=["train"],
+        spec_argument_splits: List[str]=["train"],
+    ) -> DatasetDict:
         datasets: DatasetDict = None
         if self.keep_static_data and self.static_datasets is not None:
             print("Re-use pre-computed static dataset")
@@ -89,7 +93,7 @@ class HfAudioDataset:
             dataset: Dataset = datasets[split].shuffle()
             dataset.cleanup_cache_files()
 
-            if split in argumentation_splits:
+            if split in waveform_argument_splits:
                 dataset = dataset_audio_time_domain_argumentation(
                     dataset, self.audio_col, self.sampling_rate, 
                     num_proc=self.num_proc
@@ -108,7 +112,7 @@ class HfAudioDataset:
             )
             dataset.cleanup_cache_files()
 
-            if split in argumentation_splits:
+            if split in spec_argument_splits:
                 dataset = dataset_audio_freq_domain_argumentation(dataset)
                 dataset.cleanup_cache_files()
 

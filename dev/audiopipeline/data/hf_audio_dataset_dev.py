@@ -45,8 +45,8 @@ if __name__ == "__main__":
         max_duration=3
     )
 
-    final_data0 = dataset.get_final_datasets()
-    final_data1 = dataset.get_final_datasets()
+    final_data0 = dataset.get_final_datasets([], ["train"])
+    final_data1 = dataset.get_final_datasets([], ["train"])
 
     print(final_data0["train"][0]["text"])
     print(final_data1["train"][0]["text"])
