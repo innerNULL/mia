@@ -16,6 +16,7 @@ from transformers import Trainer, TrainerCallback
 from transformers import TrainingArguments, TrainerState, TrainerControl
 
 from . import argumentation
+from .argumentation import spec_argument
 
 
 class HfAudioDataset:
@@ -246,9 +247,24 @@ def dataset_run_hf_processor(
     return dataset
 
 
-def dataset_audio_freq_domain_argumentation(spectrum_dataset: Dataset) -> Dataset:
+def sample_audio_freq_domain_argumentation(example: Dict) -> Dict:
+    example["input_features"] = spec_argument(
+        example["input_features"],
+        freq_axis=1, time_axis=2, 
+        freq_masking_prob=0.7, freq_max_masking_ratio=0.1, 
+        time_masking_prob=0.7, time_max_masking_ratio=0.1
+    )
+    return example
+
+
+def dataset_audio_freq_domain_argumentation(
+    spectrum_dataset: Dataset, num_proc: int=4
+) -> Dataset:
     print("Running dataset frequent domain data argumentation")
-    return spectrum_dataset
+    return spectrum_dataset.map(
+        sample_audio_freq_domain_argumentation, fn_kwargs={}, 
+        num_proc=num_proc
+    )
 
 
 def sample_filter_flag(

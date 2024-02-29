@@ -9,7 +9,7 @@
 import pdb
 import sys
 import os
-from datasets import disable_caching
+from datasets import set_caching_enabled
 from typing import Dict, List
 from datasets import DatasetDict, Dataset
 from transformers import WhisperProcessor
@@ -30,7 +30,7 @@ DURATION_COL: str = "input_length"
 if __name__ == "__main__":
     jsonl_data_path: str = sys.argv[1]
 
-    disable_caching()
+    set_caching_enabled(False)
 
     processor: WhisperProcessor = WhisperProcessor.from_pretrained(
         "openai/whisper-small", language="mandarin", task="transcribe"
@@ -53,4 +53,4 @@ if __name__ == "__main__":
     
     print([x["text"] for x in final_data1["train"]][:50])
     print([x["text"] for x in dataset.get_static_datasets()["train"]][:50])
-    #pdb.set_trace()
+    pdb.set_trace()
