@@ -33,7 +33,6 @@ class HfAudioDataset:
         num_proc: int=4, 
         keep_static_data: bool=False,
         waveform_argument_splits: List[str]=["train"],
-        spec_argument_splits: List[str]=["train"]
     ):
         self.processor: WhisperProcessor = processor
         self.train_data_path: str = train_data_path
@@ -51,7 +50,6 @@ class HfAudioDataset:
         self.num_proc: int = num_proc
         self.keep_static_data: bool = keep_static_data
         self.waveform_argument_splits: List[str] = waveform_argument_splits
-        self.spec_argument_splits: List[str] = spec_argument_splits
 
         self.static_datasets: DatasetDict = None
         
@@ -111,10 +109,6 @@ class HfAudioDataset:
                 num_proc=self.num_proc
             )
             dataset.cleanup_cache_files()
-
-            if split in self.spec_argument_splits:
-                dataset = dataset_audio_freq_domain_argumentation(dataset)
-                dataset.cleanup_cache_files()
 
             dataset = dataset_filter(
                 dataset, 
@@ -249,26 +243,6 @@ def dataset_run_hf_processor(
         num_proc=num_proc
     )
     return dataset
-
-
-def sample_audio_freq_domain_argumentation(example: Dict) -> Dict:
-    example["input_features"] = spec_argument(
-        example["input_features"],
-        freq_axis=1, time_axis=2, 
-        freq_masking_prob=0.7, freq_max_masking_ratio=0.1, 
-        time_masking_prob=0.7, time_max_masking_ratio=0.1
-    )
-    return example
-
-
-def dataset_audio_freq_domain_argumentation(
-    spectrum_dataset: Dataset, num_proc: int=4
-) -> Dataset:
-    print("Running dataset frequent domain data argumentation")
-    return spectrum_dataset.map(
-        sample_audio_freq_domain_argumentation, fn_kwargs={}, 
-        num_proc=num_proc
-    )
 
 
 def sample_filter_flag(

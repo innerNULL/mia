@@ -3,22 +3,24 @@
 # date: 2024-02-27
 #
 # Usage:
-# python dev/audiopipeline/data/hf_audio_dataset_dev.py common_voice_16_1_dev.jsonl
+# python dev/audiopipeline/data/collator_dev.py ./common_voice_16_1_dev.jsonl
 
 
 import pdb
 import sys
 import os
+from torch import Tensor
 from datasets import set_caching_enabled
 from typing import Dict, List
 from datasets import DatasetDict, Dataset
 from transformers import WhisperProcessor
 
-sys.path.append(
-    os.path.join(os.path.dirname(__file__), "../../../src")
-)
+#sys.path.append(
+#    os.path.join(os.path.dirname(__file__), "../../../src")
+#)
 from audiopipeline.data import hf_audio_dataset
 from audiopipeline.data.hf_audio_dataset import HfAudioDataset
+from audiopipeline.data.collator import HfDataCollatorSpeechSeq2SeqWithPadding
 
 
 LANG: str = "zh-TW"
@@ -45,13 +47,19 @@ if __name__ == "__main__":
         max_duration=3, 
         waveform_argument_splits=[]
     )
+    collator: HfDataCollatorSpeechSeq2SeqWithPadding = \
+        HfDataCollatorSpeechSeq2SeqWithPadding(
+            processor=processor, tokenizer=None, 
+            model_input_col="input_features", model_label_col="labels", 
+            spec_argument=True, 
+            freq_masking_prob=0.7, freq_max_masking_ratio=0.1, 
+            time_masking_prob=0.7, time_max_masking_ratio=0.1
+        )
 
-    final_data0 = dataset.get_final_datasets()
-    final_data1 = dataset.get_final_datasets()
+    final_train_data: List[Dict] = [
+        x for x in dataset.get_final_datasets()["train"]
+    ]
+    final_train_batch: List[Dict] = final_train_data[:32]
+    train_inputs: Dict[str, Tensor] = collator(final_train_batch)
 
-    print(final_data0["train"][0]["text"])
-    print(final_data1["train"][0]["text"])
-    
-    print([x["text"] for x in final_data1["train"]][:50])
-    print([x["text"] for x in dataset.get_static_datasets()["train"]][:50])
     pdb.set_trace()
