@@ -36,11 +36,11 @@ class HfDataCollatorSpeechSeq2SeqWithPadding:
         if not self.spec_argument:
             return samples
         
-        print("Running Spec-Argument")
+        #print("Running Spec-Argument")
         for sample in samples:
             sample[self.model_input_col] = spec_argument(
                 sample[self.model_input_col],
-                freq_axis=1, time_axis=2, 
+                freq_before_time_axis=True,
                 freq_masking_prob=self.freq_masking_prob, 
                 freq_max_masking_ratio=self.freq_max_masking_ratio, 
                 time_masking_prob=self.time_masking_prob, 

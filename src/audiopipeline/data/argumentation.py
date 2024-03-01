@@ -25,7 +25,7 @@ AUGLY_TRANSFORMS: Compose = audaugs.Compose([
 
 def spec_argument(
     spec: Union[List, Tensor],
-    freq_axis: int=1, time_axis: int=2,
+    freq_before_time_axis: bool=True, 
     freq_masking_prob: float=1.0, 
     freq_max_masking_ratio: int=0.1, 
     time_masking_prob: float=1.0, 
@@ -33,9 +33,15 @@ def spec_argument(
 ) -> List:
     if isinstance(spec, list):
         spec = Tensor(spec)
+    if len(spec.shape) not in {2, 3}:
+        raise Exception("Dim error")
+    if len(spec.shape) == 2: 
+        spec = spec.reshape(-1, spec.shape[0], spec.shape[1])
+    if not freq_before_time_axis:
+        spec = spec.reshape(-1, spec.shape[1], spec.shape[2])
 
-    freq_dim: int = spec.shape[freq_axis] 
-    time_dim: int = spec.shape[time_axis]
+    freq_dim: int = spec.shape[1] 
+    time_dim: int = spec.shape[2]
     freq_max_masking_len: int = int(freq_dim * freq_max_masking_ratio)
     time_max_masking_len: int = int(time_dim * time_max_masking_ratio)
 
