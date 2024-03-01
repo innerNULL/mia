@@ -32,15 +32,16 @@ class HfDataCollatorSpeechSeq2SeqWithPadding:
         self.time_masking_prob: float = time_masking_prob
         self.time_max_masking_ratio: float = time_max_masking_ratio
 
-    def spec_argument(self, samples: List[Dict]) -> List[Dict]:
+    def spec_argumentation(self, samples: List[Dict]) -> List[Dict]:
         if not self.spec_argument:
             return samples
-
+        
+        print("Running Spec-Argument")
         for sample in samples:
             sample[self.model_input_col] = spec_argument(
-                example["input_features"],
+                sample[self.model_input_col],
                 freq_axis=1, time_axis=2, 
-                freq_masking_prob=freq_masking_prob, 
+                freq_masking_prob=self.freq_masking_prob, 
                 freq_max_masking_ratio=self.freq_max_masking_ratio, 
                 time_masking_prob=self.time_masking_prob, 
                 time_max_masking_ratio=self.time_max_masking_ratio
@@ -50,6 +51,7 @@ class HfDataCollatorSpeechSeq2SeqWithPadding:
     def __call__(
         self, features: List[Dict[str, Union[List[int], Tensor]]]
     ) -> Dict[str, Tensor]:
+        features = self.spec_argumentation(features) 
         input_features: List[Dict[str, Union[List[float], Tensor]]] = [
             {self.model_input_col: feature[self.model_input_col][0]} 
             for feature in features
