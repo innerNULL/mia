@@ -1,0 +1,7 @@
+{
+  "metadata_path": "./common_voice_16_1_subset_test.jsonl",
+  "output_dir": "./_packed_audios", 
+  "compress": true, 
+  "audio_path_col": "path", 
+  "other_cols": ["transcript"]
+}
