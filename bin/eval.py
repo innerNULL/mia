@@ -15,6 +15,7 @@ import pandas as pd
 from pandas import DataFrame
 from typing import Dict, List
 from torchmetrics.text import CharErrorRate
+from opencc import OpenCC
 
 
 def run_text_norm(input_string):
@@ -45,6 +46,11 @@ def eval(
     ]
     targets: List[str] = [x[target_col] for x in asr_results]
     outputs: List[str] = [x[output_col] for x in asr_results]
+
+    if lang in {"mandarin", "zh-TW", "zh-tw"}:
+        converter: OpenCC = OpenCC('tw2s.json')
+        targets = [converter.convert(x) for x in targets]
+        outputs = [converter.convert(x) for x in outputs]
 
     if text_norm:
         targets = [run_text_norm(x) for x in targets]
