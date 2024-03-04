@@ -26,11 +26,15 @@ AUGLY_TRANSFORMS: Compose = audaugs.Compose([
 def spec_argument(
     spec: Union[List, Tensor],
     freq_before_time_axis: bool=True, 
-    freq_masking_prob: float=1.0, 
-    freq_max_masking_ratio: int=0.1, 
-    time_masking_prob: float=1.0, 
-    time_max_masking_ratio: int=0.1
+    freq_masking_prob: float=0.9, 
+    freq_max_masking_ratio: int=0.15, 
+    time_masking_prob: float=0.9, 
+    time_max_masking_ratio: int=0.05
 ) -> List:
+    """
+    This default hyper-parameters choosing are refer to 
+    SpecArgument paper's recommend
+    """
     if isinstance(spec, list):
         spec = Tensor(spec)
     if len(spec.shape) not in {2, 3}:
