@@ -17,6 +17,8 @@ from transformers import AutoModelForSpeechSeq2Seq
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from torchmetrics.text import CharErrorRate
 
+from audiopipeline.data.functions import audio_file2model_inputs
+
 
 def eval(
     dataset: List[Dict], outputs_col: str, targets_col: str, lang: str
@@ -71,15 +73,10 @@ if __name__ == "__main__":
     results: List[Dict] = []
     target_sampling_rate: int = 16000
     for sample in tqdm(dataset):
-        waveform: Tensor = None
-        sample_rate: int = -1
-        waveform, sample_rate = torchaudio.load(sample["path"])
-        waveform = torchaudio.functional.resample(
-            waveform, orig_freq=sample_rate, new_freq=target_sampling_rate
-        )
-        inputs: Tensor = processor(
-            waveform.squeeze(), sampling_rate=target_sampling_rate, return_tensors="pt"
-        ).input_features.to(device)
+        inputs: Tensor = None
+        inputs, _ = audio_file2model_inputs(
+            sample["path"], processor, target_sampling_rate, configs["device"]
+        ) 
         output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
         output_text: str = processor.tokenizer.decode(output_ids, skip_special_tokens=True)
         sample["asr"] = output_text

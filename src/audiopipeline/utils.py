@@ -66,6 +66,13 @@ def json_objs2jsonl_file(path: str, json_objs: List[Dict]) -> str:
     return path
 
 
+def jsonl_file2json_objs(path: str) -> List[Dict]:
+    return [
+        json.loads(x) for x in open(path, "r").read().split("\n") 
+        if x not in {""}
+    ]
+
+
 def split_text_by_chinese_punctuation(sentence):
     # Define Chinese punctuation marks
     chinese_punctuation = '！？｡。，：；、'
