@@ -40,7 +40,7 @@ def josnl_record2train_sample(
     path_col: str="path", 
     text_col: str="text", 
     model_input_col: str="input_features", 
-    model_target_col: str="label", 
+    model_target_col: str="labels", 
     audio_duration_col: str="input_length",
     target_sample_rate: int=16000, 
     device: str="cpu"
