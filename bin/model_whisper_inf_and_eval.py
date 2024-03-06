@@ -73,7 +73,8 @@ if __name__ == "__main__":
     results: List[Dict] = []
     target_sampling_rate: int = 16000
     for sample in tqdm(dataset):
-        inputs: Tensor = audio_file2model_inputs(
+        inputs: Tensor = None
+        inputs, _ = audio_file2model_inputs(
             sample["path"], processor, target_sampling_rate, configs["device"]
         ) 
         output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
