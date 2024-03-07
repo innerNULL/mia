@@ -87,7 +87,8 @@ class DataCollatorSpeechSeq2SeqWithPaddingV1:
         text_col: str="text",
         audio_duration_col: str="input_length",
         model_input_col: str="input_features", 
-        model_label_col: str="labels",
+        model_label_col: str="labels", 
+        sample_id_col: str="",
         target_sample_rate: int=16000, 
         spec_argument: bool=True,
         freq_masking_prob: float=0.7, 
@@ -102,6 +103,7 @@ class DataCollatorSpeechSeq2SeqWithPaddingV1:
         self.audio_duration_col: str = audio_duration_col
         self.model_input_col: str = model_input_col
         self.model_label_col: str = model_label_col
+        self.sample_id_col: str = sample_id_col
         self.target_sample_rate: int = target_sample_rate
         self.spec_argument: bool = spec_argument
         self.freq_masking_prob: float = freq_masking_prob
@@ -144,5 +146,11 @@ class DataCollatorSpeechSeq2SeqWithPaddingV1:
             labels = labels[:, 1:]
 
         batch["labels"] = labels
+
+        if self.sample_id_col not in {""}:
+            batch[self.sample_id_col] = torch.tensor(
+                [x[self.sample_id_col] for x in jsonl_samples], dtype=torch.int32
+            ).reshape(len(jsonl_samples), 1)
+
         return batch
 

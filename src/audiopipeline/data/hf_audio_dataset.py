@@ -17,6 +17,7 @@ from transformers import TrainingArguments, TrainerState, TrainerControl
 
 from . import argumentation
 from .argumentation import spec_argument
+from .functions import datasetdict_load_jsonl
 
 
 class HfAudioDataset:
@@ -139,22 +140,6 @@ class DataArgumentationCallback(TrainerCallback):
             self.trainer.train_dataset = None
             print("Free existing final dataset")
             self.trainer.train_dataset = self.dataset.get_final_datasets()["train"]
-
-
-def datasetdict_load_jsonl(
-    train_data_path: str, dev_data_path: str, test_data_path: str
-) -> DatasetDict:
-    print("Running dataset dict JSONL loader")
-    dataset: DatasetDict = DatasetDict()
-
-    if train_data_path is not None:
-        dataset["train"] = load_dataset("json", data_files=train_data_path)["train"]
-    if dev_data_path is not None:
-        dataset["validation"] = load_dataset("json", data_files=dev_data_path)["train"]
-    if test_data_path is not None:
-        dataset["test"] = load_dataset("json", data_files=test_data_path)["train"]
-    
-    return dataset
 
 
 def dataset_load_audio(

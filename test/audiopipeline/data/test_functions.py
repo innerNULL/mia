@@ -7,6 +7,7 @@ import pdb
 import librosa
 from typing import Dict, List
 from torch import Tensor
+from datasets import DatasetDict, Dataset
 from transformers import WhisperProcessor
 
 from audiopipeline.data import functions as F
@@ -20,11 +21,28 @@ TEXT_COL: str = "text"
 AUDIO_DURATION_COL: str = "input_length" 
 MODEL_INPUT_COL: str = "input_features"
 MODEL_TARGET_COL: str = "labels"
+SAMPLE_ID_COL: str = "file_id"
 TARGET_SAMPLE_RATE: int = 16000
 DEVICE: str = "cpu"
 FEA_EXTRACTOR: WhisperProcessor = WhisperProcessor.from_pretrained(
     "openai/whisper-small", language="mandarin", task="transcribe"
 )
+
+
+def test_datasetdict_load_jsonl_0() -> None:
+    datasets_dict: DatasetDict = F.datasetdict_load_jsonl(
+        DEMO_JSONL_PATH, DEMO_JSONL_PATH, DEMO_JSONL_PATH
+    )
+    assert(AUDIO_PATH_COL in datasets_dict["train"][0])
+    assert(TEXT_COL in datasets_dict["train"][0])
+
+
+def test_datasetdict_load_jsonl_1() -> None:
+    datasets_dict: DatasetDict = F.datasetdict_load_jsonl(
+        DEMO_JSONL_PATH, DEMO_JSONL_PATH, DEMO_JSONL_PATH, 
+        sample_id_col=SAMPLE_ID_COL
+    )
+    assert(SAMPLE_ID_COL in datasets_dict["train"][0])
 
 
 def test_audio_file2model_inputs() -> None:
