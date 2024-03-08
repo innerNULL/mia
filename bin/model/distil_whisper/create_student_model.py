@@ -18,9 +18,12 @@ Initialise a student Whisper model from a pre-trained teacher model for
 teacher-student distillation.
 """
 
+import sys
+import json
 import argparse
 import copy
 import logging
+from typing import Dict
 
 import numpy as np
 import torch
@@ -28,39 +31,6 @@ from transformers import GenerationConfig, WhisperForConditionalGeneration, Whis
 
 
 logger = logging.getLogger(__name__)
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Initialise a student Whisper model from a teacher model, copying the relevant layer weights and adjusting the processor as necessary."
-    )
-    parser.add_argument(
-        "--teacher_checkpoint",
-        type=str,
-        required=True,
-        help="The HF Hub ID of the teacher checkpoint.",
-    )
-    parser.add_argument(
-        "--encoder_layers",
-        type=int,
-        default=None,
-        help="Number of encoder layers to use in the student model. Defaults to all layers from the teacher.",
-    )
-    parser.add_argument(
-        "--decoder_layers",
-        type=int,
-        default=2,
-        help="Number of decoder layers to use in the student model. Defaults to 2 layers.",
-    )
-    parser.add_argument(
-        "--save_dir",
-        type=str,
-        required=True,
-        help="Where to save the student weights and processor.",
-    )
-
-    args = parser.parse_args()
-    return args
 
 
 def init_student_model_from_teacher(
@@ -83,7 +53,7 @@ def init_student_model_from_teacher(
     student_config = copy.deepcopy(teacher_config)
     student_config.update(
         {
-            "encoder_layers": encoder_layers if encoder_layers is not None else teacher_encoder_layers,
+            "encoder_layers": encoder_layers if encoder_layers > 0 else teacher_encoder_layers,
             "decoder_layers": decoder_layers,
         }
     )
@@ -132,7 +102,7 @@ def init_student_model_from_teacher(
                 teacher_model.model.decoder.layers[layer].state_dict()
             )
 
-    if encoder_layers is not None:
+    if encoder_layers > 0:
         for layer in range(teacher_encoder_layers):
             if layer in encoder_map:
                 # re-introduce pre-defined layers from the teacher
@@ -171,11 +141,11 @@ def init_student_model_from_teacher(
 
 
 if __name__ == "__main__":
-    args = parse_args()
-
+    configs: Dict = json.loads(open(sys.argv[1], "r").read()) 
+    
     init_student_model_from_teacher(
-        teacher_checkpoint=args.teacher_checkpoint,
-        encoder_layers=args.encoder_layers,
-        decoder_layers=args.decoder_layers,
-        save_dir=args.save_dir
+        teacher_checkpoint=configs["teacher_model_name_or_path"],
+        encoder_layers=configs["student_model_encoder_layers"],
+        decoder_layers=configs["student_model_decoder_layers"],
+        save_dir=configs["student_model_dir"]
     )
