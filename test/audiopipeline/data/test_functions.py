@@ -59,7 +59,9 @@ def test_audio_file2model_inputs() -> None:
 
     waveform, sr = librosa.load(audio_path)
     true_duration: int = librosa.get_duration(y=waveform, sr=sr)
+    another_duration: int = F.io.audio_get_meta(audio_path)["duration_sec"]
     assert(round(true_duration, 1) == round(audio_duration, 1))
+    assert(round(another_duration, 1) == round(audio_duration, 1))
 
 
 def test_text2token_ids() -> None:

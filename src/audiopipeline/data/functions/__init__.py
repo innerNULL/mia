@@ -12,30 +12,11 @@ from torch import Tensor
 from datasets import DatasetDict, Dataset
 from transformers import WhisperProcessor
 
+from . import io
+from . import dataset
+from . import processor
 
-def datasetdict_load_jsonl(
-    train_data_path: str, dev_data_path: str, test_data_path: str, 
-    sample_id_col: str=""
-) -> DatasetDict:
-    print("Running dataset dict JSONL loader")
-    dataset: DatasetDict = DatasetDict()
-
-    if train_data_path is not None:
-        dataset["train"] = load_dataset("json", data_files=train_data_path)["train"]
-    if dev_data_path is not None:
-        dataset["validation"] = load_dataset("json", data_files=dev_data_path)["train"]
-    if test_data_path is not None:
-        dataset["test"] = load_dataset("json", data_files=test_data_path)["train"]
-    
-    if sample_id_col not in {""}:
-        def _add_sample_id(sample: Dict, idx: int) -> Dict:
-            sample[sample_id_col] = idx
-            return sample
-
-        for split in dataset:
-            dataset[split] = dataset[split].map(_add_sample_id, with_indices=True)
-
-    return dataset
+from .dataset import datasetdict_load_jsonl
 
 
 def audio_file2model_inputs(
