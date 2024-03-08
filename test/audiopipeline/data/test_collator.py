@@ -5,6 +5,7 @@
 
 import pdb
 import librosa
+from opencc import OpenCC
 from typing import Dict, List, Callable
 from torch import Tensor
 from transformers import WhisperProcessor
@@ -36,7 +37,8 @@ def test_DataCollatorSpeechSeq2SeqWithPaddingV1() -> None:
     )
     jsonl_batch: List[Dict] = [x for x in datasets["train"]][:4]
     collator_obj = DataCollatorSpeechSeq2SeqWithPaddingV1(
-        FEA_EXTRACTOR, 
+        FEA_EXTRACTOR,
+        lang="mandarin",
         tokenizer=None, 
         path_col=AUDIO_PATH_COL, text_col=TEXT_COL, 
         audio_duration_col=AUDIO_DURATION_COL, 
@@ -53,4 +55,10 @@ def test_DataCollatorSpeechSeq2SeqWithPaddingV1() -> None:
     
     assert(train_inputs[SAMPLE_ID_COL].shape[0] == train_inputs[MODEL_INPUT_COL].shape[0])
     assert(train_inputs[SAMPLE_ID_COL].shape[0] == train_inputs["labels"].shape[0])
+
+    decoded_texts: List[str] = FEA_EXTRACTOR.tokenizer.batch_decode(
+        train_inputs[MODEL_TARGET_COL], skip_special_tokens=True
+    )
+    for text in decoded_texts:
+        assert(OpenCC("tw2s.json").convert(text) == text)
 

@@ -7,6 +7,7 @@ import pdb
 import librosa
 from typing import Dict, List
 from torch import Tensor
+from opencc import OpenCC
 from datasets import DatasetDict, Dataset
 from transformers import WhisperProcessor
 
@@ -74,7 +75,8 @@ def test_text2token_ids() -> None:
 def test_josnl_record2train_sample() -> None:
     jsonl_record: Dict = DEMO_JSONL_DATA[0]
     train_sample: Dict = F.josnl_record2train_sample(
-        jsonl_record, FEA_EXTRACTOR, 
+        jsonl_record, FEA_EXTRACTOR,
+        lang="mandarin",
         path_col=AUDIO_PATH_COL, 
         text_col=TEXT_COL,
         model_input_col=MODEL_INPUT_COL, 
@@ -87,3 +89,11 @@ def test_josnl_record2train_sample() -> None:
     assert(MODEL_INPUT_COL in train_sample)
     assert(MODEL_TARGET_COL in train_sample)
     assert(AUDIO_DURATION_COL in train_sample)
+    
+    decoded_text: str = FEA_EXTRACTOR.tokenizer.decode(
+        train_sample[MODEL_TARGET_COL], skip_special_tokens=True
+    )
+    origin_text: str = jsonl_record[TEXT_COL]
+
+    assert(OpenCC("tw2s.json").convert(decoded_text) == decoded_text)
+    
