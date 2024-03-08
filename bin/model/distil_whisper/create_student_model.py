@@ -13,6 +13,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+#
+#
+# Usage:
+# python ./bin/model/distil_whisper/create_student_model.py demo_configs/model/distil_whisper/create_student_model.json
+
 """
 Initialise a student Whisper model from a pre-trained teacher model for
 teacher-student distillation.

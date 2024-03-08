@@ -2,5 +2,5 @@
   "teacher_model_name_or_path": "openai/whisper-small",
   "student_model_dir": "./_student_whisper",
   "student_model_encoder_layers": -1, 
-  "studend_model_decoder_llayers": 2
+  "student_model_decoder_layers": 2
 }
