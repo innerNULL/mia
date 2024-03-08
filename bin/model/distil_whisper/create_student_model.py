@@ -24,6 +24,7 @@ Initialise a student Whisper model from a pre-trained teacher model for
 teacher-student distillation.
 """
 
+import pdb
 import sys
 import json
 import argparse
@@ -41,6 +42,7 @@ logger = logging.getLogger(__name__)
 
 def init_student_model_from_teacher(
     teacher_checkpoint,
+    processor_name_or_path, 
     encoder_layers=None,
     decoder_layers=2,
     save_dir=None,
@@ -49,7 +51,7 @@ def init_student_model_from_teacher(
         teacher_checkpoint,
         low_cpu_mem_usage=True,
     )
-    processor = WhisperProcessor.from_pretrained(teacher_checkpoint)
+    processor = WhisperProcessor.from_pretrained(processor_name_or_path)
     generation_config = GenerationConfig.from_pretrained(teacher_checkpoint)
 
     teacher_config = teacher_model.config
@@ -147,10 +149,12 @@ def init_student_model_from_teacher(
 
 
 if __name__ == "__main__":
-    configs: Dict = json.loads(open(sys.argv[1], "r").read()) 
+    configs: Dict = json.loads(open(sys.argv[1], "r").read())
+    print(configs)
     
     init_student_model_from_teacher(
         teacher_checkpoint=configs["teacher_model_name_or_path"],
+        processor_name_or_path=configs["processor_name_or_path"],
         encoder_layers=configs["student_model_encoder_layers"],
         decoder_layers=configs["student_model_decoder_layers"],
         save_dir=configs["student_model_dir"]
