@@ -8,6 +8,8 @@ from datasets import load_dataset
 from typing import Dict, Callable, Union, List, Tuple, Optional
 from datasets import DatasetDict, Dataset
 
+from .io import audio_get_meta
+
 
 def datasetdict_load_jsonl(
     train_data_path: str, dev_data_path: str, test_data_path: str, 
@@ -38,9 +40,22 @@ def hf_datasetdict_load_audio_jsonl(
     train_data_path: Optional[str]=None, 
     dev_data_path: Optional[str]=None, 
     test_data_path: Optional[str]=None,
-    sample_id_col: str=""
+    sample_id_col: str="",
+    audio_duration_col: str="audio_duration", 
+    audio_path_col: str="path"
 ) -> DatasetDict:
-    return datasetdict_load_jsonl(
+    out: DatasetDict = datasetdict_load_jsonl(
         train_data_path, dev_data_path, test_data_path, 
         sample_id_col
     )
+
+    def _append_audio_meta(sample: Dict) -> Dict:
+        audio_meta: Dict = audio_get_meta(
+            sample[audio_path_col], audio_path_col, audio_duration_col
+        )
+        sample[audio_duration_col] = audio_meta[audio_duration_col]
+        return sample
+
+    for split in out:
+        out[split] = out[split].map(_append_audio_meta, num_proc=4)
+    return out
