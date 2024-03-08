@@ -66,13 +66,6 @@ def parse_args():
         help="Where to save the student weights and processor.",
     )
     parser.add_argument(
-        "--push_to_hub",
-        type=bool,
-        required=False,
-        default=False,
-        help="Whether to push the student weights and processor to the Hub.",
-    )
-    parser.add_argument(
         "--cache_dir",
         type=str,
         default=None,
@@ -88,7 +81,6 @@ def init_student_model_from_teacher(
     encoder_layers=None,
     decoder_layers=2,
     save_dir=None,
-    push_to_hub=None,
     cache_dir=None,
     subfolder="",
 ):
@@ -194,11 +186,6 @@ def init_student_model_from_teacher(
     _ = student_model(input_features, decoder_input_ids=decoder_input_ids).logits
     logger.info("Conversion successful!")
 
-    if push_to_hub:
-        student_model.push_to_hub(save_dir)
-        processor.push_to_hub(save_dir)
-        generation_config.push_to_hub(save_dir)
-
 
 if __name__ == "__main__":
     args = parse_args()
@@ -208,7 +195,6 @@ if __name__ == "__main__":
         encoder_layers=args.encoder_layers,
         decoder_layers=args.decoder_layers,
         save_dir=args.save_dir,
-        push_to_hub=args.push_to_hub,
         cache_dir=args.cache_dir,
         subfolder=args.subfolder,
     )
