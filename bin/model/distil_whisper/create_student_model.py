@@ -58,12 +58,6 @@ def parse_args():
         required=True,
         help="Where to save the student weights and processor.",
     )
-    parser.add_argument(
-        "--cache_dir",
-        type=str,
-        default=None,
-        help="Where to store the pretrained models downloaded from huggingface.co",
-    )
 
     args = parser.parse_args()
     return args
@@ -74,11 +68,9 @@ def init_student_model_from_teacher(
     encoder_layers=None,
     decoder_layers=2,
     save_dir=None,
-    cache_dir=None,
 ):
     teacher_model = WhisperForConditionalGeneration.from_pretrained(
         teacher_checkpoint,
-        cache_dir=cache_dir,
         low_cpu_mem_usage=True,
     )
     processor = WhisperProcessor.from_pretrained(teacher_checkpoint)
@@ -185,6 +177,5 @@ if __name__ == "__main__":
         teacher_checkpoint=args.teacher_checkpoint,
         encoder_layers=args.encoder_layers,
         decoder_layers=args.decoder_layers,
-        save_dir=args.save_dir,
-        cache_dir=args.cache_dir,
+        save_dir=args.save_dir
     )
