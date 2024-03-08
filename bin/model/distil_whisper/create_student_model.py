@@ -41,13 +41,6 @@ def parse_args():
         help="The HF Hub ID of the teacher checkpoint.",
     )
     parser.add_argument(
-        "--subfolder",
-        type=str,
-        default="",
-        help="In case the relevant teacher weights are located inside a subfolder of the model repo on huggingface.co, you "
-        "can specify the folder name here.",
-    )
-    parser.add_argument(
         "--encoder_layers",
         type=int,
         default=None,
@@ -82,12 +75,10 @@ def init_student_model_from_teacher(
     decoder_layers=2,
     save_dir=None,
     cache_dir=None,
-    subfolder="",
 ):
     teacher_model = WhisperForConditionalGeneration.from_pretrained(
         teacher_checkpoint,
         cache_dir=cache_dir,
-        subfolder=subfolder,
         low_cpu_mem_usage=True,
     )
     processor = WhisperProcessor.from_pretrained(teacher_checkpoint)
@@ -196,5 +187,4 @@ if __name__ == "__main__":
         decoder_layers=args.decoder_layers,
         save_dir=args.save_dir,
         cache_dir=args.cache_dir,
-        subfolder=args.subfolder,
     )
