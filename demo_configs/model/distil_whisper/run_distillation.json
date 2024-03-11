@@ -6,7 +6,7 @@
     "distil_model_path": "_distil_whisper"
   },
   "data": {
-    "train_jsonl_path": "./demo_data/demo_jsonl_dataset.jsonl",
+    "train_jsonl_path": "pseudo_labeled_dataset.jsonl",
     "dev_jsonl_path": "./demo_data/demo_jsonl_dataset.jsonl",
     "test_jsonl_path": "./demo_data/demo_jsonl_dataset.jsonl",
     "audio_duration_col": "input_length",

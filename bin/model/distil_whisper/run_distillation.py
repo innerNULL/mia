@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 # file: run_distillation.py
 # date: 2024-03-09
+#
+# Usage:
+# python ./bin/model/distil_whisper/run_distillation.py ./demo_configs/model/distil_whisper/run_distillation.json
 
 
 import pdb
