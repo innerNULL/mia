@@ -4,6 +4,16 @@
 # 
 # Usage:
 # python ./bin/model/distil_whisper/run_pseudo_labelling.py ./demo_configs/model/distil_whisper/run_pseudo_labelling.json
+#
+# Notes:
+# The naming of pseudo labeled text field maybe be a little confusing here.
+# In most case, we only do pseudo labeling on training data, and using 
+# origin dev/test data for evaluation purpose to check if distil-whisper's
+# performance continuouly improving.
+# So we need keep pseudo labeled data have sime schema with original 
+# datasets, and so we replace `target_text_col` with teacher model 
+# generated text in pseudo labeled dataset, and put the value of original 
+# `target_text_col` into a new fields called `origin_target_text_col`.
 
 
 import pdb
@@ -37,7 +47,7 @@ if __name__ == "__main__":
     device: torch.device = torch.device(configs["device"])
     max_sample_size: int = configs["max_sample_size"]
     target_text_col: str = configs["target_text_col"]
-    output_text_col: str = configs["output_text_col"]
+    origin_text_col: str = "origin_%s" % configs["target_text_col"]
     metric_col: str = configs["metric_col"]
     metric_to_use: str = configs["metric_to_use"]
 
@@ -57,22 +67,25 @@ if __name__ == "__main__":
     results: List[Dict] = []
     target_sampling_rate: int = 16000
     for sample in tqdm(dataset):
+        # Backup original target text
+        sample[origin_text_col] = sample[target_text_col]
+
         inputs: Tensor = None
         inputs, _ = audio_file2model_inputs(
             sample["path"], processor, target_sampling_rate, configs["device"]
         )
         output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
         output_text: str = processor.tokenizer.decode(output_ids, skip_special_tokens=True)
-        sample[output_text_col] = output_text
+        sample[target_text_col] = output_text
 
         if lang in {"mandarin", "zh-TW", "zh-CN", "zh"}:
             converter: OpenCC = OpenCC('tw2s.json')
+            sample[origin_text_col] = converter.convert(sample[origin_text_col])
             sample[target_text_col] = converter.convert(sample[target_text_col])
-            sample[output_text_col] = converter.convert(sample[output_text_col])
         
         if metric_to_use == "cer":
             sample[metric_col] = CharErrorRate()(
-                sample[output_text_col], sample[target_text_col]
+                sample[target_text_col], sample[origin_text_col]
             ).to("cpu").tolist()
         else:
             raise Exception("Currently not support metrics '%s'" % metric_to_use)
