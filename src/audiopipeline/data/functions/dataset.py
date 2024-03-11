@@ -5,7 +5,7 @@
 
 import pdb
 from datasets import load_dataset
-from typing import Dict, Callable, Union, List, Tuple, Optional
+from typing import Dict, Callable, Union, List, Tuple, Optional, Any
 from datasets import DatasetDict, Dataset
 
 from .io import audio_get_meta
@@ -59,3 +59,32 @@ def hf_datasetdict_load_audio_jsonl(
     for split in out:
         out[split] = out[split].map(_append_audio_meta, num_proc=4)
     return out
+
+
+def fn_gen_hf_dataset_filter_by_asr_data(
+    tokenizer: Any, 
+    min_audio_duration: float=10.0,
+    max_audio_duration: float=30.0,
+    min_token_num: int=0,
+    max_token_num: int=512,
+    audio_path_col: Optional[str]=None, text_col: Optional[str]=None
+) -> Callable:
+    def _filter(sample: Dict) -> bool:
+        
+        if audio_path_col is not None:
+            audio_duration: float = audio_get_meta(
+                sample[audio_path_col], "path", "duration"
+            )["duration"]
+            if audio_duration <= min_audio_duration \
+                or audio_duration >= max_audio_duration:
+                return False
+
+        if text_col is not None:
+            tokens: List[int] = tokenizer.encode(sample[text_col])
+            tokens_num: int = len(tokens)
+            if tokens_num <= min_token_num or tokens_num >= max_token_num:
+                return False
+
+        return True
+
+    return _filter
