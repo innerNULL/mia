@@ -294,6 +294,11 @@ if __name__ == "__main__":
     )
     datasets_dict = datasets_dict.filter(dataset_filter)
 
+    # Filter sample's which `metric_col` value smaller than `min_pseudo_label_metric`
+    datasets_dict["train"] = datasets_dict["train"].filter(
+        lambda x: x[data_configs["metric_col"]] <= data_configs["min_pseudo_label_metric"]
+    )
+
     collator: DataCollatorSpeechSeq2SeqWithPaddingV1 = \
         DataCollatorSpeechSeq2SeqWithPaddingV1(
             processor, 

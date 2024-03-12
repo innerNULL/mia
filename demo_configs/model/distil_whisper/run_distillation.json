@@ -16,7 +16,8 @@
     "min_audio_duration": 0,
     "max_audio_duration": 30, 
     "min_token_num": 0,
-    "max_token_num": 448
+    "max_token_num": 448,
+    "min_pseudo_label_metric": 0.2
   },
   "train": {
     "epochs": 10,
