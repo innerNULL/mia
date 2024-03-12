@@ -295,11 +295,12 @@ if __name__ == "__main__":
         audio_path_col=data_configs["audio_path_col"],
         text_col=data_configs["text_col"]
     )
-    datasets_dict = datasets_dict.filter(dataset_filter)
+    datasets_dict = datasets_dict.filter(dataset_filter, num_proc=4)
 
     # Filter sample's which `metric_col` value smaller than `min_pseudo_label_metric`
     datasets_dict["train"] = datasets_dict["train"].filter(
-        lambda x: x[data_configs["metric_col"]] <= data_configs["min_pseudo_label_metric"]
+        lambda x: x[data_configs["metric_col"]] <= data_configs["min_pseudo_label_metric"], 
+        num_proc=4
     )
 
     collator: DataCollatorSpeechSeq2SeqWithPaddingV1 = \
