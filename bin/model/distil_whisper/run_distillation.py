@@ -213,7 +213,7 @@ def train_loop(
     student_model_device: torch.device,
     temperature: int=2.0,
 ) -> None:
-    for batch in tqdm(dataloader):
+    for i, batch in enumerate(tqdm(dataloader)):
         all_loss: Dict[str, Tensor] = train_step(
             batch, teacher_model, student_model,
             teacher_model_device, student_model_device,
@@ -223,6 +223,9 @@ def train_loop(
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
+
+        if i % 500 == 0:
+            print(all_loss)
 
 
 def eval_loop(
@@ -366,4 +369,8 @@ if __name__ == "__main__":
         ckpt_dir: str = os.path.join(model_configs["distil_model_path"], "ckpt_%i" % epoch)
         student_model.save_pretrained(ckpt_dir)
         print("Saved CKPT to %s" % ckpt_dir)
+
+    final_ckpt_dir: str = os.path.join(model_configs["distil_model_path"], "final") 
+    student_model.save_pretrained(final_ckpt_dir)
+    print("Saved final CKPT to %s" % final_ckpt_dir)
 
