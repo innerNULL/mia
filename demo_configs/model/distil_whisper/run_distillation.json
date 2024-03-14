@@ -24,7 +24,8 @@
     "batch_size": 16,
     "learning_rate": 0.00001,
     "teacher_model_device": "cuda:0",
-    "student_model_device": "cuda:1"
+    "student_model_device": "cuda:3",
+    "lr_decay_gamma": 0.9
   },
   "common": {
     "lang": "mandarin",

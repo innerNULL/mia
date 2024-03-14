@@ -23,6 +23,7 @@ from transformers.feature_extraction_utils import BatchFeature
 from torch.utils.data import DataLoader
 from torch import Tensor
 from torch.optim import AdamW
+from torch.optim.lr_scheduler import ExponentialLR
 from torch.nn import Module
 from torchmetrics import Metric
 from torchmetrics.text import CharErrorRate, WordErrorRate
@@ -330,6 +331,10 @@ if __name__ == "__main__":
     )
     print(optimizer)
 
+    lr_scheduler: ExponentialLR = ExponentialLR(\
+        optimizer, gamma=train_configs["lr_decay_gamma"]
+    )
+
     teacher_model_device: torch.device = torch.device(train_configs["teacher_model_device"])
     student_model_device: torch.device = torch.device(train_configs["student_model_device"])
     
@@ -346,6 +351,7 @@ if __name__ == "__main__":
 
     for epoch in range(train_configs["epochs"]):
         print("training log: epoch=%i" % epoch)
+        print("lr=%f" % lr_scheduler.get_lr()[0])
         train_dataloader: DataLoader = DataLoader(
             datasets_dict["train"],
             collate_fn=collator, 
@@ -371,6 +377,8 @@ if __name__ == "__main__":
         ckpt_dir: str = os.path.join(model_configs["distil_model_path"], "ckpt_%i" % epoch)
         student_model.save_pretrained(ckpt_dir)
         print("Saved CKPT to %s" % ckpt_dir)
+
+        lr_scheduler.step()
 
     final_ckpt_dir: str = os.path.join(model_configs["distil_model_path"], "final") 
     student_model.save_pretrained(final_ckpt_dir)
