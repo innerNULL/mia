@@ -225,7 +225,7 @@ def train_loop(
         optimizer.zero_grad()
 
         if i % 500 == 0:
-            print(all_loss)
+          print("training log: ", {k: v.cpu().tolist() for k, v in all_loss.items()})
 
 
 def eval_loop(
@@ -253,7 +253,7 @@ def eval_loop(
     all_metrics: Dict[str, float] = {}
     for k in metrics_recorder:
         all_metrics[k] = sum(metrics_recorder[k]) / len(metrics_recorder[k])
-    print(all_metrics)
+    print("eval log: ", all_metrics)
 
 
 if __name__ == "__main__":
@@ -345,6 +345,7 @@ if __name__ == "__main__":
 
 
     for epoch in range(train_configs["epochs"]):
+        print("training log: epoch=%i" % epoch)
         train_dataloader: DataLoader = DataLoader(
             datasets_dict["train"],
             collate_fn=collator, 
