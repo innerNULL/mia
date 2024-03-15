@@ -168,3 +168,5 @@ _data
 *.mp4
 *.wav
 *.vtt
+*tmp*
+*.bak
