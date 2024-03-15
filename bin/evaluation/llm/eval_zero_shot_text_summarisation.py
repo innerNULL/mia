@@ -65,7 +65,7 @@ if __name__ == "__main__":
     data_path_or_name: str = configs["data_path_or_name"]
     text_col: str = configs["text_col"]
     summarisation_col: str = configs["summarisation_col"]
-    llm_prompt: str = configs["llm_prompt"]
+    llm_prompts: List[str] = configs["llm_prompts"]
     out_path: str = configs["out_path"]
     
     data_path: str = data_path_or_name
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         text: str = sample[text_col]
         summarisation: str = sample[summarisation_col]
         gen_text: str = call_llama_cpp_server_api(
-            llm_api, prompt=llm_prompt, query=text, 
+            llm_api, prompt="", query="\n".join(llm_prompts) + "\n" + text, 
         )
         outputs.append(
             {
@@ -91,5 +91,7 @@ if __name__ == "__main__":
             }
         )
 
-    pdb.set_trace()
-
+    file = open(out_path, w)
+    for record in outputs:
+        file.write(json.dumps(record, ensure_ascii=False) + "\n")
+    print("See results at '%s'" % out_path)
