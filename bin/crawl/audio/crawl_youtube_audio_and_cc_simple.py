@@ -3,7 +3,7 @@
 # date: 2024-02-07
 #
 # Usage:
-# python ./bin/crawl_youtube_audio_and_cc_simple.py ./demo_configs/crawl_youtube_audio_and_cc_simple.json
+# python bin/crawl/audio/crawl_youtube_audio_and_cc_simple.py ./demo_configs/crawl/audio/crawl_youtube_audio_and_cc_simple.json 
 
 
 import pdb

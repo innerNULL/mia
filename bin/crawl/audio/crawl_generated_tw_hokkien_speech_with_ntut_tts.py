@@ -6,7 +6,7 @@
 # http://tts001.iptcloud.net:8804/
 #
 # Try:
-# python ./bin/crawl_generated_tw_hokkien_speech_with_ntut_tts.py demo_configs/crawl_generated_tw_hokkien_speech_with_ntut_tts.json
+# python bin/crawl/audio/crawl_generated_tw_hokkien_speech_with_ntut_tts.py demo_configs/crawl/audio/crawl_generated_tw_hokkien_speech_with_ntut_tts.json 
 #
 # And here are some references
 #
