@@ -17,7 +17,7 @@ from transformers import AutoModelForSpeechSeq2Seq
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from torchmetrics.text import CharErrorRate
 
-from audiopipeline.data.functions import audio_file2model_inputs
+from mlpipeline.data.functions import audio_file2model_inputs
 
 
 def eval(

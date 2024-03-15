@@ -35,12 +35,12 @@ def get_install_deps() -> Tuple[List[str], List[str] ]:
 if __name__ == "__main__":
     get_install_deps()
     setup(
-        name="audiopipeline",
+        name="mlpipeline",
         version="0.0.0",
         author="innerNULL",
         author_email="",
         description="Lib for Audio Pipelines",
-        url="https://github.com/innerNULL/audiopipeline",
+        url="https://github.com/innerNULL/mlpipeline",
         python_requires='>=3.8, <=3.11',
         install_requires=get_install_deps()[0], 
         dependency_links=get_install_deps()[1],

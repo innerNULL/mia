@@ -41,7 +41,7 @@ from pyvirtualdisplay import Display
 sys.path.append(
     os.path.join(os.path.dirname(__file__), "..", "src")
 )
-from audiopipeline.utils import remove_punctuations_alphabets
+from mlpipeline.utils import remove_punctuations_alphabets
 
 
 DEBUG: Final[bool] = False

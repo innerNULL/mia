@@ -15,7 +15,7 @@ from typing import Dict, List
 sys.path.append(
     os.path.join(os.path.dirname(__file__), "..", "src")
 )
-from audiopipeline.utils import json_objs2jsonl_file
+from mlpipeline.utils import json_objs2jsonl_file
 
 
 FFMPEG_CMD_TEMP: str = "ffmpeg -i ${IN_PATH} -ar ${SAMPLE_RATE} -ac ${CHANNELS} -sample_fmt s${BIT_DEPTH} ${OUT_PATH}"
