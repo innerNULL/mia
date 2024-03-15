@@ -1,0 +1,9 @@
+{
+  "workspace_dir": "./_eval_zero_shot_text_summarisation",
+  "data_path_or_name": "Elfsong/ClinicalDataset dev",
+  "text_col": "dialogue",
+  "summarisation_col": "section_text", 
+  "llm_api": "http://localhost:8080/completion", 
+  "llm_prompt": "Please summarize following medical dialogues into patient's condition statement.",
+  "out_path": "./_eval_zero_shot_text_summarisation_inf.jsonl"
+}
