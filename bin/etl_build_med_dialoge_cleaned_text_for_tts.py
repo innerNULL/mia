@@ -17,7 +17,7 @@ from typing import Dict, List
 sys.path.append(
     os.path.join(os.path.dirname(__file__), "..", "src")
 )
-from mlpipeline.utils import split_text_by_chinese_punctuation
+from mia.utils import split_text_by_chinese_punctuation
 
 
 if __name__ == "__main__":

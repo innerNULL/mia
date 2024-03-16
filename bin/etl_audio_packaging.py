@@ -12,7 +12,7 @@ import json
 from tqdm import tqdm
 from typing import Dict, List
 
-from mlpipeline.utils import json_objs2jsonl_file
+from mia.utils import json_objs2jsonl_file
 
 
 if __name__ == "__main__":
