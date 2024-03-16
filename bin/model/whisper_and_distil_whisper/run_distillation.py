@@ -265,6 +265,7 @@ if __name__ == "__main__":
     common_configs: Dict = configs["common"]
 
     os.system("mkdir -p %s" % model_configs["distil_model_path"])
+    os.system("cp %s %s" % (sys.argv[1], model_configs["distil_model_path"]))
 
     processor: WhisperProcessor = WhisperProcessor.from_pretrained(
         model_configs["processor_path_or_name"], 

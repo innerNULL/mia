@@ -25,6 +25,7 @@ teacher-student distillation.
 """
 
 import pdb
+import os
 import sys
 import json
 import argparse
@@ -159,3 +160,4 @@ if __name__ == "__main__":
         decoder_layers=configs["student_model_decoder_layers"],
         save_dir=configs["student_model_dir"]
     )
+    os.system("cp %s %s" % (sys.argv[1], configs["student_model_dir"]))
