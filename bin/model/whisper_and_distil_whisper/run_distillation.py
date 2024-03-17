@@ -28,9 +28,9 @@ from torch.nn import Module
 from torchmetrics import Metric
 from torchmetrics.text import CharErrorRate, WordErrorRate
 
-from audiopipeline.data import functions as F
-from audiopipeline.data.functions.dataset import fn_gen_hf_dataset_filter_by_asr_data
-from audiopipeline.data.collator import DataCollatorSpeechSeq2SeqWithPaddingV1
+from mia.data import functions as F
+from mia.data.functions.dataset import fn_gen_hf_dataset_filter_by_asr_data
+from mia.data.collator import DataCollatorSpeechSeq2SeqWithPaddingV1
 
 
 def cal_cer_or_wer(targets: List[str], outputs: List[str], lang: str) -> float:
@@ -348,7 +348,6 @@ if __name__ == "__main__":
     student_model.config.forced_decoder_ids = processor.get_decoder_prompt_ids(
         language=common_configs["lang"], task="transcribe"
     )
-
 
     for epoch in range(train_configs["epochs"]):
         print("training log: epoch=%i" % epoch)
