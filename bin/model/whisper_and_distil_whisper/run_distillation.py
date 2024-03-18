@@ -349,21 +349,23 @@ if __name__ == "__main__":
         language=common_configs["lang"], task="transcribe"
     )
 
+    train_dataloader: DataLoader = DataLoader(
+        datasets_dict["train"],
+        collate_fn=collator, 
+        batch_size=train_configs["batch_size"], 
+        num_workers=4,
+        shuffle=True
+    )
+    dev_dataloader: DataLoader = DataLoader(
+        datasets_dict["validation"],
+        collate_fn=collator, 
+        batch_size=train_configs["batch_size"], 
+        num_workers=4
+    )
+
     for epoch in range(train_configs["epochs"]):
         print("training log: epoch=%i" % epoch)
         print("lr=%f" % lr_scheduler.get_lr()[0])
-        train_dataloader: DataLoader = DataLoader(
-            datasets_dict["train"],
-            collate_fn=collator, 
-            batch_size=train_configs["batch_size"], 
-            num_workers=4
-        )
-        dev_dataloader: DataLoader = DataLoader(
-            datasets_dict["validation"],
-            collate_fn=collator, 
-            batch_size=train_configs["batch_size"], 
-            num_workers=4
-        )
         train_loop(
             train_dataloader, teacher_model, student_model, optimizer, 
             teacher_model_device, student_model_device, 
