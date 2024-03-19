@@ -13,6 +13,7 @@ import pandas as pd
 from tqdm import tqdm
 from pandas import DataFrame
 from typing import Dict, List
+from torchmetrics.text.rouge import ROUGEScore
 
 
 DATASETS_URL: Dict[str, str] = {
@@ -112,3 +113,12 @@ if __name__ == "__main__":
         for record in outputs:
             file.write(json.dumps(record, ensure_ascii=False) + "\n")
         print("See results at '%s'" % out_path)
+
+    metric_obj: ROUGEScore = ROUGEScore()
+    metrics: Dict = {
+        k: v.cpu().tolist() for k, v in metric_obj(
+            [x[text_col] for x in outputs],
+            [x[summarisation_col] for x in outputs]
+        ).items()
+    }
+    print(metrics)
