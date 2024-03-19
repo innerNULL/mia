@@ -68,30 +68,47 @@ if __name__ == "__main__":
     llm_prompts: List[str] = configs["llm_prompts"]
     out_path: str = configs["out_path"]
     
-    data_path: str = data_path_or_name
-    if data_path_or_name in DATASETS_URL:
-        text_col = DATASETS_META[data_path_or_name]["text_col"]
-        summarisation_col = DATASETS_META[data_path_or_name]["summarisation_col"]
-        
-        os.system("mkdir -p %s" % workspace_dir)
-        data_path: str = download_to(workspace_dir, DATASETS_URL[data_path_or_name])
-
-    samples: List[Dict] = pd.read_csv(data_path).to_dict(orient="records")
     outputs: List[Dict] = []
-    for sample in tqdm(samples):
-        text: str = sample[text_col]
-        summarisation: str = sample[summarisation_col]
-        gen_text: str = call_llama_cpp_server_api(
-            llm_api, prompt="", query="\n".join(llm_prompts) + "\n" + text, 
-        )
-        outputs.append(
-            {
-                text_col: text, summarisation_col: summarisation, 
-                "gen_text": gen_text
-            }
-        )
+    if os.path.exists(out_path):
+        print("Output file already exists at '%s'" % out_path)
+        outputs = [
+            json.loads(x) for x in open(out_path, "r").read().split("\n")
+            if x not in {""}
+        ]
+    else:
+        data_path: str = data_path_or_name
+        if data_path_or_name in DATASETS_URL:
+            text_col = DATASETS_META[data_path_or_name]["text_col"]
+            summarisation_col = DATASETS_META[data_path_or_name]["summarisation_col"]
+            
+            os.system("mkdir -p %s" % workspace_dir)
+            data_path: str = download_to(workspace_dir, DATASETS_URL[data_path_or_name])
+        
+        samples: List[Dict] = []
+        if data_path.split(".")[-1] == "csv":
+            samples = pd.read_csv(data_path).to_dict(orient="records")
+        elif data_path.split(".")[-1] == "jsonl":
+            samples = [
+                json.loads(x) for x in open(data_path, "r").read().split("\n") 
+                if x not in {""}
+            ]
+        else:
+            raise Exception("%s is unsupported data formst" % data_path.split(".")[-1])
 
-    file = open(out_path, w)
-    for record in outputs:
-        file.write(json.dumps(record, ensure_ascii=False) + "\n")
-    print("See results at '%s'" % out_path)
+        for sample in tqdm(samples):
+            text: str = sample[text_col]
+            summarisation: str = sample[summarisation_col]
+            gen_text: str = call_llama_cpp_server_api(
+                llm_api, prompt="", query="\n".join(llm_prompts) + "\n" + text, 
+            )
+            outputs.append(
+                {
+                    text_col: text, summarisation_col: summarisation, 
+                    "gen_text": gen_text
+                }
+            )
+
+        file = open(out_path, "w")
+        for record in outputs:
+            file.write(json.dumps(record, ensure_ascii=False) + "\n")
+        print("See results at '%s'" % out_path)
