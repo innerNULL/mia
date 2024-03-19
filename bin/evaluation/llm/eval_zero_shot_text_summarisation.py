@@ -12,7 +12,7 @@ import requests
 import pandas as pd
 from tqdm import tqdm
 from pandas import DataFrame
-from typing import Dict, List
+from typing import Dict, List, Callable
 from torchmetrics.text.rouge import ROUGEScore
 
 
@@ -37,9 +37,7 @@ def download_to(dir_path: str, url: str) -> str:
     return os.path.join(dir_path, url.split("/")[-1])
 
 
-def call_llama_cpp_server_api(
-    url: str, prompt: str, query: str
-) -> Dict:
+def call_llama_cpp_server_api(url: str, prompt: str, query: str) -> str:
     """
     curl --request POST --url http://localhost:8080/completion --header "Content-Type: application/json" --data '{"prompt": "hello?", "n_predict": 128}'
     """
@@ -57,6 +55,37 @@ def call_llama_cpp_server_api(
     return response.json()["content"]
 
 
+def call_ollama_api(url: str, prompt: str, query: str) -> str:
+    """
+    curl -X POST http://localhost:11434/api/generate -d '{"model": "llama2", "prompt":"Why is the sky blue?"}'
+    or 
+    curl -X POST http://localhost:11434/api/generate -d '{"model": "llama2", "prompt":"Why is the sky blue?", "stream":false}'
+    """
+    data: Dict = {
+        "model": "llama2",
+        "prompt": "%s\n%s" % (prompt, query),
+        "stream": False
+    }
+    response = requests.post(url, json=data)
+    return response.json()["response"]
+
+
+def get_api_caller(backend: str) -> Callable:
+    if backend == "llama.cpp":
+        return call_llama_cpp_server_api
+    elif backend == "ollama":
+        return call_ollama_api
+    else:
+        raise Exception("'%s' is an unsupported backend for now" % backend)
+
+
+def post_processing(summarisation: str) -> str:
+    sections: List[str] = summarisation.split(":")
+    if "summary" in sections[0] or "summarisation" in sections[0]:
+        sections = sections[1:]
+    return ":".join(sections).strip()
+
+
 if __name__ == "__main__":
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     print(configs)
@@ -68,7 +97,9 @@ if __name__ == "__main__":
     summarisation_col: str = configs["summarisation_col"]
     llm_prompts: List[str] = configs["llm_prompts"]
     out_path: str = configs["out_path"]
+    backend: str = configs["backend"]
     
+    api_caller: Callable = get_api_caller(backend)
     outputs: List[Dict] = []
     if os.path.exists(out_path):
         print("Output file already exists at '%s'" % out_path)
@@ -99,9 +130,10 @@ if __name__ == "__main__":
         for sample in tqdm(samples):
             text: str = sample[text_col]
             summarisation: str = sample[summarisation_col]
-            gen_text: str = call_llama_cpp_server_api(
+            gen_text: str = api_caller(
                 llm_api, prompt="", query="\n".join(llm_prompts) + "\n" + text, 
             )
+            gen_text = post_processing(gen_text)
             outputs.append(
                 {
                     text_col: text, summarisation_col: summarisation, 
