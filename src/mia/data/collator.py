@@ -82,12 +82,14 @@ class HfDataCollatorSpeechSeq2SeqWithPadding:
 class DataCollatorSpeechSeq2SeqWithPaddingV1:
     def __init__(self, 
         processor: Any, 
-        tokenizer: Any=None, 
+        tokenizer: Any=None,
+        lang: str="mandarin",
         path_col: str="path", 
         text_col: str="text",
         audio_duration_col: str="input_length",
         model_input_col: str="input_features", 
-        model_label_col: str="labels",
+        model_label_col: str="labels", 
+        sample_id_col: str="",
         target_sample_rate: int=16000, 
         spec_argument: bool=True,
         freq_masking_prob: float=0.7, 
@@ -97,11 +99,13 @@ class DataCollatorSpeechSeq2SeqWithPaddingV1:
     ):
         self.processor: Any = processor
         self.tokenizer: Any = self.processor.tokenizer if tokenizer is None else tokenizer
+        self.lang: str = lang
         self.path_col: str = path_col
         self.text_col: str = text_col
         self.audio_duration_col: str = audio_duration_col
         self.model_input_col: str = model_input_col
         self.model_label_col: str = model_label_col
+        self.sample_id_col: str = sample_id_col
         self.target_sample_rate: int = target_sample_rate
         self.spec_argument: bool = spec_argument
         self.freq_masking_prob: float = freq_masking_prob
@@ -112,7 +116,8 @@ class DataCollatorSpeechSeq2SeqWithPaddingV1:
     def __call__(self, jsonl_samples: List[Dict]) -> Dict[str, Tensor]:
         train_samples: List[Dict] = [
             josnl_record2train_sample(
-                x, self.processor, 
+                x, self.processor,
+                lang=self.lang,
                 path_col=self.path_col, text_col=self.text_col, 
                 model_input_col=self.model_input_col, 
                 model_target_col=self.model_label_col, 
@@ -144,5 +149,11 @@ class DataCollatorSpeechSeq2SeqWithPaddingV1:
             labels = labels[:, 1:]
 
         batch["labels"] = labels
+
+        if self.sample_id_col not in {""}:
+            batch[self.sample_id_col] = torch.tensor(
+                [x[self.sample_id_col] for x in jsonl_samples], dtype=torch.int32
+            ).reshape(len(jsonl_samples), 1)
+
         return batch
 

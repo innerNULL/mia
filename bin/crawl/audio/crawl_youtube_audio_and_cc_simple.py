@@ -3,7 +3,7 @@
 # date: 2024-02-07
 #
 # Usage:
-# python ./bin/crawl_youtube_audio_and_cc_simple.py ./demo_configs/crawl_youtube_audio_and_cc_simple.json
+# python bin/crawl/audio/crawl_youtube_audio_and_cc_simple.py ./demo_configs/crawl/audio/crawl_youtube_audio_and_cc_simple.json 
 
 
 import pdb
@@ -19,13 +19,13 @@ from typing import Dict, List, Final, Union, Optional
 sys.path.append(
     os.path.join(os.path.dirname(__file__), "..", "src")
 )
-from audiopipeline.struct import SubtitleChunk
-from audiopipeline.struct import AudioMetadata
-from audiopipeline.struct import subtitle_chunk_print
-from audiopipeline.struct import subtitle_chunk_new
-from audiopipeline.struct import subtitle_chunks_merge
-from audiopipeline.struct import audio_metadata_to_json_obj
-from audiopipeline.utils import chunk_audio_with_subtitle_chunks
+from mlpipeline.struct import SubtitleChunk
+from mlpipeline.struct import AudioMetadata
+from mlpipeline.struct import subtitle_chunk_print
+from mlpipeline.struct import subtitle_chunk_new
+from mlpipeline.struct import subtitle_chunks_merge
+from mlpipeline.struct import audio_metadata_to_json_obj
+from mlpipeline.utils import chunk_audio_with_subtitle_chunks
 
 
 YOUTUBE_DL_BIN: str = os.path.join(

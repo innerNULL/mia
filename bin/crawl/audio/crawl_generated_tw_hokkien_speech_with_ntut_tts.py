@@ -6,7 +6,7 @@
 # http://tts001.iptcloud.net:8804/
 #
 # Try:
-# python ./bin/crawl_generated_tw_hokkien_speech_with_ntut_tts.py demo_configs/crawl_generated_tw_hokkien_speech_with_ntut_tts.json
+# python bin/crawl/audio/crawl_generated_tw_hokkien_speech_with_ntut_tts.py demo_configs/crawl/audio/crawl_generated_tw_hokkien_speech_with_ntut_tts.json 
 #
 # And here are some references
 #
@@ -41,7 +41,7 @@ from pyvirtualdisplay import Display
 sys.path.append(
     os.path.join(os.path.dirname(__file__), "..", "src")
 )
-from audiopipeline.utils import remove_punctuations_alphabets
+from mlpipeline.utils import remove_punctuations_alphabets
 
 
 DEBUG: Final[bool] = False

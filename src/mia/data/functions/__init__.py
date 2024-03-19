@@ -6,9 +6,17 @@
 import pdb
 import torch
 import torchaudio
+from datasets import load_dataset
 from typing import Dict, Callable, Union, List, Tuple
 from torch import Tensor
+from datasets import DatasetDict, Dataset
 from transformers import WhisperProcessor
+
+from . import io
+from . import dataset
+from . import processor
+
+from .dataset import datasetdict_load_jsonl
 
 
 def audio_file2model_inputs(
@@ -37,6 +45,7 @@ def text2token_ids(text: str, fea_extractor: WhisperProcessor) -> List[List[int]
 def josnl_record2train_sample(
     jsonl_sample: Dict, 
     fea_extractor: WhisperProcessor,
+    lang: str="mandarin",
     path_col: str="path", 
     text_col: str="text", 
     model_input_col: str="input_features", 
@@ -60,7 +69,7 @@ def josnl_record2train_sample(
         ) 
 
     output[model_target_col] = text2token_ids(
-        text=jsonl_sample[text_col],
+        text=processor.text_force_simplified_chinese(jsonl_sample[text_col], lang),
         fea_extractor=fea_extractor,
     )
     return output

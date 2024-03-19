@@ -1,7 +1,7 @@
-# audiopipeline
-This is a collection of audio/speech pipelines. So far focus more on data part 
-(crawler, ETL). The intention is, some unpopular languages' public audio dataset 
-are quite limited. For example, Hokkien, although there is a quite good dataset 
+# Audio Crawlers
+This is a collection of audio crawlers. The intention is, some unpopular languages' 
+public audio dataset are quite limited. For example, Hokkien, although there is a 
+quite good dataset 
 [TAT](https://sites.google.com/nycu.edu.tw/fsw/home/tat-phase-i?authuser=0), but 
 sadly they didn't open source it, which means you will meet difficulty on finding 
 corpus when you are working on Taiwanese ASR model training.

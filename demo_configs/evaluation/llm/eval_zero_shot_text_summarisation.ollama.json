@@ -1,0 +1,18 @@
+{
+  "workspace_dir": "./_eval_zero_shot_text_summarisation",
+  "data_path_or_name": "Elfsong/ClinicalDataset dev",
+  "text_col": "dialogue",
+  "summarisation_col": "section_text",
+  "backend": "ollama",
+  "llm_api": "http://localhost:11434/api/generate", 
+  "llm_prompts": [
+      "You are a ansistant or doctor, your target is to help doctor summarize patient's condition from medical text.",
+      "Please do following procedures one by one:",
+      "1. Check if the text is medical records or dialogues between patient and doctor.",
+      "2. If text dialogues between patient and doctor, then summarize patient's condition, inconfortable and questions.", 
+      "3. Only return me summarisation text",
+      "\n", 
+      "Here are the texts: \n"
+  ],
+  "out_path": "./_eval_zero_shot_text_summarisation_inf_with_ollama.jsonl"
+}

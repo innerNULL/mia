@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
-# file: inference.py
+# file: run_pseudo_labelling.py
+# date: 2024-03-08
+# 
+# Usage:
+# python ./bin/model/distil_whisper/run_pseudo_labelling.py ./demo_configs/model/distil_whisper/run_pseudo_labelling.json
+#
+# Notes:
+# The naming of pseudo labeled text field maybe be a little confusing here.
+# In most case, we only do pseudo labeling on training data, and using 
+# origin dev/test data for evaluation purpose to check if distil-whisper's
+# performance continuouly improving.
+# So we need keep pseudo labeled data have sime schema with original 
+# datasets, and so we replace `target_text_col` with teacher model 
+# generated text in pseudo labeled dataset, and put the value of original 
+# `target_text_col` into a new fields called `origin_target_text_col`.
 
 
 import pdb
@@ -20,29 +34,6 @@ from torchmetrics.text import CharErrorRate
 from mia.data.functions import audio_file2model_inputs
 
 
-def eval(
-    dataset: List[Dict], outputs_col: str, targets_col: str, lang: str
-) -> Dict:
-    if lang not in {"mandarin"}:
-        raise "So far not support evaluation for language '%s'" % lang
-    metric_name: str = ""
-    metric: Optional[CharErrorRate] = None
-    converter: Optional[OpenCC] = None
-
-    if lang == "mandarin":
-        metric_name = "cer"
-        metric = CharErrorRate()
-        converter = OpenCC('tw2s.json')
-
-    targets: List[str] = [converter.convert(x[targets_col]) for x in dataset]
-    outputs: List[str] = [converter.convert(x[outputs_col]) for x in dataset]
-    assert len(targets) == len(outputs)
-    
-    retults: Dict = {metric_name: float(metric(outputs, targets))}
-    print(retults)
-    return retults
-
-
 if __name__ == "__main__":
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     print(configs)
@@ -55,7 +46,10 @@ if __name__ == "__main__":
     print("Output at '%s'" % output_path)
     device: torch.device = torch.device(configs["device"])
     max_sample_size: int = configs["max_sample_size"]
-    groundtruth_col: str = configs["groundtruth_col"]
+    target_text_col: str = configs["target_text_col"]
+    origin_text_col: str = "origin_%s" % configs["target_text_col"]
+    metric_col: str = configs["metric_col"]
+    metric_to_use: str = configs["metric_to_use"]
 
     dataset: List[Dict] = [
         json.loads(x) for x in open(data_path, "r").read().split("\n")
@@ -73,17 +67,30 @@ if __name__ == "__main__":
     results: List[Dict] = []
     target_sampling_rate: int = 16000
     for sample in tqdm(dataset):
+        # Backup original target text
+        sample[origin_text_col] = sample[target_text_col]
+
         inputs: Tensor = None
         inputs, _ = audio_file2model_inputs(
             sample["path"], processor, target_sampling_rate, configs["device"]
-        ) 
+        )
         output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
         output_text: str = processor.tokenizer.decode(output_ids, skip_special_tokens=True)
-        sample["asr"] = output_text
+        sample[target_text_col] = output_text
+
+        if lang in {"mandarin", "zh-TW", "zh-CN", "zh"}:
+            converter: OpenCC = OpenCC('tw2s.json')
+            sample[origin_text_col] = converter.convert(sample[origin_text_col])
+            sample[target_text_col] = converter.convert(sample[target_text_col])
+        
+        if metric_to_use == "cer":
+            sample[metric_col] = CharErrorRate()(
+                sample[target_text_col], sample[origin_text_col]
+            ).to("cpu").tolist()
+        else:
+            raise Exception("Currently not support metrics '%s'" % metric_to_use)
+        
         results.append(sample)
-    
-    if groundtruth_col != "":
-        eval(results, "asr", groundtruth_col, lang) 
 
     out_file = open(output_path, "w")
     for sample in results:
