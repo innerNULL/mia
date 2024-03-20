@@ -1,8 +1,9 @@
 {
-  "hf_lm_path_or_name": "medicalai/ClinicalBERT",
+  "hf_lm_path_or_name": "google-bert/bert-base-uncased",
   "data_path_or_name": "./demo_data/evaluation/text_summarisaton/demo_dataset.jsonl",
   "cache_path": "./_text_summarisation_eval_cache.jsonl",
   "target_text_col": "target_text",
   "output_text_col": "output_text", 
-  "device": "cuda:1"
+  "device": "cuda:1", 
+  "use_cls_embedding": false
 }

@@ -9,6 +9,8 @@ import os
 import json
 import torch
 import pandas as pd
+import numpy as np
+from scipy.spatial.distance import cosine
 from tqdm import tqdm
 from typing import Dict, List
 from torch import Tensor
@@ -57,11 +59,25 @@ if __name__ == "__main__":
         ).to(torch.device(device))
 
         with torch.no_grad():
-            target_embd: Tensor = model(**target_tokens)["last_hidden_state"][0, 0, :]
-            output_embd: Tensor = model(**output_tokens)["last_hidden_state"][0, 0, :]
+            target_embd: Tensor = None
+            output_embd: Tensor = None
+            if configs["use_cls_embedding"]:
+                target_embd = model(**target_tokens)["last_hidden_state"][0, 0, :]
+                output_embd = model(**output_tokens)["last_hidden_state"][0, 0, :]
+            else:
+                target_embd = torch.mean(
+                    model(**target_tokens)["last_hidden_state"][:, 1:, :], dim=1
+                ).squeeze()
+                output_embd = torch.mean(
+                    model(**output_tokens)["last_hidden_state"][:, 1:, :], dim=1
+                ).squeeze()
+            
             cos_sim: float = torch.cosine_similarity(
                 target_embd.reshape(1, -1), output_embd.reshape(1, -1)
             ).cpu().tolist()[0]
+            #cos_sim: float = 1 - cosine(
+            #    target_embd.detach().cpu().numpy(), output_embd.detach().cpu().numpy()
+            #)
 
         embedding: Dict = {
             configs["target_text_col"]: target_text,
