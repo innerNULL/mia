@@ -14,6 +14,7 @@ from scipy.spatial.distance import cosine
 from tqdm import tqdm
 from typing import Dict, List
 from torch import Tensor
+from torch.nn import Module
 from transformers import AutoModel, AutoTokenizer
 
 
@@ -35,6 +36,41 @@ def load_data(path_or_name: str) -> List[Dict]:
     return out
 
 
+def sentence_cos_sim(
+    encoder: Module, target_text: str, output_text: str, 
+    use_cls_embedding: bool=False
+) -> float:
+    target_tokens: Tensor = tokenizer.encode_plus(
+        target_text, add_special_tokens=True, return_tensors='pt'
+    ).to(torch.device(device))
+    output_tokens: Tensor = tokenizer.encode_plus(
+        output_text, add_special_tokens=True, return_tensors='pt'
+    ).to(torch.device(device))
+
+    with torch.no_grad():
+        target_embd: Tensor = None
+        output_embd: Tensor = None
+        if use_cls_embedding:
+            target_embd = model(**target_tokens)["last_hidden_state"][0, 0, :]
+            output_embd = model(**output_tokens)["last_hidden_state"][0, 0, :]
+        else:
+            target_embd = torch.mean(
+                model(**target_tokens)["last_hidden_state"][:, 1:, :], dim=1
+            ).squeeze()
+            output_embd = torch.mean(
+                model(**output_tokens)["last_hidden_state"][:, 1:, :], dim=1
+            ).squeeze()
+        
+        cos_sim: float = torch.cosine_similarity(
+            target_embd.reshape(1, -1), output_embd.reshape(1, -1)
+        ).cpu().tolist()[0]
+        #cos_sim: float = 1 - cosine(
+        #    target_embd.detach().cpu().numpy(), output_embd.detach().cpu().numpy()
+        #)
+    return cos_sim
+
+
+
 if __name__ == "__main__":
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     print(configs)
@@ -51,39 +87,14 @@ if __name__ == "__main__":
     for record in tqdm(inf_results):
         target_text: str = record[configs["target_text_col"]]
         output_text: str = record[configs["output_text_col"]]
-        target_tokens: Tensor = tokenizer.encode_plus(
-            target_text, add_special_tokens=True, return_tensors='pt'
-        ).to(torch.device(device))
-        output_tokens: Tensor = tokenizer.encode_plus(
-            output_text, add_special_tokens=True, return_tensors='pt'
-        ).to(torch.device(device))
-
-        with torch.no_grad():
-            target_embd: Tensor = None
-            output_embd: Tensor = None
-            if configs["use_cls_embedding"]:
-                target_embd = model(**target_tokens)["last_hidden_state"][0, 0, :]
-                output_embd = model(**output_tokens)["last_hidden_state"][0, 0, :]
-            else:
-                target_embd = torch.mean(
-                    model(**target_tokens)["last_hidden_state"][:, 1:, :], dim=1
-                ).squeeze()
-                output_embd = torch.mean(
-                    model(**output_tokens)["last_hidden_state"][:, 1:, :], dim=1
-                ).squeeze()
-            
-            cos_sim: float = torch.cosine_similarity(
-                target_embd.reshape(1, -1), output_embd.reshape(1, -1)
-            ).cpu().tolist()[0]
-            #cos_sim: float = 1 - cosine(
-            #    target_embd.detach().cpu().numpy(), output_embd.detach().cpu().numpy()
-            #)
-
+        cos_sim: float = sentence_cos_sim(
+            model, target_text, output_text, configs["use_cls_embedding"]
+        )
         embedding: Dict = {
             configs["target_text_col"]: target_text,
             configs["output_text_col"]: output_text,
-            "target_embd": target_embd.cpu().tolist(), 
-            "output_embd": output_embd.cpu().tolist(),
+            #"target_embd": target_embd.cpu().tolist(), 
+            #"output_embd": output_embd.cpu().tolist(),
             "cos_sim": cos_sim
         }
         embeddings.append(embedding)
