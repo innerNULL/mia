@@ -14,7 +14,7 @@ from scipy.spatial.distance import cosine
 from tqdm import tqdm
 from typing import Dict, List
 from torch import Tensor
-from transformers import BertModel, BertTokenizer
+from transformers import AutoModel, AutoTokenizer
 
 
 def load_data(path_or_name: str) -> List[Dict]:
@@ -43,8 +43,8 @@ if __name__ == "__main__":
 
     inf_results: List[Dict] = load_data(configs["data_path_or_name"])
 
-    model = BertModel.from_pretrained(hf_lm_path_or_name).to(torch.device(device))
-    tokenizer = BertTokenizer.from_pretrained(hf_lm_path_or_name)
+    model = AutoModel.from_pretrained(hf_lm_path_or_name).to(torch.device(device))
+    tokenizer = AutoTokenizer.from_pretrained(hf_lm_path_or_name)
 
     embeddings: List[Dict] = []
     model.eval()
