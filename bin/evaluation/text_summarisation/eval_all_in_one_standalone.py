@@ -157,6 +157,7 @@ class BertScore(BaseMetric):
         idf_vals = [x if x > 0.0 else 0.0 for x in idf_vals]
         
         idf_sum: float = sum(idf_vals)
+        idf_sum: float = 0.00001 if idf_sum == 0 else idf_sum
 
         idf_weights: List[float] = [x / idf_sum for x in idf_vals]
         return torch.tensor(idf_weights).to(self.device) 
@@ -190,9 +191,17 @@ class BertScore(BaseMetric):
                     Tensor = model(**pred_tokens)["last_hidden_state"][:, 1:, :].squeeze()
                 # This handle case when generated a single or empty string.
                 pred_embds = pred_embds.reshape(-1, pred_embds.shape[-1])
-
-                target_embds = target_embds / (target_embds * target_embds).sum().pow(0.5)
-                pred_embds = pred_embds / (pred_embds * pred_embds).sum().pow(0.5)
+                
+                target_embds = target_embds / (target_embds * target_embds)\
+                    .sum(dim=1)\
+                    .pow(0.5)\
+                    .reshape(-1, target_embds.shape[0])\
+                    .repeat(target_embds.shape[1], 1).T
+                pred_embds = pred_embds / (pred_embds * pred_embds)\
+                    .sum(dim=1)\
+                    .pow(0.5)\
+                    .reshape(-1, pred_embds.shape[0])\
+                    .repeat(pred_embds.shape[1], 1).T
                 
                 # pred token ID num * target token ID num
                 cos_sim: Tensor = target_embds.matmul(pred_embds.T)
