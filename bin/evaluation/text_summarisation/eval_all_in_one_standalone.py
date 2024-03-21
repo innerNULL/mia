@@ -145,15 +145,18 @@ class BertScore(BaseMetric):
     def get_idf(self, token_id: int) -> float:
         df: int = self.token_id_df.get(token_id, 0) 
         assert(df <= len(self.target_texts))
-        df = (df + 0.00001) if df == 0 else df
-        return -np.log(df / len(self.target_texts))
+
+        # Refer to paper https://arxiv.org/abs/1904.09675,
+        # using "plus one" smooth here
+        return -np.log(
+            (df + 1) / (len(self.target_texts) + 1)
+        )
 
     def get_idf_weights(self, ids: List[int]) -> Tensor:
         idf_vals: List[float] = [self.get_idf(i) for i in ids]
         idf_vals = [x if x > 0.0 else 0.0 for x in idf_vals]
         
         idf_sum: float = sum(idf_vals)
-        idf_sum: float = 0.00001 if idf_sum == 0 else idf_sum
 
         idf_weights: List[float] = [x / idf_sum for x in idf_vals]
         return torch.tensor(idf_weights).to(self.device) 
