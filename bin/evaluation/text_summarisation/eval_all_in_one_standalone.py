@@ -148,6 +148,16 @@ class BertScore(BaseMetric):
         df = (df + 0.00001) if df == 0 else df
         return -np.log(df / len(self.target_texts))
 
+    def get_idf_weights(self, ids: List[int]) -> Tensor:
+        idf_vals: List[float] = [self.get_idf(i) for i in ids]
+        idf_vals = [x if x > 0.0 else 0.0 for x in idf_vals]
+        
+        idf_sum: float = sum(idf_vals)
+        idf_sum: float = 0.00001 if idf_sum == 0 else idf_sum
+
+        idf_weights: List[float] = [x / idf_sum for x in idf_vals]
+        return torch.tensor(idf_weights).to(self.device) 
+
     def _run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
         assert(len(target_texts) == len(pred_texts))
         recorder: Dict[str, List[float]] = {
@@ -156,7 +166,6 @@ class BertScore(BaseMetric):
         for i in tqdm(range(len(target_texts))):
             target_text: str = target_texts[i]
             pred_text: str = pred_texts[i]
-    
             target_tokens: Tensor = tokenizer.encode_plus(
                 target_text, add_special_tokens=True, return_tensors='pt'
             ).to(self.device)
@@ -164,33 +173,19 @@ class BertScore(BaseMetric):
                 pred_text, add_special_tokens=True, return_tensors='pt'
             ).to(self.device)
             
-            target_idf: List[float] = [
-                self.get_idf(i) for i in target_tokens.input_ids.cpu().tolist()[0]
-            ][1:]
-            pred_idf: List[float] = [
-                self.get_idf(i) for i in pred_tokens.input_ids.cpu().tolist()[0]
-            ][1:]
-            
-            target_idf = [x if x > 0 else 0.0 for x in target_idf]
-            pred_idf = [x if x > 0 else 0.0 for x in pred_idf]
-            
-            target_idf_sum: float = sum(target_idf)
-            pred_idf_sum: float = sum(pred_idf)
-            target_idf_sum = 0.00001 if target_idf_sum == 0 else target_idf_sum
-            pred_idf_sum = 0.00001 if pred_idf_sum == 0 else pred_idf_sum
-            
-            target_idf_weights: Tensor = torch.tensor(
-                [x / target_idf_sum for x in target_idf]
-            ).to(self.device)
-            pred_idf_weights: Tensor = torch.tensor(
-                [x / pred_idf_sum for x in pred_idf]
-            ).to(self.device)
+            target_idf_weights: Tensor = self.get_idf_weights(
+                target_tokens.input_ids.cpu().tolist()[0][1:]
+            )
+            pred_idf_weights: Tensor = self.get_idf_weights(
+                pred_tokens.input_ids.cpu().tolist()[0][1:]
+            )
 
             with torch.no_grad():
                 target_embds: Tensor = \
                     model(**target_tokens)["last_hidden_state"][:, 1:, :].squeeze()
                 pred_embds: \
                     Tensor = model(**pred_tokens)["last_hidden_state"][:, 1:, :].squeeze()
+                # This handle case when generated a single or empty string.
                 pred_embds = pred_embds.reshape(-1, pred_embds.shape[-1])
 
                 target_embds = target_embds / (target_embds * target_embds).sum().pow(0.5)
