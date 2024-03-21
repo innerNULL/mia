@@ -12,12 +12,12 @@ import json
 import torch
 import pandas as pd
 import numpy as np
-from scipy.spatial.distance import cosine
 from tqdm import tqdm
 from typing import Dict, List, Any, Optional, Set
 from torch import Tensor
 from torch.nn import Module
 from transformers import AutoModel, AutoTokenizer
+from torchmetrics.text.rouge import ROUGEScore
 
 
 def print_metrics(vals: Dict, name: str) -> None:
@@ -89,6 +89,21 @@ class BaseMetric:
 
     def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
         return {}
+
+
+class Rouge(BaseMetric):
+    def __init__(self, 
+        encoder: Optional[Module]=None,
+        tokenizer: Optional[Any]=None,
+        target_texts: Optional[List[str]]=None,
+        device: str="cuda:1"
+    ):
+        super().__init__(encoder, tokenizer, target_texts, device)
+
+    def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
+        rouge: ROUGEScore = ROUGEScore()
+        metrics: Dict[str, Tensor] = rouge(pred_texts, target_texts)
+        return {k: v.cpu().tolist() for k, v in metrics.items()}
 
 
 class AvgCosSimilarity(BaseMetric):
@@ -246,12 +261,16 @@ if __name__ == "__main__":
                 target_texts=[x[configs["target_text_col"]] for x in inf_results],
                 device=device
             )
-            metrics_val: Dict[str, float] = bertscore.run(target_texts, pred_texts)
+            metrics_val = bertscore.run(target_texts, pred_texts)
             print_metrics(metrics_val, metric_name)
         if metric_name == "avg_cos_sim":
             avg_cos_sim: AvgCosSimilarity = AvgCosSimilarity(
                 encoder=model, tokenizer=tokenizer, target_texts=None, device=device
             )
-            metrics_val: Dict[str, float] = avg_cos_sim.run(target_texts, pred_texts)
+            metrics_val = avg_cos_sim.run(target_texts, pred_texts)
+            print_metrics(metrics_val, metric_name)
+        if metric_name == "rouge":
+            rouge: Rouge = Rouge()
+            metrics_val = rouge.run(target_texts, pred_texts)
             print_metrics(metrics_val, metric_name)
 

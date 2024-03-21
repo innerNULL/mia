@@ -4,5 +4,5 @@
   "target_text_col": "target_text",
   "output_text_col": "output_text", 
   "device": "cuda:1", 
-  "metrics": ["avg_cos_sim", "bertscore"]
+  "metrics": ["avg_cos_sim", "bertscore", "rouge"]
 }
