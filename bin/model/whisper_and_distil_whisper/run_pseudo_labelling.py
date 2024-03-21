@@ -31,7 +31,7 @@ from transformers import AutoModelForSpeechSeq2Seq
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from torchmetrics.text import CharErrorRate
 
-from mia.data.functions import audio_file2model_inputs
+from mia.data.audio.functions import audio_file2model_inputs
 
 
 if __name__ == "__main__":

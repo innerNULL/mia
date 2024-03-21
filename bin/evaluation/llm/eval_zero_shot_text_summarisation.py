@@ -147,10 +147,9 @@ if __name__ == "__main__":
         print("See results at '%s'" % out_path)
 
     metric_obj: ROUGEScore = ROUGEScore()
+    targets: List[str] = [x[summarisation_col] for x in outputs]
+    outputs: List[str] = [x["gen_text"] for x in outputs]
     metrics: Dict = {
-        k: v.cpu().tolist() for k, v in metric_obj(
-            [x[text_col] for x in outputs],
-            [x[summarisation_col] for x in outputs]
-        ).items()
+        k: v.cpu().tolist() for k, v in metric_obj(targets, outputs).items()
     }
     print(metrics)
