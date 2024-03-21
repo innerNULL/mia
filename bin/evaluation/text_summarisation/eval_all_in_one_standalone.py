@@ -10,6 +10,7 @@ import sys
 import os
 import json
 import torch
+import evaluate
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -76,9 +77,9 @@ def sentence_cos_sim(
 
 class BaseMetric:
     def __init__(self, 
-        encoder: Optional[Module], 
-        tokenizer: Optional[Any], 
-        target_texts: Optional[List[str]], 
+        encoder: Optional[Module]=None, 
+        tokenizer: Optional[Any]=None, 
+        target_texts: Optional[List[str]]=None, 
         device: str="cuda:1"
     ):
         self.encoder: Module = encoder
@@ -89,6 +90,13 @@ class BaseMetric:
 
     def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
         return {}
+
+
+class Meteor(BaseMetric):
+    def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
+        meteor = evaluate.load('meteor')
+        results = meteor.compute(predictions=pred_texts, references=target_texts)
+        return results
 
 
 class Rouge(BaseMetric):
@@ -273,4 +281,7 @@ if __name__ == "__main__":
             rouge: Rouge = Rouge()
             metrics_val = rouge.run(target_texts, pred_texts)
             print_metrics(metrics_val, metric_name)
-
+        if metric_name == "meteor":
+            meteor: Meteor = Meteor()
+            metrics_val = meteor.run(target_texts, pred_texts)
+            print_metrics(metrics_val, metric_name)
