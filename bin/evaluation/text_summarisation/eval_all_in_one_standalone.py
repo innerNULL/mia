@@ -187,23 +187,20 @@ class BertScore(BaseMetric):
             ).to(self.device)
 
             with torch.no_grad():
-                target_embds: Tensor = model(**target_tokens)["last_hidden_state"][:, 1:, :].squeeze()
-                pred_embds: Tensor = model(**pred_tokens)["last_hidden_state"][:, 1:, :].squeeze()
+                target_embds: Tensor = \
+                    model(**target_tokens)["last_hidden_state"][:, 1:, :].squeeze()
+                pred_embds: \
+                    Tensor = model(**pred_tokens)["last_hidden_state"][:, 1:, :].squeeze()
                 pred_embds = pred_embds.reshape(-1, pred_embds.shape[-1])
 
                 target_embds = target_embds / (target_embds * target_embds).sum().pow(0.5)
                 pred_embds = pred_embds / (pred_embds * pred_embds).sum().pow(0.5)
+                
                 # pred token ID num * target token ID num
                 cos_sim: Tensor = target_embds.matmul(pred_embds.T)
-                try:
-                    r_bert: Tensor = (torch.max(cos_sim, dim=1).values * target_idf_weights).sum()
-                    p_bert: Tensor = (torch.max(cos_sim, dim=0).values * pred_idf_weights).sum()
-                    f_score: Tensor = 2.0 * (r_bert * p_bert) / (r_bert + p_bert)
-                except:
-                    pdb.set_trace()
-                    r_bert: Tensor = (torch.max(cos_sim, dim=1).values * target_idf_weights).sum()
-                    p_bert: Tensor = (torch.max(cos_sim, dim=0).values * pred_idf_weights).sum()
-
+                r_bert: Tensor = (torch.max(cos_sim, dim=1).values * target_idf_weights).sum()
+                p_bert: Tensor = (torch.max(cos_sim, dim=0).values * pred_idf_weights).sum()
+                f_score: Tensor = 2.0 * (r_bert * p_bert) / (r_bert + p_bert)
             
             recorder["r_bert"].append(r_bert.cpu().tolist())
             recorder["p_bert"].append(p_bert.cpu().tolist())
@@ -218,7 +215,6 @@ class BertScore(BaseMetric):
             "f_score": sum(bert_scores["f_score"]) / len(bert_scores["f_score"])
         }
         return bertscore_metrics
-
 
 
 if __name__ == "__main__":
