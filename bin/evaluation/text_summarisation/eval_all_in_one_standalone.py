@@ -8,6 +8,7 @@
 import pdb
 import sys
 import os
+import traceback
 import json
 import torch
 import evaluate
@@ -191,50 +192,57 @@ class BertScore(BaseMetric):
             "r_bert": [], "p_bert": [], "f_score": []
         }
         for i in tqdm(range(len(target_texts))):
-            target_text: str = target_texts[i]
-            pred_text: str = pred_texts[i]
-            target_tokens: Tensor = tokenizer.encode_plus(
-                target_text, add_special_tokens=True, return_tensors='pt'
-            ).to(self.device)
-            pred_tokens: Tensor = tokenizer.encode_plus(
-                pred_text, add_special_tokens=True, return_tensors='pt'
-            ).to(self.device)
-            
-            target_idf_weights: Tensor = self.get_idf_weights(
-                target_tokens.input_ids.cpu().tolist()[0][1:]
-            )
-            pred_idf_weights: Tensor = self.get_idf_weights(
-                pred_tokens.input_ids.cpu().tolist()[0][1:]
-            )
+            try:
+                target_text: str = target_texts[i]
+                pred_text: str = pred_texts[i]
+                target_tokens: Tensor = tokenizer.encode_plus(
+                    target_text, add_special_tokens=True, return_tensors='pt',
+                    #truncation=True, padding='max_length', max_length=512
+                ).to(self.device)
+                pred_tokens: Tensor = tokenizer.encode_plus(
+                    pred_text, add_special_tokens=True, return_tensors='pt',
+                    #truncation=True, padding='max_length', max_length=512
+                ).to(self.device)
+                
+                target_idf_weights: Tensor = self.get_idf_weights(
+                    target_tokens.input_ids.cpu().tolist()[0][1:]
+                )
+                pred_idf_weights: Tensor = self.get_idf_weights(
+                    pred_tokens.input_ids.cpu().tolist()[0][1:]
+                )
 
-            with torch.no_grad():
-                target_embds: Tensor = \
-                    model(**target_tokens)["last_hidden_state"][:, 1:, :].squeeze()
-                pred_embds: \
-                    Tensor = model(**pred_tokens)["last_hidden_state"][:, 1:, :].squeeze()
-                # This handle case when generated a single or empty string.
-                pred_embds = pred_embds.reshape(-1, pred_embds.shape[-1])
+                with torch.no_grad():
+                    target_embds: Tensor = \
+                        model(**target_tokens)["last_hidden_state"][:, 1:, :].squeeze()
+                    pred_embds: \
+                        Tensor = model(**pred_tokens)["last_hidden_state"][:, 1:, :].squeeze()
+                    # This handle case when generated a single or empty string.
+                    pred_embds = pred_embds.reshape(-1, pred_embds.shape[-1])
+                    
+                    target_embds = target_embds / (target_embds * target_embds)\
+                        .sum(dim=1)\
+                        .pow(0.5)\
+                        .reshape(-1, target_embds.shape[0])\
+                        .repeat(target_embds.shape[1], 1).T
+                    pred_embds = pred_embds / (pred_embds * pred_embds)\
+                        .sum(dim=1)\
+                        .pow(0.5)\
+                        .reshape(-1, pred_embds.shape[0])\
+                        .repeat(pred_embds.shape[1], 1).T
+                    
+                    # pred token ID num * target token ID num
+                    cos_sim: Tensor = target_embds.matmul(pred_embds.T)
+                    r_bert: Tensor = (torch.max(cos_sim, dim=1).values * target_idf_weights).sum()
+                    p_bert: Tensor = (torch.max(cos_sim, dim=0).values * pred_idf_weights).sum()
+                    f_score: Tensor = 2.0 * (r_bert * p_bert) / (r_bert + p_bert)
                 
-                target_embds = target_embds / (target_embds * target_embds)\
-                    .sum(dim=1)\
-                    .pow(0.5)\
-                    .reshape(-1, target_embds.shape[0])\
-                    .repeat(target_embds.shape[1], 1).T
-                pred_embds = pred_embds / (pred_embds * pred_embds)\
-                    .sum(dim=1)\
-                    .pow(0.5)\
-                    .reshape(-1, pred_embds.shape[0])\
-                    .repeat(pred_embds.shape[1], 1).T
-                
-                # pred token ID num * target token ID num
-                cos_sim: Tensor = target_embds.matmul(pred_embds.T)
-                r_bert: Tensor = (torch.max(cos_sim, dim=1).values * target_idf_weights).sum()
-                p_bert: Tensor = (torch.max(cos_sim, dim=0).values * pred_idf_weights).sum()
-                f_score: Tensor = 2.0 * (r_bert * p_bert) / (r_bert + p_bert)
-            
-            recorder["r_bert"].append(r_bert.cpu().tolist())
-            recorder["p_bert"].append(p_bert.cpu().tolist())
-            recorder["f_score"].append(f_score.cpu().tolist()) 
+                recorder["r_bert"].append(r_bert.cpu().tolist())
+                recorder["p_bert"].append(p_bert.cpu().tolist())
+                recorder["f_score"].append(f_score.cpu().tolist()) 
+            except Exception as e:
+                print("Failed on some marginal cases, following are error messages")
+                print(e)
+                print(traceback.format_exc())
         return recorder
 
     def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
