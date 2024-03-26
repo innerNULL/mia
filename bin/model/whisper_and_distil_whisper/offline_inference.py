@@ -35,10 +35,9 @@ def eval(
     if lang == "mandarin":
         metric_name = "cer"
         metric = CharErrorRate()
-        converter = OpenCC('tw2s.json')
 
-    targets: List[str] = [converter.convert(x[targets_col]) for x in dataset]
-    outputs: List[str] = [converter.convert(x[outputs_col]) for x in dataset]
+    targets: List[str] = [x[targets_col] for x in dataset]
+    outputs: List[str] = [x[outputs_col] for x in dataset]
     assert len(targets) == len(outputs)
     
     retults: Dict = {metric_name: float(metric(outputs, targets))}
@@ -100,11 +99,16 @@ if __name__ == "__main__":
             ) 
             output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
             output_text = processor.tokenizer.decode(output_ids, skip_special_tokens=True)
-        
+         
+        output_text = output_text if lang != "mandarin" else OpenCC('tw2s.json').convert(output_text)
         sample[output_text_col] = output_text
         results.append(sample)
     
     if groundtruth_col != "":
+        for x in results:
+            x[groundtruth_col] = \
+                x[groundtruth_col] if lang != "mandarin" \
+                else OpenCC('tw2s.json').convert(x[groundtruth_col])
         eval(results, output_text_col, groundtruth_col, lang) 
 
     out_file = open(output_path, "w")
