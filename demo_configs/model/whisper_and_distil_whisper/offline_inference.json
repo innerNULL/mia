@@ -8,5 +8,6 @@
   "audio_path_col": "path", 
   "output_text_col": "output_text",
   "output_path": "./_whisper_offline_inference_results.jsonl", 
-  "groundtruth_col": "" 
+  "groundtruth_col": "",
+  "use_hf_pipeline": true
 }

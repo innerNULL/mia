@@ -10,6 +10,7 @@ import os
 import json
 import torch
 import torchaudio
+from transformers import pipeline
 from tqdm import tqdm
 from opencc import OpenCC
 from torch import Tensor
@@ -60,6 +61,7 @@ if __name__ == "__main__":
     device: torch.device = torch.device(configs["device"])
     max_sample_size: int = configs["max_sample_size"]
     groundtruth_col: str = configs["groundtruth_col"]
+    use_hf_pipeline: bool = configs["use_hf_pipeline"]
 
     dataset: List[Dict] = [
         json.loads(x) for x in open(data_path, "r").read().split("\n")
@@ -73,16 +75,32 @@ if __name__ == "__main__":
     model.config.forced_decoder_ids = processor.get_decoder_prompt_ids(
         language=lang, task="transcribe"
     )
+    inf_pipeline = None 
+    if use_hf_pipeline:
+        inf_pipeline = pipeline(
+            "automatic-speech-recognition",
+            model=model_name, 
+            tokenizer=processor.tokenizer, 
+            feature_extractor=processor.feature_extractor, 
+            chunk_length_s=30, return_timestamps=False
+        )
  
     results: List[Dict] = []
     target_sampling_rate: int = 16000
     for sample in tqdm(dataset):
-        inputs: Tensor = None
-        inputs, _ = audio_file2model_inputs(
-            sample[audio_path_col], processor, target_sampling_rate, configs["device"]
-        ) 
-        output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
-        output_text: str = processor.tokenizer.decode(output_ids, skip_special_tokens=True)
+        output_text: str = ""
+        if inf_pipeline:
+            output_text = inf_pipeline(
+                sample[audio_path_col], generate_kwargs={"language": lang}
+            )["text"]
+        else:
+            inputs: Tensor = None
+            inputs, _ = audio_file2model_inputs(
+                sample[audio_path_col], processor, target_sampling_rate, configs["device"]
+            ) 
+            output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
+            output_text = processor.tokenizer.decode(output_ids, skip_special_tokens=True)
+        
         sample[output_text_col] = output_text
         results.append(sample)
     
