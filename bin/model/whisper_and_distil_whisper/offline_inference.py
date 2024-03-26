@@ -51,6 +51,7 @@ if __name__ == "__main__":
     processor_name: str = configs["processor"]
     data_path: str = configs["data_path"]
     lang: str = configs["lang"]
+    output_text_col: str = configs["output_text_col"]
     output_path: str = configs["output_path"]
     print("Output at '%s'" % output_path)
     device: torch.device = torch.device(configs["device"])
@@ -79,11 +80,11 @@ if __name__ == "__main__":
         ) 
         output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
         output_text: str = processor.tokenizer.decode(output_ids, skip_special_tokens=True)
-        sample["asr"] = output_text
+        sample[output_text_col] = output_text
         results.append(sample)
     
     if groundtruth_col != "":
-        eval(results, "asr", groundtruth_col, lang) 
+        eval(results, output_text_col, groundtruth_col, lang) 
 
     out_file = open(output_path, "w")
     for sample in results:
