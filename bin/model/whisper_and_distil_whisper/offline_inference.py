@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # file: inference.py
+#
+# python ./bin/model/whisper_and_distil_whisper/offline_inference.py ./demo_configs/model/whisper_and_distil_whisper/offline_inference.json
 
 
 import pdb
@@ -51,6 +53,7 @@ if __name__ == "__main__":
     processor_name: str = configs["processor"]
     data_path: str = configs["data_path"]
     lang: str = configs["lang"]
+    audio_path_col: str = configs["audio_path_col"]
     output_text_col: str = configs["output_text_col"]
     output_path: str = configs["output_path"]
     print("Output at '%s'" % output_path)
@@ -76,7 +79,7 @@ if __name__ == "__main__":
     for sample in tqdm(dataset):
         inputs: Tensor = None
         inputs, _ = audio_file2model_inputs(
-            sample["path"], processor, target_sampling_rate, configs["device"]
+            sample[audio_path_col], processor, target_sampling_rate, configs["device"]
         ) 
         output_ids: List[int] = model.generate(inputs).to("cpu").tolist()[0]
         output_text: str = processor.tokenizer.decode(output_ids, skip_special_tokens=True)

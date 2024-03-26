@@ -5,6 +5,7 @@
   "lang": "mandarin", 
   "device": "cuda:2", 
   "max_sample_size": 1000,
+  "audio_path_col": "path", 
   "output_text_col": "output_text",
   "output_path": "./_whisper_offline_inference_results.jsonl", 
   "groundtruth_col": "" 
