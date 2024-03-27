@@ -24,3 +24,4 @@ accelerate==0.27.2
 augly==1.0.0
 nltk>=3.8.1
 evaluate>=0.4.1
+duckdb>=0.10.1
