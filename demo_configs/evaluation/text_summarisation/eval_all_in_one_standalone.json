@@ -4,5 +4,6 @@
   "target_text_col": "target_text",
   "output_text_col": "output_text", 
   "device": "cuda:1", 
-  "metrics": ["avg_cos_sim", "bertscore", "rouge", "meteor"]
+  "metrics": ["avg_cos_sim", "bertscore", "rouge", "meteor"], 
+  "output_path": "./_text_summarization_evaluated_samples.jsonl"
 }

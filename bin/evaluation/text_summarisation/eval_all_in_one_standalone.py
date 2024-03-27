@@ -15,7 +15,7 @@ import evaluate
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from typing import Dict, List, Any, Optional, Set
+from typing import Dict, List, Any, Optional, Set, Tuple
 from torch import Tensor
 from torch.nn import Module
 from transformers import AutoModel, AutoTokenizer
@@ -89,15 +89,19 @@ class BaseMetric:
         self.token_id_df: Dict[int, float] = {}
         self.device: torch.device = torch.device(device)
 
-    def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
-        return {}
+    def run(
+        self, target_texts: List[str], pred_texts: List[str]
+    ) -> Tuple[ Dict, Optional[List[Dict]] ]:
+        return {}, None
 
 
 class Meteor(BaseMetric):
-    def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
+    def run(
+        self, target_texts: List[str], pred_texts: List[str]
+    ) -> Tuple[ Dict, Optional[List[Dict]] ]:
         meteor = evaluate.load('meteor')
         results = meteor.compute(predictions=pred_texts, references=target_texts)
-        return results
+        return results, None
 
 
 class Rouge(BaseMetric):
@@ -109,10 +113,12 @@ class Rouge(BaseMetric):
     ):
         super().__init__(encoder, tokenizer, target_texts, device)
 
-    def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
+    def run(
+        self, target_texts: List[str], pred_texts: List[str]
+    ) -> Tuple[ Dict, Optional[List[Dict]] ]:
         rouge: ROUGEScore = ROUGEScore()
         metrics: Dict[str, Tensor] = rouge(pred_texts, target_texts)
-        return {k: v.cpu().tolist() for k, v in metrics.items()}
+        return {k: v.cpu().tolist() for k, v in metrics.items()}, None
 
 
 class AvgCosSimilarity(BaseMetric):
@@ -124,26 +130,34 @@ class AvgCosSimilarity(BaseMetric):
     ):
         super().__init__(encoder, tokenizer, target_texts, device)
 
-    def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
+    def run(
+        self, target_texts: List[str], pred_texts: List[str]
+    ) -> Tuple[ Dict, Optional[List[Dict]] ]:
         assert(len(target_texts) == len(pred_texts))
         embeddings: List[Dict] = []
         for i in tqdm(range(len(target_texts))):
-            target_text: str = target_texts[i]
-            output_text: str = pred_texts[i] 
-            cos_sim: float = sentence_cos_sim(
-                self.encoder, self.tokenizer, target_text, output_text, 
-                use_cls_embedding=False
-            )
-            embedding: Dict = {
-                configs["target_text_col"]: target_text,
-                configs["output_text_col"]: output_text,
-                #"target_embd": target_embd.cpu().tolist(), 
-                #"output_embd": output_embd.cpu().tolist(),
-                "cos_sim": cos_sim
-            }
-            embeddings.append(embedding)
+            try:
+                target_text: str = target_texts[i]
+                output_text: str = pred_texts[i] 
+                cos_sim: float = sentence_cos_sim(
+                    self.encoder, self.tokenizer, target_text, output_text, 
+                    use_cls_embedding=False
+                )
+                embedding: Dict = {
+                    configs["target_text_col"]: target_text,
+                    configs["output_text_col"]: output_text,
+                    #"target_embd": target_embd.cpu().tolist(), 
+                    #"output_embd": output_embd.cpu().tolist(),
+                    "cos_sim": cos_sim
+                }
+                embeddings.append(embedding)
+            except Exception as e:
+                print("Failed on some marginal cases, following are error messages")
+                print(e)
+                print(traceback.format_exc())
+
         cos_sims: List[float] = [x["cos_sim"] for x in embeddings]
-        return {"cos_sim": sum(cos_sims)  / len(cos_sims)}
+        return {"cos_sim": sum(cos_sims)  / len(cos_sims)}, None
      
 
 class BertScore(BaseMetric):
@@ -189,7 +203,8 @@ class BertScore(BaseMetric):
     def _run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
         assert(len(target_texts) == len(pred_texts))
         recorder: Dict[str, List[float]] = {
-            "r_bert": [], "p_bert": [], "f_score": []
+            "r_bert": [], "p_bert": [], "f_score": [], 
+            "candidate": [], "reference": []
         }
         for i in tqdm(range(len(target_texts))):
             try:
@@ -239,20 +254,39 @@ class BertScore(BaseMetric):
                 recorder["r_bert"].append(r_bert.cpu().tolist())
                 recorder["p_bert"].append(p_bert.cpu().tolist())
                 recorder["f_score"].append(f_score.cpu().tolist()) 
+                recorder["candidate"].append(pred_text)
+                recorder["reference"].append(target_text)
             except Exception as e:
                 print("Failed on some marginal cases, following are error messages")
                 print(e)
                 print(traceback.format_exc())
         return recorder
 
-    def run(self, target_texts: List[str], pred_texts: List[str]) -> Dict:
-        bert_scores: Dict[str, List[float]] = self._run(target_texts, pred_texts)
+    def run(
+        self, target_texts: List[str], pred_texts: List[str]
+    ) -> Tuple[ Dict, Optional[List[Dict]] ]:
+        bert_scores: Dict = self._run(target_texts, pred_texts)
+        assert(len(bert_scores["candidate"]) == len(bert_scores["reference"]))
+        assert(len(bert_scores["f_score"]) == len(bert_scores["reference"]))
+        assert(len(bert_scores["r_bert"]) == len(bert_scores["reference"]))
+        assert(len(bert_scores["p_bert"]) == len(bert_scores["reference"]))
+
         bertscore_metrics: Dict[str, float] = {
             "r_bert": sum(bert_scores["r_bert"]) / len(bert_scores["r_bert"]), 
             "p_bert": sum(bert_scores["p_bert"]) / len(bert_scores["p_bert"]),
             "f_score": sum(bert_scores["f_score"]) / len(bert_scores["f_score"])
         }
-        return bertscore_metrics
+        sample_metris: List[str] = []
+        for i in range(len(bert_scores["f_score"])):
+            record: Dict = {
+              "candidate": bert_scores["candidate"][i],
+              "reference": bert_scores["reference"][i],
+              "r_bert": bert_scores["r_bert"][i],
+              "p_bert": bert_scores["p_bert"][i],
+              "f_score": bert_scores["f_score"][i]
+            }
+            sample_metris.append(record)
+        return bertscore_metrics, sample_metris
 
 
 if __name__ == "__main__":
@@ -269,6 +303,7 @@ if __name__ == "__main__":
     model = AutoModel.from_pretrained(hf_lm_path_or_name).to(torch.device(device))
     tokenizer = AutoTokenizer.from_pretrained(hf_lm_path_or_name)
     
+    sample_metrics: Optional[List[Dict]] = None
     for metric_name in metrics:
         metrics_val: Dict[str, float] = {}
         if metric_name == "bertscore":
@@ -277,19 +312,28 @@ if __name__ == "__main__":
                 target_texts=[x[configs["target_text_col"]] for x in inf_results],
                 device=device
             )
-            metrics_val = bertscore.run(target_texts, pred_texts)
+            metrics_val, sample_metrics = bertscore.run(target_texts, pred_texts)
             print_metrics(metrics_val, metric_name)
         if metric_name == "avg_cos_sim":
             avg_cos_sim: AvgCosSimilarity = AvgCosSimilarity(
                 encoder=model, tokenizer=tokenizer, target_texts=None, device=device
             )
-            metrics_val = avg_cos_sim.run(target_texts, pred_texts)
+            metrics_val, sample_metrics = avg_cos_sim.run(target_texts, pred_texts)
             print_metrics(metrics_val, metric_name)
         if metric_name == "rouge":
             rouge: Rouge = Rouge()
-            metrics_val = rouge.run(target_texts, pred_texts)
+            metrics_val, sample_metrics = rouge.run(target_texts, pred_texts)
             print_metrics(metrics_val, metric_name)
         if metric_name == "meteor":
             meteor: Meteor = Meteor()
-            metrics_val = meteor.run(target_texts, pred_texts)
+            metrics_val, sample_metrics = meteor.run(target_texts, pred_texts)
             print_metrics(metrics_val, metric_name)
+
+        if sample_metrics is not None:
+           ext: str = configs["output_path"].split(".")[-1]
+           file_name: str = ".".join(configs["output_path"].split(".")[:-1])
+           curr_path = "{}.{}.{}".format(file_name, metric_name, ext)
+           f = open(curr_path, "w") 
+           for sample in sample_metrics:
+               f.write(json.dumps(sample, ensure_ascii=False) + "\n")
+           print(curr_path)
