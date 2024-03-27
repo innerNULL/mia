@@ -212,11 +212,15 @@ class BertScore(BaseMetric):
                 pred_text: str = pred_texts[i]
                 target_tokens: Tensor = tokenizer.encode_plus(
                     target_text, add_special_tokens=True, return_tensors='pt',
-                    #truncation=True, padding='max_length', max_length=512
+                    truncation=True, 
+                    #padding='max_length', 
+                    max_length=512
                 ).to(self.device)
                 pred_tokens: Tensor = tokenizer.encode_plus(
                     pred_text, add_special_tokens=True, return_tensors='pt',
-                    #truncation=True, padding='max_length', max_length=512
+                    truncation=True, 
+                    #padding='max_length', 
+                    max_length=512
                 ).to(self.device)
                 
                 target_idf_weights: Tensor = self.get_idf_weights(
@@ -260,6 +264,7 @@ class BertScore(BaseMetric):
                 print("Failed on some marginal cases, following are error messages")
                 print(e)
                 print(traceback.format_exc())
+                pdb.set_trace()
         return recorder
 
     def run(
