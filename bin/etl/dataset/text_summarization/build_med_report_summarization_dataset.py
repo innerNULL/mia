@@ -11,6 +11,7 @@ import duckdb
 import re
 from tqdm import tqdm
 from typing import Dict, List, Tuple
+from duckdb.duckdb import DuckDBPyRelation
 
 
 FINDINGS_FIELDS: List[str] = [
@@ -50,15 +51,31 @@ MINIMUM_FINDINGS_LENGTH: int = 10
 
 MINIMUM_IMPRESSION_LENGTH: int = 5
 
-SQL_QUERY_RAW_RADIOLOGY_REPORT: str = """
+SQL_QUERY_RAW_MED_REPORT: str = """
 with 
 med_note_with_impressions as (
-  select CATEGORY, TEXT from "__NOTEEVENTS_PATH__" 
-  where contains(TEXT, 'IMPRESSION:')
-  and CATEGORY != 'Discharge summary'
+  select __RAW_TEXT_COL__ 
+  from __LOADER__('__NOTEEVENTS_PATH__') 
 )
 select * from med_note_with_impressions;
 """
+
+
+def duckdb_load_csv_or_jsonl(path: str, raw_text_col: str):
+    # read_json_auto
+    ext: str = path.split(".")[-1]
+    sql: str = SQL_QUERY_RAW_MED_REPORT
+    if ext == "csv":
+        sql = sql.replace("__LOADER__", "read_csv_auto")
+    elif ext == "jsonl":
+        sql = sql.replace("__LOADER__", "read_json_auto")
+    else:
+        raise Exception("Not support %s format" % ext)
+
+    sql = sql\
+        .replace("__NOTEEVENTS_PATH__", path)\
+        .replace("__RAW_TEXT_COL__", raw_text_col)
+    return duckdb.query(sql)
 
 
 def parse_med_report(
@@ -104,23 +121,21 @@ if __name__ == "__main__":
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     print(configs)
     
-    in_file = open(configs["mimic_noteevents_path"], "r")
+    in_file = open(configs["med_report_data_path"], "r")
     out_file = open(configs["output_path"], "w")
     
-    raw_rediology_reports = duckdb.query(
-        SQL_QUERY_RAW_RADIOLOGY_REPORT.replace(
-            "__NOTEEVENTS_PATH__", configs["mimic_noteevents_path"]
-        )
+    raw_med_reports: DuckDBPyRelation = duckdb_load_csv_or_jsonl(
+        configs["med_report_data_path"], 
+        configs["raw_text_col"]
     )
     
     total: int = 0
     cnt: int = 0
     invalid_cases: List[Dict[str, str]] = []
-    raw_sample: List[Tuple] = raw_rediology_reports.fetchmany(1)
+    raw_sample: List[Tuple] = raw_med_reports.fetchmany(1)
     with tqdm(total=configs["max_data_size"]) as pbar:
         while raw_sample and cnt <= configs["max_data_size"]:
-            category: str = raw_sample[0][0]
-            med_text: str = raw_sample[0][1]
+            med_text: str = raw_sample[0][0]
             parsed_text: Dict[str, str] = parse_med_report(med_text)
 
             findings: str = merge_fields(parsed_text, FINDINGS_FIELDS)
@@ -146,7 +161,7 @@ if __name__ == "__main__":
                     invalid_cases.append(parsed_text)
             else: 
                 curr_sample: Dict = {
-                    "source": configs["mimic_noteevents_path"], 
+                    "source": configs["med_report_data_path"], 
                     configs["target_text_col"]: impression, 
                     configs["input_text_col"]: findings
                 }
@@ -154,7 +169,7 @@ if __name__ == "__main__":
                 cnt += 1
                 pbar.update(1)
 
-            raw_sample = raw_rediology_reports.fetchmany(1)
+            raw_sample = raw_med_reports.fetchmany(1)
             total += 1
     
     in_file.close()
