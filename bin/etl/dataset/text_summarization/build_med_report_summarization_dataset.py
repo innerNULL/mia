@@ -125,17 +125,16 @@ if __name__ == "__main__":
 
             findings: str = merge_fields(parsed_text, FINDINGS_FIELDS)
             findings = text_clean_naive(findings)
-            if len(findings) <= MINIMUM_FINDINGS_LENGTH:
-                findings = merge_fields(parsed_text, INDICATION_FIELDS + CONCLUSIONS_FIELDS)
-                findings = text_clean_naive(findings)
-                
             impression: str = merge_fields(parsed_text, IMPRESSION_FIELDS)
             impression = text_clean_naive(impression)
 
             if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
+                findings = merge_fields(parsed_text, INDICATION_FIELDS + CONCLUSIONS_FIELDS)
+                findings = text_clean_naive(findings)
+            if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
                 findings = med_text.replace(impression, "")
                 findings = text_clean_naive(findings)
-
+             
             if len(findings) <= MINIMUM_FINDINGS_LENGTH \
                     or len(impression) <= MINIMUM_IMPRESSION_LENGTH:
                 if len(invalid_cases) < 100:
