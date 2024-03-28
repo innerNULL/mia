@@ -129,7 +129,8 @@ if __name__ == "__main__":
         
         curr_sample: Dict = {
             "source": configs["mimic_noteevents_path"], 
-            "impression": impression, "findings": findings
+            configs["target_text_col"]: impression, 
+            configs["input_text_col"]: findings
         }
         out_file.write(json.dumps(curr_sample, ensure_ascii=False) + "\n")
         cnt += 1

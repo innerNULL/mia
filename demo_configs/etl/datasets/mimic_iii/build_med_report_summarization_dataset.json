@@ -1,5 +1,7 @@
 {
   "mimic_noteevents_path": "/path/to/mimic3/NOTEEVENTS.csv",
   "output_path": "./_mimiciii_radiology_report_summarization_dataset.jsonl",
+  "target_text_col": "impression",
+  "input_text_col": "findings",
   "max_data_size": 3500
 }
