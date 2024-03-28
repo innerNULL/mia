@@ -109,13 +109,14 @@ if __name__ == "__main__":
             "__NOTEEVENTS_PATH__", configs["mimic_noteevents_path"]
         )
     )
-
+    
+    total: int = 0
     cnt: int = 0
-    raw_sample: Tuple = raw_rediology_reports.fetchmany(1)[0]
+    raw_sample: List[Tuple] = raw_rediology_reports.fetchmany(1)
     with tqdm(total=configs["max_data_size"]) as pbar:
         while raw_sample and cnt <= configs["max_data_size"]:
-            category: str = raw_sample[0]
-            med_text: str = raw_sample[1]
+            category: str = raw_sample[0][0]
+            med_text: str = raw_sample[0][1]
             parsed_text: Dict[str, str] = parse_med_report(med_text)
 
             findings: str = merge_fields(parsed_text, FINDINGS_FIELDS)
@@ -140,8 +141,10 @@ if __name__ == "__main__":
                 cnt += 1
                 pbar.update(1)
 
-            raw_sample = raw_rediology_reports.fetchmany(1)[0]
+            raw_sample = raw_rediology_reports.fetchmany(1)
+            total += 1
     
     in_file.close()
     out_file.close()
     print("out file located at '%s'" % configs["output_path"])
+    print("%i out %i sample are valid" % (cnt, total))
