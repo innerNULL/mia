@@ -24,7 +24,10 @@ INDICATION_FIELDS: List[str] = [
 
 IMPRESSION_FIELDS: List[str] = [
     "IMPRESSION", "Impression", "impression",
-    "IMPRESSIONS", "Impressions", "impressions"
+    "IMPRESSIONS", "Impressions", "impressions",
+    "IMIMPRESSION",
+    "USRIMPRESSION",
+    "IIMPRESSION"
 ]
 
 CONCLUSIONS_FIELDS: List[str] = [
@@ -45,7 +48,7 @@ KEY_FIELDS: List[str] = [
 
 MINIMUM_FINDINGS_LENGTH: int = 10
 
-MINIMUM_IMPRESSION_LENGTH: int = 10
+MINIMUM_IMPRESSION_LENGTH: int = 5
 
 SQL_QUERY_RAW_RADIOLOGY_REPORT: str = """
 with 
@@ -62,7 +65,7 @@ def parse_med_report(
     input_text: str, key_fields: List[str]=KEY_FIELDS
 ) -> Dict[str, str]:
     # Define the pattern to match the allowed uppercase words and their corresponding values
-    pattern = r'(' + '|'.join(key_fields) + r'):\s*(.*?)(?=\n(?:' + '|'.join(key_fields) + r')|$)'
+    pattern = r'(' + '|'.join(key_fields) + r'):*(.*?)(?=\n(?:' + '|'.join(key_fields) + r')|$)'
 
     # Find all matches in the input text
     matches = re.findall(pattern, input_text, re.DOTALL)
@@ -112,6 +115,7 @@ if __name__ == "__main__":
     
     total: int = 0
     cnt: int = 0
+    invalid_cases: List[Dict[str, str]] = []
     raw_sample: List[Tuple] = raw_rediology_reports.fetchmany(1)
     with tqdm(total=configs["max_data_size"]) as pbar:
         while raw_sample and cnt <= configs["max_data_size"]:
@@ -129,8 +133,14 @@ if __name__ == "__main__":
             impression = text_clean_naive(impression)
 
             if len(findings) <= MINIMUM_FINDINGS_LENGTH \
-                or len(impression) <= MINIMUM_IMPRESSION_LENGTH:
-                pass
+                    or len(impression) <= MINIMUM_IMPRESSION_LENGTH:
+                if len(invalid_cases) < 100:
+                    parsed_text["raw_text"] = med_text
+                    parsed_text["processed_impression"] = impression
+                    parsed_text["processed_findings"] = findings
+                    parsed_text["impression_length"] = len(impression)
+                    parsed_text["findings_length"] = len(findings)
+                    invalid_cases.append(parsed_text)
             else: 
                 curr_sample: Dict = {
                     "source": configs["mimic_noteevents_path"], 
@@ -148,3 +158,7 @@ if __name__ == "__main__":
     out_file.close()
     print("out file located at '%s'" % configs["output_path"])
     print("%i out %i sample are valid" % (cnt, total))
+    
+    if False:
+        print("Can check invalid sample in `invalid_cases`")
+        pdb.set_trace()
