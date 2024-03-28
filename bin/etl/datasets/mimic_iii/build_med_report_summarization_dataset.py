@@ -9,6 +9,7 @@ import os
 import json
 import duckdb
 import re
+from tqdm import tqdm
 from typing import Dict, List, Tuple
 
 
@@ -42,6 +43,7 @@ KEY_FIELDS: List[str] = [
     #"TRICUSPID VALVE", "PERICARDIUM",
 ] + FINDINGS_FIELDS + INDICATION_FIELDS + IMPRESSION_FIELDS + CONCLUSIONS_FIELDS
 
+MINIMUM_FINDINGS_LENGTH: int = 10
 
 SQL_QUERY_RAW_RADIOLOGY_REPORT: str = """
 with 
@@ -108,15 +110,17 @@ if __name__ == "__main__":
 
     cnt: int = 0
     raw_sample: Tuple = raw_rediology_reports.fetchmany(1)
-    while raw_sample and cnt < configs["max_data_size"]:
+    for i in tqdm(range(configs["max_data_size"])):
         raw_sample = raw_rediology_reports.fetchmany(1)[0]
+        if not raw_sample:
+            break
         category: str = raw_sample[0]
         med_text: str = raw_sample[1]
         parsed_text: Dict[str, str] = parse_med_report(med_text)
 
         findings: str = merge_fields(parsed_text, FINDINGS_FIELDS)
         findings = text_clean_naive(findings)
-        if len(findings) <= 10:
+        if len(findings) <= MINIMUM_FINDINGS_LENGTH:
             findings = merge_fields(parsed_text, INDICATION_FIELDS + CONCLUSIONS_FIELDS)
             findings = text_clean_naive(findings)
             
