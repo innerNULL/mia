@@ -65,7 +65,7 @@ def parse_med_report(
     input_text: str, key_fields: List[str]=KEY_FIELDS
 ) -> Dict[str, str]:
     # Define the pattern to match the allowed uppercase words and their corresponding values
-    pattern = r'(' + '|'.join(key_fields) + r'):*(.*?)(?=\n(?:' + '|'.join(key_fields) + r')|$)'
+    pattern = r'(' + '|'.join(key_fields) + r'):*(.*?)(?=(?:' + '|'.join(key_fields) + r')|$)'
 
     # Find all matches in the input text
     matches = re.findall(pattern, input_text, re.DOTALL)
@@ -132,6 +132,10 @@ if __name__ == "__main__":
             impression: str = merge_fields(parsed_text, IMPRESSION_FIELDS)
             impression = text_clean_naive(impression)
 
+            if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
+                findings = med_text.replace(impression, "")
+                findings = text_clean_naive(findings)
+
             if len(findings) <= MINIMUM_FINDINGS_LENGTH \
                     or len(impression) <= MINIMUM_IMPRESSION_LENGTH:
                 if len(invalid_cases) < 100:
@@ -159,6 +163,6 @@ if __name__ == "__main__":
     print("out file located at '%s'" % configs["output_path"])
     print("%i out %i sample are valid" % (cnt, total))
     
-    if False:
+    if configs["debug_mode"]:
         print("Can check invalid sample in `invalid_cases`")
         pdb.set_trace()
