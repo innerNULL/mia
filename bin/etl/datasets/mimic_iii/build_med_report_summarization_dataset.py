@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
             if len(findings) <= MINIMUM_FINDINGS_LENGTH \
                 or len(impression) <= MINIMUM_IMPRESSION_LENGTH:
-                continue
+                pass
             else: 
                 curr_sample: Dict = {
                     "source": configs["mimic_noteevents_path"], 
