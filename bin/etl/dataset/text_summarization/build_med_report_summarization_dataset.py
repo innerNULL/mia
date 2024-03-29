@@ -35,6 +35,12 @@ CONCLUSIONS_FIELDS: List[str] = [
     "CONCLUSIONS", "Conclusions", "conclusions"
 ]
 
+CLINICAL_HISTORY_FIELDS: List[str] = [
+    "MEDICAL HISTORY", 
+    "CLINICAL HISTORY",
+    "REPORT HISTORY"
+]
+
 KEY_FIELDS: List[str] = [
     "GENERAL COMMENTS",
     #"Height", "Weight", 
@@ -45,7 +51,7 @@ KEY_FIELDS: List[str] = [
     #"LEFT ATRIUM", "RIGHT ATRIUM/INTERATRIAL SEPTUM", "LEFT VENTRICLE", "RIGHT VENTRICLE", 
     #"AORTA", "AORTIC VALVE", "MITRAL VALVE",
     #"TRICUSPID VALVE", "PERICARDIUM",
-] + FINDINGS_FIELDS + INDICATION_FIELDS + IMPRESSION_FIELDS + CONCLUSIONS_FIELDS
+] + FINDINGS_FIELDS + INDICATION_FIELDS + IMPRESSION_FIELDS + CONCLUSIONS_FIELDS + CLINICAL_HISTORY_FIELDS
 
 MINIMUM_FINDINGS_LENGTH: int = 10
 
@@ -55,13 +61,15 @@ SQL_QUERY_RAW_MED_REPORT: str = """
 with 
 med_note_with_impressions as (
   select __RAW_TEXT_COL__ 
-  from __LOADER__('__NOTEEVENTS_PATH__') 
+  from __LOADER__('__NOTEEVENTS_PATH__') __WHERE_STATEMENT__
 )
 select * from med_note_with_impressions;
 """
 
 
-def duckdb_load_csv_or_jsonl(path: str, raw_text_col: str):
+def duckdb_load_csv_or_jsonl(
+    path: str, raw_text_col: str, where_statement: str
+):
     # read_json_auto
     ext: str = path.split(".")[-1]
     sql: str = SQL_QUERY_RAW_MED_REPORT
@@ -74,7 +82,8 @@ def duckdb_load_csv_or_jsonl(path: str, raw_text_col: str):
 
     sql = sql\
         .replace("__NOTEEVENTS_PATH__", path)\
-        .replace("__RAW_TEXT_COL__", raw_text_col)
+        .replace("__RAW_TEXT_COL__", raw_text_col)\
+        .replace("__WHERE_STATEMENT__", where_statement)
     return duckdb.query(sql)
 
 
@@ -126,7 +135,8 @@ if __name__ == "__main__":
     
     raw_med_reports: DuckDBPyRelation = duckdb_load_csv_or_jsonl(
         configs["med_report_data_path"], 
-        configs["raw_text_col"]
+        configs["raw_text_col"], 
+        configs["sql_where_statement"]
     )
     
     total: int = 0

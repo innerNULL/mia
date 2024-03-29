@@ -6,5 +6,6 @@
   "input_text_col": "findings",
   "max_data_size": 3500, 
   "strict_mode": true,
-  "debug_mode": false
+  "debug_mode": false, 
+  "sql_where_statement": "where CATEGORY in ('Radiology', 'Echo')"
 }
