@@ -6,14 +6,13 @@
 # * https://www.datacamp.com/tutorial/flan-t5-tutorial
 # 
 # Run:
-# python bin/model/flan_t5/finetune.py demo_configs/model/flan_t5/finetune.json
+# CUDA_VISIBLE_DEVICES=0 python bin/model/flan_t5/finetune.py demo_configs/model/flan_t5/finetune.json 
 
 
 import pdb
 import sys
 import os
 import json
-import torch
 import numpy as np
 from datasets import load_dataset
 from datasets import disable_caching
@@ -138,7 +137,6 @@ if __name__ == "__main__":
     print(train_configs)
 
     disable_caching()
-    torch.cuda.set_device(train_configs["gpu_id"])
 
     model: PreTrainedModel = T5ForConditionalGeneration.from_pretrained(
         model_configs["pretrained_model_path_or_name"]
