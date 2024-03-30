@@ -1,0 +1,11 @@
+{
+  "med_report_data_path": "/path/to/mimic3/NOTEEVENTS.csv",
+  "output_path": "./_mimiciii_radiology_report_summarization_dataset.jsonl",
+  "raw_text_col": "TEXT",
+  "target_text_col": "impression",
+  "input_text_col": "findings",
+  "max_data_size": 3500, 
+  "strict_mode": true,
+  "debug_mode": false, 
+  "sql_where_statement": "where CATEGORY in ('Radiology', 'Echo')"
+}
