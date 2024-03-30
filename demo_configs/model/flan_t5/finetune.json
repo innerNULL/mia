@@ -7,8 +7,8 @@
     "target_text_col": "summary"
   },
   "model": {
-    "pretrained_model_path_or_name": "google/flan-t5-base",
-    "tokenizer_path_or_name": "google/flan-t5-base",
+    "pretrained_model_path_or_name": "google/flan-t5-small",
+    "tokenizer_path_or_name": "google/flan-t5-small",
     "max_input_token_len": 512, 
     "max_target_token_len": 512
   },
@@ -19,6 +19,7 @@
     "per_device_train_batch_size": 8,
     "per_device_eval_batch_size": 16,
     "weight_decay": 0.01, 
-    "num_epoch": 8
+    "num_epoch": 8,
+    "gpu_id": 3
   }
 }

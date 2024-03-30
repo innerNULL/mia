@@ -13,6 +13,7 @@ import pdb
 import sys
 import os
 import json
+import torch
 import numpy as np
 from datasets import load_dataset
 from datasets import disable_caching
@@ -137,6 +138,7 @@ if __name__ == "__main__":
     print(train_configs)
 
     disable_caching()
+    torch.cuda.set_device(train_configs["gpu_id"])
 
     model: PreTrainedModel = T5ForConditionalGeneration.from_pretrained(
         model_configs["pretrained_model_path_or_name"]
