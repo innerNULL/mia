@@ -26,6 +26,7 @@ INDICATION_FIELDS: List[str] = [
 IMPRESSION_FIELDS: List[str] = [
     "IMPRESSION", "Impression", "impression",
     "IMPRESSIONS", "Impressions", "impressions",
+    "IMP", "Imp", "imp",
     "IMIMPRESSION",
     "USRIMPRESSION",
     "IIMPRESSION"
