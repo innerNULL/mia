@@ -43,7 +43,9 @@ CLINICAL_HISTORY_FIELDS: List[str] = [
 ]
 
 KEY_FIELDS: List[str] = [
-    "GENERAL COMMENTS",
+    "GENERAL COMMENTS", 
+    "TECHNIQUE",
+    "COMPARISON",
     #"Height", "Weight", 
     #"BSA", "BP", "HR", 
     #"Status", 
@@ -63,6 +65,7 @@ with
 med_note_with_impressions as (
   select __RAW_TEXT_COL__ 
   from __LOADER__('__NOTEEVENTS_PATH__') __WHERE_STATEMENT__
+  order by random()
 )
 select * from med_note_with_impressions;
 """
@@ -154,15 +157,20 @@ if __name__ == "__main__":
             impression: str = merge_fields(parsed_text, IMPRESSION_FIELDS)
             impression = text_clean_naive(impression)
 
+            #if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
+            #    findings = merge_fields(parsed_text, INDICATION_FIELDS + CONCLUSIONS_FIELDS)
+            #    findings = text_clean_naive(findings)
             if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
-                findings = merge_fields(parsed_text, INDICATION_FIELDS + CONCLUSIONS_FIELDS)
-                findings = text_clean_naive(findings)
-            if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
-                findings = med_text.replace(impression, "")
-                findings = text_clean_naive(findings)
+                findings = med_text
+            for impression_col in IMPRESSION_FIELDS:
+                if impression_col in parsed_text:
+                    findings = findings.replace(parsed_text[impression_col], "")
+                    findings = findings.replace("%s:" % impression_col, "")
+            findings = text_clean_naive(findings)
              
             if len(findings) <= MINIMUM_FINDINGS_LENGTH \
-                    or len(impression) <= MINIMUM_IMPRESSION_LENGTH:
+                    or len(impression) <= MINIMUM_IMPRESSION_LENGTH \
+                    or (len(findings) - len(impression)) / len(findings) < 0.2: #or len(findings) - len(impression) < 20:
                 if len(invalid_cases) < 100:
                     parsed_text["raw_text"] = med_text
                     parsed_text["processed_impression"] = impression
@@ -171,11 +179,17 @@ if __name__ == "__main__":
                     parsed_text["findings_length"] = len(findings)
                     invalid_cases.append(parsed_text)
             else: 
+                #if abs(len(impression) - len(findings)) < 10:
+                #    pdb.set_trace()
+                #if len(impression) > len(findings):
+                #    pdb.set_trace()
                 curr_sample: Dict = {
                     "source": configs["med_report_data_path"], 
                     configs["target_text_col"]: impression, 
                     configs["input_text_col"]: findings
                 }
+                if configs["debug_mode"]:
+                    curr_sample["med_text"] = med_text 
                 out_file.write(json.dumps(curr_sample, ensure_ascii=False) + "\n")
                 cnt += 1
                 pbar.update(1)
