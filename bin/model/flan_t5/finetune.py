@@ -177,10 +177,11 @@ if __name__ == "__main__":
         per_device_train_batch_size=train_configs["per_device_train_batch_size"],
         per_device_eval_batch_size=train_configs["per_device_eval_batch_size"],
         weight_decay=train_configs["weight_decay"],
-        #save_total_limit=3,
+        save_total_limit=3,
         num_train_epochs=train_configs["num_epoch"],
         predict_with_generate=True,
-        push_to_hub=False
+        push_to_hub=False,
+        save_only_model=True
     )
     trainer = Seq2SeqTrainer(
         model=model,
