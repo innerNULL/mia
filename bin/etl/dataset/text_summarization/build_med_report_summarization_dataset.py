@@ -46,6 +46,9 @@ KEY_FIELDS: List[str] = [
     "GENERAL COMMENTS", 
     "TECHNIQUE",
     "COMPARISON",
+    "RECOMMENDATIONS",
+    "Suggestion",
+    "SUGGESTION",
     #"Height", "Weight", 
     #"BSA", "BP", "HR", 
     #"Status", 
@@ -124,7 +127,15 @@ def merge_fields(sample: Dict[str, str], target_fields: List[str]) -> str:
 
 
 def text_clean_naive(text: str) -> str:
-    text = text.strip("\n").strip(" ").replace("_", "")
+    text = text.strip(":")
+    text = text[2:] if text.startswith("s:") or text.startswith("S:") else text
+    text = text.strip("\n").strip(" ")
+    
+    text = text.strip(":")
+    text = text[2:] if text.startswith("s:") or text.startswith("S:") else text
+    text = text.strip("\n").strip(" ")
+
+    text = text.replace("_", "") 
     text = re.sub(r'\s+', ' ', text)
     #text = re.sub(r'\s+', '\n', text)
     return text
