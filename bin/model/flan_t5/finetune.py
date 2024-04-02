@@ -2,6 +2,9 @@
 # file: train.py
 # date: 2024-03-30
 #
+# A standalone flan-T5 fine-tuning program, originally 
+# submitted to https://github.com/innerNULL/mia
+#
 # References:
 # * https://www.datacamp.com/tutorial/flan-t5-tutorial
 # 
@@ -193,6 +196,8 @@ if __name__ == "__main__":
     print(train_configs)
 
     disable_caching()
+    os.system("mkdir -p %s" % train_configs["ckpt_dir"])
+    os.system("cp %s %s" % (sys.argv[1], train_configs["ckpt_dir"]))
 
     model: PreTrainedModel = T5ForConditionalGeneration.from_pretrained(
         model_configs["pretrained_model_path_or_name"]
