@@ -15,8 +15,10 @@ from duckdb.duckdb import DuckDBPyRelation
 
 
 FINDINGS_FIELDS: List[str] = [
-    "FINDING", "Finding", "finding",
-    "FINDINGS", "findings", "findings"
+    "FINDING", "Finding", 
+    #"finding",
+    "FINDINGS", "Findings", 
+    #"findings"
 ]
 
 INDICATION_FIELDS: List[str] = [
@@ -171,7 +173,11 @@ if __name__ == "__main__":
             #if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
             #    findings = merge_fields(parsed_text, INDICATION_FIELDS + CONCLUSIONS_FIELDS)
             #    findings = text_clean_naive(findings)
-            if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
+            
+            #TODO@20240402_1004:
+            # Currently regex has some problem, sometime it will not only parse "findings:" 
+            # but also "findings"
+            if not configs["strict_mode"]:
                 findings = med_text
             for impression_col in IMPRESSION_FIELDS:
                 if impression_col in parsed_text:
