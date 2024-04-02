@@ -1,8 +1,8 @@
 {
   "data": {
-    "train_path_or_name": "samsum", 
-    "dev_path_or_name": "samsum",
-    "test_path_or_name": "samsum",
+    "train_path_or_name": "knkarthick/dialogsum", 
+    "dev_path_or_name": "knkarthick/dialogsum",
+    "test_path_or_name": "knkarthick/dialogsum",
     "input_text_col": "dialogue", 
     "target_text_col": "summary"
   },
@@ -19,6 +19,7 @@
     "per_device_train_batch_size": 8,
     "per_device_eval_batch_size": 16,
     "weight_decay": 0.01, 
-    "num_epoch": 8
+    "num_epoch": 8,
+    "advanced_feature": false
   }
 }

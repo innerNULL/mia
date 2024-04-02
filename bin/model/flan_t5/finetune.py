@@ -25,7 +25,9 @@ from transformers import T5ForConditionalGeneration
 from transformers import Seq2SeqTrainingArguments
 from transformers import Seq2SeqTrainer
 from transformers import PreTrainedModel
+from transformers import PreTrainedTokenizer
 from transformers import EvalPrediction
+from transformers import BatchEncoding
 from torchmetrics.text.rouge import ROUGEScore
 
 
@@ -126,6 +128,37 @@ class FeatureExtractor():
         return out
 
 
+class DataCollator(DataCollatorForSeq2Seq):
+    def __init__(self,
+        tokenizer: PreTrainedTokenizer,
+        model: PreTrainedModel,
+        fea_extractor: FeatureExtractor,
+        padding: bool=True,
+        max_length: Optional[int]=None,
+        pad_to_multiple_of: Optional[int]=None,
+        label_pad_token_id: int=-100,
+        return_tensors: str="pt"
+    ):
+        super().__init__(
+            tokenizer=tokenizer, model=model,
+            padding=padding, max_length=max_length,
+            pad_to_multiple_of=pad_to_multiple_of,
+            label_pad_token_id=label_pad_token_id,
+            return_tensors=return_tensors
+        )
+        self.fea_extractor: FeatureExtractor = fea_extractor
+
+    def __call__(self,
+        features: List[Dict[str, str]], return_tensors=None
+    ) -> BatchEncoding:
+        model_inputs: List[Dict[str, Tensor]] = [
+            self.fea_extractor(feature) for feature in features
+        ]
+        return super().__call__(
+            features=model_inputs, return_tensors=return_tensors
+        )
+
+
 if __name__ == "__main__":
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     data_configs: Dict = configs["data"]
@@ -144,9 +177,6 @@ if __name__ == "__main__":
     tokenizer: T5Tokenizer = T5Tokenizer.from_pretrained(
         model_configs["tokenizer_path_or_name"]
     )
-    data_collator: DataCollatorForSeq2Seq = DataCollatorForSeq2Seq(
-        tokenizer=tokenizer, model=model
-    )
 
     fea_extractor: FeatureExtractor = FeatureExtractor(
         tokenizer=tokenizer, 
@@ -163,12 +193,20 @@ if __name__ == "__main__":
         data_configs["dev_path_or_name"],
         data_configs["test_path_or_name"],
     )
-    datasets = datasets.map(fea_extractor, num_proc=4)
 
     print("example raw sample:")
     print(datasets["test"][0])
     print("example input:")
     print(fea_extractor(datasets["test"][0]))
+
+    data_collator: DataCollatorForSeq2Seq = None
+    if not train_configs["advanced_feature"]:
+        datasets = datasets.map(fea_extractor, num_proc=4)
+        data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
+    else:
+        data_collator = DataCollator(
+            tokenizer=tokenizer, model=model, fea_extractor=fea_extractor
+        )
 
     train_args: Seq2SeqTrainingArguments = Seq2SeqTrainingArguments(
         output_dir=train_configs["ckpt_dir"],
@@ -177,11 +215,16 @@ if __name__ == "__main__":
         per_device_train_batch_size=train_configs["per_device_train_batch_size"],
         per_device_eval_batch_size=train_configs["per_device_eval_batch_size"],
         weight_decay=train_configs["weight_decay"],
-        save_total_limit=3,
+        save_total_limit=7,
         num_train_epochs=train_configs["num_epoch"],
         predict_with_generate=True,
         push_to_hub=False,
-        save_only_model=True
+        save_only_model=True,
+        # This is a trap in HF transformers, refer to: 
+        # https://discuss.huggingface.co/t/indexerror-invalid-key-16-is-out-of-bounds-for-size-0/14298/4
+        # and 
+        # https://github.com/huggingface/transformers/issues/15505
+        remove_unused_columns=(not train_configs["advanced_feature"])
     )
     trainer = Seq2SeqTrainer(
         model=model,
