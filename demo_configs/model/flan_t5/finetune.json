@@ -20,6 +20,8 @@
     "per_device_eval_batch_size": 16,
     "weight_decay": 0.01, 
     "num_epoch": 8,
-    "advanced_feature": false
+    "advanced_feature": true,
+    "text_mask_ratio": 0.1,
+    "token_mask_ratio": 0.0
   }
 }

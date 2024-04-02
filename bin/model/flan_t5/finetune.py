@@ -13,12 +13,13 @@ import pdb
 import sys
 import os
 import json
+import random as rd
 import numpy as np
+from typing import Dict, List, Optional, Callable
 from datasets import load_dataset
 from datasets import disable_caching
 from datasets import Dataset, DatasetDict
 from torch import Tensor
-from typing import Dict, List, Optional, Callable
 from transformers import T5Tokenizer
 from transformers import DataCollatorForSeq2Seq
 from transformers import T5ForConditionalGeneration
@@ -29,6 +30,15 @@ from transformers import PreTrainedTokenizer
 from transformers import EvalPrediction
 from transformers import BatchEncoding
 from torchmetrics.text.rouge import ROUGEScore
+
+
+def data_aug_mask_text(text: str, ratio: float, splitter: str=" ") -> str:    
+    words: List[str] = text.split(splitter)
+    masked_words: List[str] = []
+    for word in words:
+        if rd.random() >= ratio:
+            masked_words.append(word)
+    return splitter.join(masked_words)
 
 
 def dataset_load(
@@ -133,6 +143,8 @@ class DataCollator(DataCollatorForSeq2Seq):
         tokenizer: PreTrainedTokenizer,
         model: PreTrainedModel,
         fea_extractor: FeatureExtractor,
+        text_mask_ratio: float=0.0,
+        token_mask_ratio: float=0.0,
         padding: bool=True,
         max_length: Optional[int]=None,
         pad_to_multiple_of: Optional[int]=None,
@@ -147,13 +159,24 @@ class DataCollator(DataCollatorForSeq2Seq):
             return_tensors=return_tensors
         )
         self.fea_extractor: FeatureExtractor = fea_extractor
+        self.text_mask_ratio: float = text_mask_ratio
+        self.token_mask_ratio: float = token_mask_ratio
 
     def __call__(self,
         features: List[Dict[str, str]], return_tensors=None
     ) -> BatchEncoding:
+        if self.text_mask_ratio > 0:
+            for i in range(len(features)):
+                masked_text: str = data_aug_mask_text(
+                    features[i][fea_extractor.input_text_col], 
+                    self.text_mask_ratio, " "
+                )
+                features[i][fea_extractor.input_text_col] = masked_text
         model_inputs: List[Dict[str, Tensor]] = [
             self.fea_extractor(feature) for feature in features
         ]
+        if self.token_mask_ratio > 0:
+            pass
         return super().__call__(
             features=model_inputs, return_tensors=return_tensors
         )
@@ -177,7 +200,6 @@ if __name__ == "__main__":
     tokenizer: T5Tokenizer = T5Tokenizer.from_pretrained(
         model_configs["tokenizer_path_or_name"]
     )
-
     fea_extractor: FeatureExtractor = FeatureExtractor(
         tokenizer=tokenizer, 
         input_text_col=data_configs["input_text_col"], 
@@ -190,14 +212,22 @@ if __name__ == "__main__":
     )
     datasets: DatasetDict = datasets_load(
         data_configs["train_path_or_name"], 
-        data_configs["dev_path_or_name"],
-        data_configs["test_path_or_name"],
+        data_configs["dev_path_or_name"], data_configs["test_path_or_name"],
     )
 
     print("example raw sample:")
     print(datasets["test"][0])
     print("example input:")
     print(fea_extractor(datasets["test"][0]))
+    
+    if train_configs["text_mask_ratio"] > 0:
+        print("text before masking:")
+        print(datasets["test"][0][data_configs["input_text_col"]])
+        print("text after masking:")
+        print(data_aug_mask_text(
+            datasets["test"][0][data_configs["input_text_col"]], 
+            train_configs["text_mask_ratio"], " "
+        ))
 
     data_collator: DataCollatorForSeq2Seq = None
     if not train_configs["advanced_feature"]:
