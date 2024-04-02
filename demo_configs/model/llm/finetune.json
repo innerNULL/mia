@@ -1,0 +1,34 @@
+{
+  "common": {
+    "hf_token": ""
+  },
+  "data": {
+    "train_path_or_name": "samsum",
+    "dev_path_or_name": "samsum",
+    "test_path_or_name": "samsum",
+    "input_text_col": "dialogue",
+    "target_text_col": "summary"
+  },
+  "model": {
+    "path_or_name": "meta-llama/Llama-2-7b-chat-hf",
+    "quantization": true
+  },
+  "train": {
+    "ckpt_dir": "./_finetuned_llm",
+    "device": "cuda:2",
+    "system_prompt": "Below is a conversation between a human and an AI agent. Write a summary of the conversation.",
+    "prompt_temp": [
+      "### Instruction: __SYSTEM_PROMPT__",
+      "",
+      "### Input:",
+      "__INPUT_TEXT__",
+      "",
+      "### Response:",
+      "__TARGET_TEXT__"
+    ],
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "lora_r": 16,
+    "learning_rate": 0.0001
+  }
+}
