@@ -14,5 +14,6 @@
 ### Crawlers
 #### [Audio Corpus Crawlers](https://github.com/innerNULL/mia/tree/main/bin/crawl/audio)
 
-
-
+### ETL
+* Line-Based Splitter to Generate Train/Dev/Test Dataset
+    * `bash ./bin/etl/train_dev_test_splitter_for_lines_data.sh ${DATA_LINES_PATH} ${DEV_DATA_SIZE} ${TEST_DATA_SIZE}`
