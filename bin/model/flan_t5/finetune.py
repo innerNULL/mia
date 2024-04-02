@@ -235,7 +235,9 @@ if __name__ == "__main__":
         data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
     else:
         data_collator = DataCollator(
-            tokenizer=tokenizer, model=model, fea_extractor=fea_extractor
+            tokenizer=tokenizer, model=model, fea_extractor=fea_extractor,
+            text_mask_ratio=train_configs["text_mask_ratio"], 
+            token_mask_ratio=train_configs["token_mask_ratio"]
         )
 
     train_args: Seq2SeqTrainingArguments = Seq2SeqTrainingArguments(
