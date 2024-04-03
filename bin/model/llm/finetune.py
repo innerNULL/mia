@@ -224,7 +224,7 @@ if __name__ == "__main__":
     example_prompt: str = datasets_processor(example_raw_sample) 
     inference_example = model_inference_with_decoding(
         model, tokenizer, datasets["train"][0]["prompt"], 
-        train_configs["device"], 512
+        train_configs["device"], train_configs["max_new_tokens"]
     )
     print("example raw sample")
     print(example_raw_sample)
@@ -248,7 +248,7 @@ if __name__ == "__main__":
         learning_rate=train_configs["learning_rate"],
         fp16=model_configs["quantization"],
         max_grad_norm=0.3,
-        num_train_epochs=20,
+        num_train_epochs=train_configs["num_epochs"],
         evaluation_strategy="epoch",
         eval_steps=0.2,
         warmup_ratio=0.05,
@@ -268,7 +268,7 @@ if __name__ == "__main__":
         eval_dataset=datasets["validation"],
         peft_config=lora_config,
         dataset_text_field="prompt",
-        max_seq_length=4096,
+        max_seq_length=train_configs["max_seq_length"],
         tokenizer=tokenizer,
         args=training_args
     )
