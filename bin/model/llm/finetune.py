@@ -142,7 +142,7 @@ def model_init(
 
     model = AutoModelForCausalLM.from_pretrained(
         path_or_name,
-        use_safetensors=False,
+        #use_safetensors=False,
         quantization_config=bnb_config,
         trust_remote_code=True,
         device_map="auto",
