@@ -252,7 +252,9 @@ if __name__ == "__main__":
         evaluation_strategy="epoch",
         eval_steps=0.2,
         warmup_ratio=0.05,
-        save_strategy="epoch",
+        save_strategy="steps",
+        save_steps=500,
+        save_total_limit=7,
         group_by_length=True,
         output_dir=train_configs["ckpt_dir"],
         report_to="wandb",  # Set report_to here
