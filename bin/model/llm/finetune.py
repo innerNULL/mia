@@ -261,7 +261,8 @@ if __name__ == "__main__":
         save_safetensors=False,
         lr_scheduler_type="cosine",
         seed=42,
-        load_best_model_at_end=True,
+        #load_best_model_at_end=True,
+        load_best_model_at_end=False,
         push_to_hub=False,
     )
     trainer: SFTTrainer = SFTTrainer(
