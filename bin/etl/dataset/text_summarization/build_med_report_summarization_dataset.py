@@ -182,19 +182,18 @@ if __name__ == "__main__":
 
             findings: str = merge_fields(parsed_text, FINDINGS_FIELDS)
             findings = text_clean_naive(findings)
+            indications: str = merge_fields(parsed_text, INDICATION_FIELDS)
+            indications = text_clean_naive(indications)
+            conclusions: str = merge_fields(parsed_text, CONCLUSIONS_FIELDS)
+            conclusions: str = text_clean_naive(conclusions)
             impression: str = merge_fields(parsed_text, IMPRESSION_FIELDS)
             impression = text_clean_naive(impression)
 
-            #if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
-            #    findings = merge_fields(parsed_text, INDICATION_FIELDS + CONCLUSIONS_FIELDS)
-            #    findings = text_clean_naive(findings)
-            
-            #TODO@20240402_1004:
-            # Currently regex has some problem, sometime it will not only parse "findings:" 
-            # but also "findings"
-            #if not configs["strict_mode"]:
+            if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
+                findings = findings + "\n" + indications + "\n" + conclusions 
             if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
                 findings = med_text
+
             for impression_col in IMPRESSION_FIELDS:
                 if impression_col in parsed_text:
                     findings = findings.replace(parsed_text[impression_col], "")
@@ -203,7 +202,7 @@ if __name__ == "__main__":
              
             if len(findings) <= MINIMUM_FINDINGS_LENGTH \
                     or len(impression) <= MINIMUM_IMPRESSION_LENGTH \
-                    or (len(findings) - len(impression)) / len(findings) < 0.1: #or len(findings) - len(impression) < 20:
+                    or (len(findings) - len(impression)) / len(findings) < 0.0: #or len(findings) - len(impression) < 20:
                 if len(invalid_cases) < 10000:
                     parsed_text["raw_text"] = med_text
                     parsed_text["processed_impression"] = impression
