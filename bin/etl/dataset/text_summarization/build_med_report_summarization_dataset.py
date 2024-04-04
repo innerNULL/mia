@@ -203,8 +203,8 @@ if __name__ == "__main__":
              
             if len(findings) <= MINIMUM_FINDINGS_LENGTH \
                     or len(impression) <= MINIMUM_IMPRESSION_LENGTH \
-                    or (len(findings) - len(impression)) / len(findings) < 0.2: #or len(findings) - len(impression) < 20:
-                if len(invalid_cases) < 100:
+                    or (len(findings) - len(impression)) / len(findings) < 0.1: #or len(findings) - len(impression) < 20:
+                if len(invalid_cases) < 10000:
                     parsed_text["raw_text"] = med_text
                     parsed_text["processed_impression"] = impression
                     parsed_text["processed_findings"] = findings
