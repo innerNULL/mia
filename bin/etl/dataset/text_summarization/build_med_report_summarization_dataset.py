@@ -153,6 +153,9 @@ def text_clean_naive(text: str) -> str:
 if __name__ == "__main__":
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     print(configs)
+
+    if os.path.exists(configs["output_path"]):
+        raise Exception("Path %s is already exists" % configs["output_path"])
     
     in_file = open(configs["med_report_data_path"], "r")
     out_file = open(configs["output_path"], "w")
