@@ -22,20 +22,25 @@ FINDINGS_FIELDS: List[str] = [
 ]
 
 INDICATION_FIELDS: List[str] = [
-    "INDICATION", "Indication", "indication"
+    "INDICATION", "Indication", 
+    #"indication"
 ]
 
 IMPRESSION_FIELDS: List[str] = [
-    "IMPRESSION", "Impression", "impression",
-    "IMPRESSIONS", "Impressions", "impressions",
-    "IMP", "Imp", "imp",
+    "IMPRESSION", "Impression", 
+    #"impression",
+    "IMPRESSIONS", "Impressions", 
+    #"impressions",
+    "IMP", "Imp", 
+    #"imp",
     "IMIMPRESSION",
     "USRIMPRESSION",
     "IIMPRESSION"
 ]
 
 CONCLUSIONS_FIELDS: List[str] = [
-    "CONCLUSIONS", "Conclusions", "conclusions"
+    "CONCLUSIONS", "Conclusions", 
+    #"conclusions"
 ]
 
 CLINICAL_HISTORY_FIELDS: List[str] = [
@@ -70,14 +75,13 @@ with
 med_note_with_impressions as (
   select __RAW_TEXT_COL__ 
   from __LOADER__('__NOTEEVENTS_PATH__') __WHERE_STATEMENT__
-  order by random()
 )
 select * from med_note_with_impressions;
 """
 
 
 def duckdb_load_csv_or_jsonl(
-    path: str, raw_text_col: str, where_statement: str
+    path: str, raw_text_col: str, ext_columns: List[str], where_statement: str
 ):
     # read_json_auto
     ext: str = path.split(".")[-1]
@@ -88,11 +92,14 @@ def duckdb_load_csv_or_jsonl(
         sql = sql.replace("__LOADER__", "read_json_auto")
     else:
         raise Exception("Not support %s format" % ext)
-
+    
+    target_cols: str = ",".join([raw_text_col] + ext_columns)
     sql = sql\
         .replace("__NOTEEVENTS_PATH__", path)\
-        .replace("__RAW_TEXT_COL__", raw_text_col)\
+        .replace("__RAW_TEXT_COL__", target_cols)\
         .replace("__WHERE_STATEMENT__", where_statement)
+    print("running following SQL:")
+    print(sql)
     return duckdb.query(sql)
 
 
@@ -153,7 +160,8 @@ if __name__ == "__main__":
     raw_med_reports: DuckDBPyRelation = duckdb_load_csv_or_jsonl(
         configs["med_report_data_path"], 
         configs["raw_text_col"], 
-        configs["sql_where_statement"]
+        configs["ext_cols"],
+        configs["sql_where_statement"] 
     )
     
     total: int = 0
@@ -162,6 +170,10 @@ if __name__ == "__main__":
     raw_sample: List[Tuple] = raw_med_reports.fetchmany(1)
     with tqdm(total=configs["max_data_size"]) as pbar:
         while raw_sample and cnt <= configs["max_data_size"]:
+            curr_sample: Dict = {}
+            for i, value in enumerate(raw_sample[0][1:]):
+                curr_sample[configs["ext_cols"][i]] = value
+
             med_text: str = raw_sample[0][0]
             parsed_text: Dict[str, str] = parse_med_report(med_text)
 
@@ -200,11 +212,10 @@ if __name__ == "__main__":
                 #    pdb.set_trace()
                 #if len(impression) > len(findings):
                 #    pdb.set_trace()
-                curr_sample: Dict = {
-                    "source": configs["med_report_data_path"], 
-                    configs["target_text_col"]: impression, 
-                    configs["input_text_col"]: findings
-                }
+                curr_sample["source"] = configs["med_report_data_path"]
+                curr_sample[configs["target_text_col"]] = impression
+                curr_sample[configs["input_text_col"]] = findings
+                
                 if configs["debug_mode"]:
                     curr_sample["med_text"] = med_text 
                 out_file.write(json.dumps(curr_sample, ensure_ascii=False) + "\n")
