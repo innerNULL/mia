@@ -189,7 +189,8 @@ if __name__ == "__main__":
             #TODO@20240402_1004:
             # Currently regex has some problem, sometime it will not only parse "findings:" 
             # but also "findings"
-            if not configs["strict_mode"]:
+            #if not configs["strict_mode"]:
+            if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
                 findings = med_text
             for impression_col in IMPRESSION_FIELDS:
                 if impression_col in parsed_text:
