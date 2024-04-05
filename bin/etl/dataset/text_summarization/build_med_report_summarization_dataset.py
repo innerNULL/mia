@@ -15,24 +15,32 @@ from duckdb.duckdb import DuckDBPyRelation
 
 
 FINDINGS_FIELDS: List[str] = [
-    "FINDING", "Finding", "finding",
-    "FINDINGS", "findings", "findings"
+    "FINDING", "Finding", 
+    #"finding",
+    "FINDINGS", "Findings", 
+    #"findings"
 ]
 
 INDICATION_FIELDS: List[str] = [
-    "INDICATION", "Indication", "indication"
+    "INDICATION", "Indication", 
+    #"indication"
 ]
 
 IMPRESSION_FIELDS: List[str] = [
-    "IMPRESSION", "Impression", "impression",
-    "IMPRESSIONS", "Impressions", "impressions",
+    "IMPRESSION", "Impression", 
+    #"impression",
+    "IMPRESSIONS", "Impressions", 
+    #"impressions",
+    "IMP", "Imp", 
+    #"imp",
     "IMIMPRESSION",
     "USRIMPRESSION",
     "IIMPRESSION"
 ]
 
 CONCLUSIONS_FIELDS: List[str] = [
-    "CONCLUSIONS", "Conclusions", "conclusions"
+    "CONCLUSIONS", "Conclusions", 
+    #"conclusions"
 ]
 
 CLINICAL_HISTORY_FIELDS: List[str] = [
@@ -42,7 +50,12 @@ CLINICAL_HISTORY_FIELDS: List[str] = [
 ]
 
 KEY_FIELDS: List[str] = [
-    "GENERAL COMMENTS",
+    "GENERAL COMMENTS", 
+    "TECHNIQUE",
+    "COMPARISON",
+    "RECOMMENDATIONS",
+    "Suggestion",
+    "SUGGESTION",
     #"Height", "Weight", 
     #"BSA", "BP", "HR", 
     #"Status", 
@@ -68,7 +81,7 @@ select * from med_note_with_impressions;
 
 
 def duckdb_load_csv_or_jsonl(
-    path: str, raw_text_col: str, where_statement: str
+    path: str, raw_text_col: str, ext_columns: List[str], where_statement: str
 ):
     # read_json_auto
     ext: str = path.split(".")[-1]
@@ -79,11 +92,14 @@ def duckdb_load_csv_or_jsonl(
         sql = sql.replace("__LOADER__", "read_json_auto")
     else:
         raise Exception("Not support %s format" % ext)
-
+    
+    target_cols: str = ",".join([raw_text_col] + ext_columns)
     sql = sql\
         .replace("__NOTEEVENTS_PATH__", path)\
-        .replace("__RAW_TEXT_COL__", raw_text_col)\
+        .replace("__RAW_TEXT_COL__", target_cols)\
         .replace("__WHERE_STATEMENT__", where_statement)
+    print("running following SQL:")
+    print(sql)
     return duckdb.query(sql)
 
 
@@ -120,7 +136,15 @@ def merge_fields(sample: Dict[str, str], target_fields: List[str]) -> str:
 
 
 def text_clean_naive(text: str) -> str:
-    text = text.strip("\n").strip(" ").replace("_", "")
+    text = text.strip(":")
+    text = text[2:] if text.startswith("s:") or text.startswith("S:") else text
+    text = text.strip("\n").strip(" ")
+    
+    text = text.strip(":")
+    text = text[2:] if text.startswith("s:") or text.startswith("S:") else text
+    text = text.strip("\n").strip(" ")
+
+    text = text.replace("_", "") 
     text = re.sub(r'\s+', ' ', text)
     #text = re.sub(r'\s+', '\n', text)
     return text
@@ -129,6 +153,9 @@ def text_clean_naive(text: str) -> str:
 if __name__ == "__main__":
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     print(configs)
+
+    if os.path.exists(configs["output_path"]):
+        raise Exception("Path %s is already exists" % configs["output_path"])
     
     in_file = open(configs["med_report_data_path"], "r")
     out_file = open(configs["output_path"], "w")
@@ -136,7 +163,8 @@ if __name__ == "__main__":
     raw_med_reports: DuckDBPyRelation = duckdb_load_csv_or_jsonl(
         configs["med_report_data_path"], 
         configs["raw_text_col"], 
-        configs["sql_where_statement"]
+        configs["ext_cols"],
+        configs["sql_where_statement"] 
     )
     
     total: int = 0
@@ -145,24 +173,37 @@ if __name__ == "__main__":
     raw_sample: List[Tuple] = raw_med_reports.fetchmany(1)
     with tqdm(total=configs["max_data_size"]) as pbar:
         while raw_sample and cnt <= configs["max_data_size"]:
+            curr_sample: Dict = {}
+            for i, value in enumerate(raw_sample[0][1:]):
+                curr_sample[configs["ext_cols"][i]] = value
+
             med_text: str = raw_sample[0][0]
             parsed_text: Dict[str, str] = parse_med_report(med_text)
 
             findings: str = merge_fields(parsed_text, FINDINGS_FIELDS)
             findings = text_clean_naive(findings)
+            indications: str = merge_fields(parsed_text, INDICATION_FIELDS)
+            indications = text_clean_naive(indications)
+            conclusions: str = merge_fields(parsed_text, CONCLUSIONS_FIELDS)
+            conclusions: str = text_clean_naive(conclusions)
             impression: str = merge_fields(parsed_text, IMPRESSION_FIELDS)
             impression = text_clean_naive(impression)
 
             if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
-                findings = merge_fields(parsed_text, INDICATION_FIELDS + CONCLUSIONS_FIELDS)
-                findings = text_clean_naive(findings)
+                findings = findings + "\n" + indications + "\n" + conclusions 
             if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
-                findings = med_text.replace(impression, "")
-                findings = text_clean_naive(findings)
+                findings = med_text
+
+            for impression_col in IMPRESSION_FIELDS:
+                if impression_col in parsed_text:
+                    findings = findings.replace(parsed_text[impression_col], "")
+                    findings = findings.replace("%s:" % impression_col, "")
+            findings = text_clean_naive(findings)
              
             if len(findings) <= MINIMUM_FINDINGS_LENGTH \
-                    or len(impression) <= MINIMUM_IMPRESSION_LENGTH:
-                if len(invalid_cases) < 100:
+                    or len(impression) <= MINIMUM_IMPRESSION_LENGTH \
+                    or (len(findings) - len(impression)) / len(findings) < 0.0: #or len(findings) - len(impression) < 20:
+                if len(invalid_cases) < 10000:
                     parsed_text["raw_text"] = med_text
                     parsed_text["processed_impression"] = impression
                     parsed_text["processed_findings"] = findings
@@ -170,11 +211,16 @@ if __name__ == "__main__":
                     parsed_text["findings_length"] = len(findings)
                     invalid_cases.append(parsed_text)
             else: 
-                curr_sample: Dict = {
-                    "source": configs["med_report_data_path"], 
-                    configs["target_text_col"]: impression, 
-                    configs["input_text_col"]: findings
-                }
+                #if abs(len(impression) - len(findings)) < 10:
+                #    pdb.set_trace()
+                #if len(impression) > len(findings):
+                #    pdb.set_trace()
+                curr_sample["source"] = configs["med_report_data_path"]
+                curr_sample[configs["target_text_col"]] = impression
+                curr_sample[configs["input_text_col"]] = findings
+                
+                if configs["debug_mode"]:
+                    curr_sample["med_text"] = med_text 
                 out_file.write(json.dumps(curr_sample, ensure_ascii=False) + "\n")
                 cnt += 1
                 pbar.update(1)

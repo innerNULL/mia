@@ -1,0 +1,27 @@
+{
+  "data": {
+    "train_path_or_name": "knkarthick/dialogsum", 
+    "dev_path_or_name": "knkarthick/dialogsum",
+    "test_path_or_name": "knkarthick/dialogsum",
+    "input_text_col": "dialogue", 
+    "target_text_col": "summary"
+  },
+  "model": {
+    "pretrained_model_path_or_name": "google/flan-t5-small",
+    "tokenizer_path_or_name": "google/flan-t5-small",
+    "max_input_token_len": 512, 
+    "max_target_token_len": 512
+  },
+  "train": {
+    "ckpt_dir": "./_finetuned_flan_t5",
+    "prompt": "Please summarize following dialogues: \n",
+    "learning_rate": 0.0003,
+    "per_device_train_batch_size": 8,
+    "per_device_eval_batch_size": 16,
+    "weight_decay": 0.01, 
+    "num_epoch": 8,
+    "advanced_feature": true,
+    "text_mask_ratio": 0.1,
+    "token_mask_ratio": 0.0
+  }
+}
