@@ -66,7 +66,9 @@ if __name__ == "__main__":
     
     output_records: List[Dict] = []
     for sample in tqdm(dataset):
-        input_text: str = sample[configs["input_text_col"]]
+        input_text: str = "\n".join(
+            [configs["prompt"], sample[configs["input_text_col"]]]
+        )
         target_text: str = sample[configs["target_text_col"]]
         output_text: str = model_inference_with_decoding(
             model, tokenizer, input_text

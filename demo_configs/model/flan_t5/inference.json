@@ -5,6 +5,7 @@
   "data_split": "test",
   "input_text_col": "dialogue",
   "target_text_col": "summary",
+  "prompt": "Please summarize following dialogues: \n",
   "device": "cuda:0",
   "output_path": "./_inference_flan_t5.jsonl"
 }
