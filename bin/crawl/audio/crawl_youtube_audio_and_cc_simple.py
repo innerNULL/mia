@@ -19,13 +19,13 @@ from typing import Dict, List, Final, Union, Optional
 sys.path.append(
     os.path.join(os.path.dirname(__file__), "..", "src")
 )
-from mlpipeline.struct import SubtitleChunk
-from mlpipeline.struct import AudioMetadata
-from mlpipeline.struct import subtitle_chunk_print
-from mlpipeline.struct import subtitle_chunk_new
-from mlpipeline.struct import subtitle_chunks_merge
-from mlpipeline.struct import audio_metadata_to_json_obj
-from mlpipeline.utils import chunk_audio_with_subtitle_chunks
+from mia.struct import SubtitleChunk
+from mia.struct import AudioMetadata
+from mia.struct import subtitle_chunk_print
+from mia.struct import subtitle_chunk_new
+from mia.struct import subtitle_chunks_merge
+from mia.struct import audio_metadata_to_json_obj
+from mia.utils import chunk_audio_with_subtitle_chunks
 
 
 YOUTUBE_DL_BIN: str = os.path.join(
