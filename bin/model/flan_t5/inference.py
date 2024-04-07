@@ -67,7 +67,11 @@ if __name__ == "__main__":
     output_records: List[Dict] = []
     for sample in tqdm(dataset):
         input_text: str = "\n".join(
-            [configs["prompt"], sample[configs["input_text_col"]]]
+            [ 
+                x for x in [
+                    configs["prompt"], sample[configs["input_text_col"]]
+                ] if x not in {"", " ", "\n"}
+            ]
         )
         target_text: str = sample[configs["target_text_col"]]
         output_text: str = model_inference_with_decoding(
