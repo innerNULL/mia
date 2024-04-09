@@ -1,0 +1,6 @@
+{
+  "jsonl_data_path": "/path/to/your/json/line/file",
+  "tokenizer_path_or_name": "google/flan-t5-small",
+  "target_fields": ["field_1", "field_2"],
+  "max_sample_size": 500000
+}
