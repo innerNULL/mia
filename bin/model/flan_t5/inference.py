@@ -12,6 +12,7 @@ import pdb
 import sys
 import os
 import json
+import torch
 import pandas as pd
 from datasets import load_dataset
 from tqdm import tqdm
@@ -43,10 +44,15 @@ def dataset_load(path_or_name: str, split: Optional[str]=None) -> List[Dict]:
 
 
 def model_inference_with_decoding(
-    model: PreTrainedModel, tokenizer: T5Tokenizer, input_text: str
+    model: PreTrainedModel, tokenizer: T5Tokenizer, input_text: str,
+    device: str, max_length: int,
 ) -> str:
-    model_inputs: BatchEncoding = tokenizer(input_text, return_tensors="pt")
-    outputs = model.generate(**model_inputs)
+    model = model.to(torch.device(device))
+    model_inputs: BatchEncoding = {
+        k: v.to(torch.device(device)) 
+        for k, v in tokenizer(input_text, return_tensors="pt").items()
+    }
+    outputs = model.generate(**model_inputs, max_length=max_length)
     return tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
 
 
@@ -75,7 +81,8 @@ if __name__ == "__main__":
         )
         target_text: str = sample[configs["target_text_col"]]
         output_text: str = model_inference_with_decoding(
-            model, tokenizer, input_text
+            model, tokenizer, input_text, 
+            configs["device"], configs["max_length"]
         )
         output_record: Dict = {
             configs["input_text_col"]: input_text, 
