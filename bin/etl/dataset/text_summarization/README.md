@@ -34,6 +34,13 @@ Here are explanation of part configs in
     * `false`: When can not get valie "findings", we will:
         * First try supplement "inpression" with "indication" and "conclusion".
         * If still not valid, then supplement "inpression" with full raw text with "impression" part removed.
+* `min_input_chars_num`: Minimum input text (findings or findings + indications + etc) character number, 
+   if not satisfy then the sample is invalie.
+* `min_target_chars_num`: Minimum output text (impression) character number, 
+   if not satisfy then the sample is invalie.
+* `max_target_chars_num`: Similar as `min_target_chars_num`.
+* `text_blacklist`: Invalid text/sub-string, all these will be replaced with blank `" "` 
+  in all text fields.
 
 
 
