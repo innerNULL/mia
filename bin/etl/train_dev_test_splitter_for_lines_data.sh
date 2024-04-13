@@ -27,7 +27,7 @@ function main() {
   local train_split_path=${LINES_DATA_PATH}.train
   local dev_split_path=${LINES_DATA_PATH}.dev
   local test_split_path=${LINES_DATA_PATH}.test
-  head -n ${train_size} ${LINES_DATA_PATH} >> ${train_split_path}
+  head -n ${train_size} ${LINES_DATA_PATH} | sort -R >> ${train_split_path}
   head -n $((total_size - test_size)) ${LINES_DATA_PATH} | tail -n ${dev_size} >> ${dev_split_path} 
   tail -n ${test_size} ${LINES_DATA_PATH} >> ${test_split_path}
 }
