@@ -1,5 +1,5 @@
 {
-  "med_report_data_path": "/path/to/mimic3/NOTEEVENTS.csv",
+  "med_report_data_path": "/your/path/to/mimic-iii/NOTEEVENTS.csv",
   "output_path": "./_mimiciii_radiology_report_summarization_dataset.jsonl",
   "raw_text_col": "TEXT",
   "ext_cols": ["CATEGORY", "SUBJECT_ID"],
@@ -7,6 +7,14 @@
   "input_text_col": "findings",
   "max_data_size": 3500, 
   "strict_mode": true,
-  "debug_mode": false, 
-  "sql_where_statement": "where CATEGORY in ('Radiology', 'Echo')"
+  "debug_mode": false,
+  "min_input_chars_num": 80,
+  "min_target_chars_num": 0,
+  "max_target_chars_num": 500,
+  "sql_where_statement": "where CATEGORY in ('Radiology', 'Echo')",
+  "text_blacklist": [
+    "ditto", 
+    "Ditto",
+    "DITTO"
+  ]
 }
