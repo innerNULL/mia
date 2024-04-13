@@ -66,10 +66,6 @@ KEY_FIELDS: List[str] = [
     #"TRICUSPID VALVE", "PERICARDIUM",
 ] + FINDINGS_FIELDS + INDICATION_FIELDS + IMPRESSION_FIELDS + CONCLUSIONS_FIELDS + CLINICAL_HISTORY_FIELDS
 
-MINIMUM_FINDINGS_LENGTH: int = 10
-
-MINIMUM_IMPRESSION_LENGTH: int = 5
-
 SQL_QUERY_RAW_MED_REPORT: str = """
 with 
 med_note_with_impressions as (
@@ -135,7 +131,7 @@ def merge_fields(sample: Dict[str, str], target_fields: List[str]) -> str:
     return output
 
 
-def text_clean_naive(text: str) -> str:
+def text_clean_naive(text: str, blacklist: List[str]=[]) -> str:
     text = text.strip(":")
     text = text[2:] if text.startswith("s:") or text.startswith("S:") else text
     text = text.strip("\n").strip(" ")
@@ -147,6 +143,9 @@ def text_clean_naive(text: str) -> str:
     text = text.replace("_", "") 
     text = re.sub(r'\s+', ' ', text)
     #text = re.sub(r'\s+', '\n', text)
+    
+    for string in blacklist:
+        text = text.replace(string, " ")
     return text
 
 
@@ -181,27 +180,30 @@ if __name__ == "__main__":
             parsed_text: Dict[str, str] = parse_med_report(med_text)
 
             findings: str = merge_fields(parsed_text, FINDINGS_FIELDS)
-            findings = text_clean_naive(findings)
+            findings = text_clean_naive(findings, configs["text_blacklist"])
             indications: str = merge_fields(parsed_text, INDICATION_FIELDS)
-            indications = text_clean_naive(indications)
+            indications = text_clean_naive(indications, configs["text_blacklist"])
             conclusions: str = merge_fields(parsed_text, CONCLUSIONS_FIELDS)
-            conclusions: str = text_clean_naive(conclusions)
+            conclusions: str = text_clean_naive(conclusions, configs["text_blacklist"])
             impression: str = merge_fields(parsed_text, IMPRESSION_FIELDS)
-            impression = text_clean_naive(impression)
+            impression = text_clean_naive(impression, configs["text_blacklist"])
 
-            if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
+            if not configs["strict_mode"] \
+                    and len(findings) <= configs["min_input_chars_num"]:
                 findings = findings + "\n" + indications + "\n" + conclusions 
-            if not configs["strict_mode"] and len(findings) <= MINIMUM_FINDINGS_LENGTH:
+            if not configs["strict_mode"] \
+                    and len(findings) <= configs["min_input_chars_num"]:
                 findings = med_text
 
             for impression_col in IMPRESSION_FIELDS:
                 if impression_col in parsed_text:
                     findings = findings.replace(parsed_text[impression_col], "")
                     findings = findings.replace("%s:" % impression_col, "")
-            findings = text_clean_naive(findings)
+            findings = text_clean_naive(findings, configs["text_blacklist"])
              
-            if len(findings) <= MINIMUM_FINDINGS_LENGTH \
-                    or len(impression) <= MINIMUM_IMPRESSION_LENGTH \
+            if len(findings) <= configs["min_input_chars_num"] \
+                    or len(impression) <= configs["min_target_chars_num"] \
+                    or len(impression) >= configs["max_target_chars_num"] \
                     or (len(findings) - len(impression)) / len(findings) < 0.0: #or len(findings) - len(impression) < 20:
                 if len(invalid_cases) < 10000:
                     parsed_text["raw_text"] = med_text
