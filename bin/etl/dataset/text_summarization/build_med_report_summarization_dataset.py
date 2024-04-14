@@ -212,6 +212,20 @@ if __name__ == "__main__":
                     parsed_text["impression_length"] = len(impression)
                     parsed_text["findings_length"] = len(findings)
                     invalid_cases.append(parsed_text)
+                    
+                    if len(invalid_cases) == 10000:
+                        invalid_cases_file_path: str = \
+                            configs["output_path"] + ".invalid_cases.jsonl"
+                        invalid_cases_file = open(invalid_cases_file_path, "w")
+                        for record in invalid_cases:
+                            invalid_cases_file.write(
+                                json.dumps(record, ensure_ascii=False) + "\n"
+                            )
+                        invalid_cases_file.close()
+                        print(
+                            "Finished dumping partial invalid samples to %s" 
+                            % invalid_cases_file_path
+                        )
             else: 
                 #if abs(len(impression) - len(findings)) < 10:
                 #    pdb.set_trace()
