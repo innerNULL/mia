@@ -211,6 +211,8 @@ if __name__ == "__main__":
                     parsed_text["processed_findings"] = findings
                     parsed_text["impression_length"] = len(impression)
                     parsed_text["findings_length"] = len(findings)
+                    for field in configs["ext_cols"]:
+                        parsed_text[field] = curr_sample[field] 
                     invalid_cases.append(parsed_text)
                     
                     if len(invalid_cases) == 10000:
