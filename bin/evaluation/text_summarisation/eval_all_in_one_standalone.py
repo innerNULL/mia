@@ -303,7 +303,10 @@ if __name__ == "__main__":
 
     inf_results: List[Dict] = load_data(configs["data_path_or_name"])
     target_texts: List[str] = [x[configs["target_text_col"]] for x in inf_results]
-    pred_texts: List[str] = [x[configs["output_text_col"]] for x in inf_results]
+    pred_texts: List[str] = [
+        x[configs["output_text_col"]][:configs["max_output_char_num"]] 
+        for x in inf_results
+    ]
 
     model = AutoModel.from_pretrained(hf_lm_path_or_name).to(torch.device(device))
     tokenizer = AutoTokenizer.from_pretrained(hf_lm_path_or_name)
