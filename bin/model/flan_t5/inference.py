@@ -52,7 +52,10 @@ def model_inference_with_decoding(
         k: v.to(torch.device(device)) 
         for k, v in tokenizer(input_text, return_tensors="pt").items()
     }
-    outputs = model.generate(**model_inputs, max_length=max_length)
+    outputs = model.generate(
+        **model_inputs, 
+        max_length=max_length, temperature=0.1, do_sample=False
+    )
     return tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
 
 
@@ -70,7 +73,7 @@ if __name__ == "__main__":
         configs["tokenizer_path_or_name"]
     )
     
-    output_records: List[Dict] = []
+    out_file = open(configs["output_path"], "w")
     for sample in tqdm(dataset):
         input_text: str = "\n".join(
             [ 
@@ -89,10 +92,6 @@ if __name__ == "__main__":
             configs["target_text_col"]: target_text, 
             "output_text": output_text
         }
-        output_records.append(output_record)
-
-    out_file = open(configs["output_path"], "w")
-    for record in output_records:
-        out_file.write(json.dumps(record, ensure_ascii=False) + "\n")
+        out_file.write(json.dumps(output_record, ensure_ascii=False) + "\n")
 
     out_file.close()
