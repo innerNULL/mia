@@ -1,0 +1,31 @@
+{
+  "llm_api_endpoint": "",
+  "llm_api_version": "2023-03-15-preview",
+  "llm_deployment": "gpt-35-turbo-16k",
+  "llm_api_key": "",
+  "in_context_example_path_or_name": "adesouza1/soap_notes",
+  "in_context_example_split": "train",
+  "inference_data_path_or_name": "adesouza1/soap_notes",
+  "inference_data_split": "test",
+  "hf_encoder_path_or_name": "emilyalsentzer/Bio_ClinicalBERT",
+  "hf_tokenizer_path_or_name": "emilyalsentzer/Bio_ClinicalBERT",
+  "soap_notes_col_name": "soap_notes",
+  "conversation_col_name": "patient_convo",
+  "embedding_target": "soap_notes",
+  "device": "cuda:0",
+  "top_k": 3,
+  "system_prompt": [
+    "Write a clinical note reflecting this doctor-patient dialogue. ",
+    "Use the example notes below to decide the structure of the clinical note. ",
+    "Do not make up information."
+  ],
+  "icl_example_prefix": "\n\nEXAMPLE",
+  "user_prompt_template": [
+    "\n\nDIALOGUE:\n",
+    "__CONVERSATION__",
+    "\n\n",
+    "CLINICAL NOTE:",
+    "\n"
+  ],
+  "output_path": "./_tmp_infernce_llm_clinical_note_generation_from_doctor_patient_conversations.jsonl"
+}

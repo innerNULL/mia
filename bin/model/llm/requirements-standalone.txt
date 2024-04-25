@@ -16,3 +16,4 @@ evaluate>=0.4.1
 peft>=0.10.0
 trl>=0.8.1
 wandb>=0.16.4
+langchain>=0.1.16

@@ -65,5 +65,7 @@ if __name__ == "__main__":
         print("###################### %s ######################" % field)
         dfrm: DataFrame = DataFrame(logs[field])
         print("Tokens Length Distribution")
-        print(dfrm["tokens_length"].describe())
+        print(dfrm["tokens_length"].describe(
+            percentiles=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        ))
 
