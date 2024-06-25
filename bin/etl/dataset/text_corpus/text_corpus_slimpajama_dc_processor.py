@@ -128,7 +128,8 @@ def main() -> None:
         sample_id += 1
         filtered_cnt += int(remove)
         if not remove:
-            output_file.write(record + "\n")
+            sample["sample_id"] = sample_id
+            output_file.write(json.dumps(sample, ensure_ascii=False) + "\n")
         print("Filtering ratio: {}".format(filtered_cnt / sample_id))
 
     data_file.close()
