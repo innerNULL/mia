@@ -3,9 +3,11 @@
 # date: 2024-06-29
 
 
+import multiprocessing
 from typing import Union, Optional
 from langchain_core.language_models import BaseLanguageModel
 from langchain_community.chat_models import ChatOllama
+from langchain_community.chat_models import ChatLlamaCpp
 from langchain_huggingface import ChatHuggingFace
 from langchain_huggingface import HuggingFacePipeline
 from transformers import BitsAndBytesConfig
@@ -17,7 +19,8 @@ def init_llm_client(
     llm: str, 
     sampling: bool=True, 
     temperature: float=0.01, 
-    top_k: int=1
+    top_k: int=1,
+    local_model_path: str=""
 ) -> Optional[Union[BaseLanguageModel]]:
     if llm_engine_type in {"ollama", "Ollama"}:
         return ChatOllama(
@@ -49,6 +52,19 @@ def init_llm_client(
             }
         )
         return ChatHuggingFace(llm=llm_runner)
+    elif llm_engine_type in {"llama.cpp", "llamacpp"}:
+        return ChatLlamaCpp(
+            temperature=temperature,
+            model_path=local_model_path,
+            n_ctx=10000,
+            n_gpu_layers=8,
+            n_batch=300,
+            max_tokens=512,
+            n_threads=multiprocessing.cpu_count() - 1,
+            repeat_penalty=1.03,
+            #top_p=0.5,
+            verbose=True,
+        )
     else:
         return None
     

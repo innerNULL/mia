@@ -9,3 +9,4 @@ pandas>=2.0.3
 evaluate>=0.4.1
 accelerate>=0.31.0
 bitsandbytes>=0.43.1
+llama_cpp_python>=0.2.79
