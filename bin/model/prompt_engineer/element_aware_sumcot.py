@@ -121,7 +121,7 @@ def main() -> None:
         extracted_elements: str = element_extract_chain.invoke({"doc": input_text})
         summary: str = summarization_chain.invoke(
             {"doc": input_text, "elements": extracted_elements}
-        )
+        ).replace("`", "").replace("json", "").strip("\n")
         output_text: str = ""
         try:
             output_text = json.loads(summary)["summary"]
@@ -132,6 +132,7 @@ def main() -> None:
             input_text_col: input_text, target_text_col: target_text, 
             "output_text": output_text
         }
+        output_file.write(json.dumps(output, ensure_ascii=False) + "\n")
         if configs["dbg_mode"]:
             print("output_text: %s" % output_text)
     
