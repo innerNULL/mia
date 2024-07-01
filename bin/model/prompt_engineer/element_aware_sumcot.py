@@ -36,7 +36,7 @@ SUMMARIZATION_PROMPT: str = (
     "Document:\n"
     "{doc}\n"
     "\n"
-    "Let's integrate the following information and summarize above document in less than 35 words:\n"
+    "Let's integrate the following information and summarize above document in less than __MAX_WORDS__ words:\n"
     "{elements}\n"
     "\n"
     "The output format should be a JSON \"{{\"summary\": YOUR SUMMARIZATION RESULT}}\", \n"
@@ -54,8 +54,12 @@ def element_extract_prompt_build(
 
 
 def summarization_prompt_build(
+    maximum_output_words: int,
     prompt_temp: str=SUMMARIZATION_PROMPT
 ) -> ChatPromptTemplate:
+    prompt_temp = prompt_temp.replace(
+        "__MAX_WORDS__", str(maximum_output_words)
+    )
     return ChatPromptTemplate.from_messages([("system", prompt_temp)])
 
 
@@ -80,6 +84,7 @@ def main() -> None:
     print(configs)
     input_text_col: str = configs["input_text_col"]
     target_text_col: str = configs["target_text_col"]
+    maximum_output_words: int = configs["maximum_output_words"]
     
     samples: List[Dict] = [
         dict(x) for x in 
@@ -100,6 +105,7 @@ def main() -> None:
         element_extract_prompt | llm | StrOutputParser()
 
     summarization_prompt: ChatPromptTemplate = summarization_prompt_build(
+        maximum_output_words=maximum_output_words,
         prompt_temp=SUMMARIZATION_PROMPT
     )
     summarization_chain: RunnableSequence = \
@@ -118,12 +124,13 @@ def main() -> None:
             output_text = json.loads(summary)["summary"]
         except Exception as e:
             print(e)
-            pdb.set_trace()
             print(summary)
         output: Dict = {
             input_text_col: input_text, target_text_col: target_text, 
             "output_text": output_text
         }
+        if configs["dbg_mode"]:
+            print("output_text: %s" % output_text)
     
     output_file.close()
     print("Inference results are dumped to: %s" % configs["output_path"])

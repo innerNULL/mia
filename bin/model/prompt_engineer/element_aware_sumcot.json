@@ -11,5 +11,7 @@
     "What are the important entities in this document?",
     "What are the important dates in this document?",
     "What events are happening in this document?"
-  ]
+  ],
+  "maximum_output_words": 35,
+  "dbg_mode": true
 }
