@@ -1,0 +1,15 @@
+{
+  "llm_engine_type": "ollama",
+  "llm_engine_api": "http://localhost:11434",
+  "llm": "llama3:8b",
+  "data_path_or_name": "EdinburghNLP/xsum",
+  "data_split": "test",
+  "output_path": "./_element_aware_sumcot_inf.jsonl",
+  "input_text_col": "document", 
+  "target_text_col": "summary", 
+  "element_queries": [
+    "What are the important entities in this document?",
+    "What are the important dates in this document?",
+    "What events are happening in this document?"
+  ]
+}
