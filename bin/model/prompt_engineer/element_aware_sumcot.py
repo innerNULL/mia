@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # file: run_element_aware_sumcot.py
 # date: 2024-06-29
-
+#
+# Usage:
+# CUDA_VISIBLE_DEVICES=1 python ./bin/model/prompt_engineer/element_aware_sumcot.py ./bin/model/prompt_engineer/element_aware_sumcot_hf.json
 
 import pdb
 import sys
@@ -52,7 +54,7 @@ def element_extract_prompt_build(
         "__QUESTIONS__", "\n".join(element_extract_questions)
     )
     print("Elements extraction prompt template:\n%s" % prompt_temp)
-    return ChatPromptTemplate.from_messages([("system", prompt_temp)])
+    return ChatPromptTemplate.from_messages([("human", prompt_temp)])
 
 
 def summarization_prompt_build(
@@ -63,7 +65,7 @@ def summarization_prompt_build(
         "__MAX_WORDS__", str(maximum_output_words)
     )
     print("Summarization prompt template:\n%s" % prompt_temp)
-    return ChatPromptTemplate.from_messages([("system", prompt_temp)])
+    return ChatPromptTemplate.from_messages([("human", prompt_temp)])
 
 
 def dataset_load(

@@ -13,5 +13,8 @@
     "What events are happening in this document?"
   ],
   "maximum_output_words": 35,
+  "sampling": true, 
+  "temperature": 0.0,
+  "top_k": 1, 
   "dbg_mode": true
 }
