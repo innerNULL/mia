@@ -48,8 +48,10 @@ def element_extract_prompt_build(
     element_extract_questions: List[str],
     prompt_temp: str=ELEMENT_EXTRACT_PROMPT
 ) -> ChatPromptTemplate:
-    prompt_temp = prompt_temp\
-        .replace("__QUESTIONS__", "\n".join(element_extract_questions))
+    prompt_temp = prompt_temp.replace(
+        "__QUESTIONS__", "\n".join(element_extract_questions)
+    )
+    print("Elements extraction prompt template:\n%s" % prompt_temp)
     return ChatPromptTemplate.from_messages([("system", prompt_temp)])
 
 
@@ -60,6 +62,7 @@ def summarization_prompt_build(
     prompt_temp = prompt_temp.replace(
         "__MAX_WORDS__", str(maximum_output_words)
     )
+    print("Summarization prompt template:\n%s" % prompt_temp)
     return ChatPromptTemplate.from_messages([("system", prompt_temp)])
 
 
