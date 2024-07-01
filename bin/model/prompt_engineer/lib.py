@@ -41,7 +41,8 @@ def init_llm_client(
                 "do_sample": sampling, 
                 "temperature": temperature, 
                 "top_k": top_k,
-                "repetition_penalty": 1.03
+                "repetition_penalty": 1.03,
+                "return_full_text": False
             },
             model_kwargs={
                 "quantization_config": quant_config
