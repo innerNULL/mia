@@ -41,7 +41,7 @@ SUMMARIZATION_PROMPT: str = (
     "Let's integrate the following information and summarize above document in less than __MAX_WORDS__ words:\n"
     "{elements}\n"
     "\n"
-    "The output format should be in JSON \"{{\"summary\": YOUR SUMMARIZATION RESULT}}\", \n"
+    "The output format should be in JSON {{\"summary\": \"YOUR SUMMARIZATION RESULT\"}}, \n"
     "and do not output anything else except this JSON."
 )
 
