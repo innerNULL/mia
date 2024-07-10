@@ -1,6 +1,25 @@
 # -*- coding: utf-8 -*- 
 # file: text_corpus_slimpajama_dc_processor.py
 # date: 2024-06-24
+#
+# Usage:
+# python text_corpus_slimpajama_dc_processor.py ${config_path}
+#
+# Configs:
+# workspace: Path to cache some intermediate files.
+# data_path_or_name: Can be JSON lines data path or HF datasets' name
+# target_text_cols: The target text column name with which we will do 
+#     data filtering.
+# n_gram: The N-gram with which we build vocabulary for MinHash
+# lsh_threshold: Jaccard distance threshold, higher than which we will 
+#     believe there are some duplications
+# most_dup: Most duplications we can accept, if this sample has more 
+#     then `most_dup` duplications, then it will be filtered.
+# low_length_filter: The minimum length filter, if any fields under it 
+#     has less than `{value}` words, the sample will be filtered
+# output_path: Processed JSON lines output path.
+# debug: Open debug mode, if opened, the duplication cases will be saved 
+#     in `dbg_corpus` 
 
 
 import pdb
@@ -122,6 +141,7 @@ def main() -> None:
                         dbg_corpus[text_id] = text
                 else:
                     print("Corpus {} is a duplication of: {}".format(text_id, ", ".join(duplications)))
+                    pdb.set_trace()
                     remove = True
 
         record = data_file.readline()
