@@ -2,6 +2,10 @@
 # file: text_corpus_slimpajama_dc_processor.py
 # date: 2024-06-24
 #
+# This data filtering refers to paper https://arxiv.org/abs/2309.10818
+# It mainly using MinHash + LSH to do deduplication, also filter corpus
+# which length is too short.
+#
 # Usage:
 # python text_corpus_slimpajama_dc_processor.py ${config_path}
 #
