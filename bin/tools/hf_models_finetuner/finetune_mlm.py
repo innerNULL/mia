@@ -143,7 +143,9 @@ def compute_metrics(eval_preds):
     mask = labels != -100
     labels = labels[mask]
     preds = preds[mask]
-    return metric.compute(predictions=preds, references=labels)
+    out = metric.compute(predictions=preds, references=labels)
+    print(out)
+    return out
 
 
 def main() -> None:
@@ -156,7 +158,13 @@ def main() -> None:
     cache_path: str = os.path.join(output_path, "./_cache")
     target_text_col: str = configs["target_text_col"]
     max_seq_length: int = configs["max_seq_length"]
-    
+    device: str = configs["device"]
+    if device != "cpu":
+        gpu_id: int = device.split(":")[-1]
+        os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
+        torch.cuda.set_device(int(gpu_id))
+        LOGGER.info("Using GPU %s" % gpu_id)
+
     # Loading datasets
     LOGGER.info("Loading datasets")
     train_samples: Dataset = dataset_load(
@@ -237,6 +245,7 @@ def main() -> None:
     )
     
     # Training
+    LOGGER.info("Training")
     train_result = trainer.train(resume_from_checkpoint=None)
     trainer.save_model()
     metrics = train_result.metrics

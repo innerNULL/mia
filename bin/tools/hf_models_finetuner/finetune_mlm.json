@@ -7,13 +7,13 @@
   "val_split": "validation",
   "target_text_col": "document",
   "output_path": "./_finetuned_model",
-  "device": "cpu",
+  "device": "cuda:0",
   "max_seq_length": 512,
-  "epochs": 8,
-  "per_device_train_batch_size": 16,
+  "epochs": 80,
+  "per_device_train_batch_size": 8,
   "per_device_val_batch_size": 32,
-  "save_steps": 10000,
-  "logging_steps": 1024,
+  "save_steps": 1024,
+  "logging_steps": 512,
   "learning_rate": 0.001,
   "report_to": "wandb"
 }
