@@ -160,9 +160,9 @@ def main() -> None:
     max_seq_length: int = configs["max_seq_length"]
     device: str = configs["device"]
     if device != "cpu":
-        gpu_id: int = device.split(":")[-1]
+        gpu_id: str = device.split(":")[-1]
         os.environ["CUDA_VISIBLE_DEVICES"] = gpu_id
-        torch.cuda.set_device(int(gpu_id))
+        #torch.cuda.set_device(int(gpu_id))
         LOGGER.info("Using GPU %s" % gpu_id)
 
     # Loading datasets

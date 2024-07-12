@@ -7,7 +7,7 @@
   "val_split": "validation",
   "target_text_col": "document",
   "output_path": "./_finetuned_model",
-  "device": "cuda:0",
+  "device": "cuda:0,1",
   "max_seq_length": 512,
   "epochs": 80,
   "per_device_train_batch_size": 8,
