@@ -1,0 +1,10 @@
+{
+  "llm_engine_type": "ollama",
+  "llm_engine_api": "http://localhost:11434",
+  "llm_api_key": "",
+  "llm_engine_version": "",
+  "llm": "llama3:8b",
+  "max_data_size": 500,
+  "output_path": "./_medqa_benchmark_llama3_8b.jsonl",
+  "sleep": 0
+}
