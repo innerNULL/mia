@@ -173,6 +173,17 @@ def main() -> None:
     val_samples: Dataset = dataset_load(
         configs["val_data_path_or_name"], configs["val_split"]
     )
+    if configs["rm_potential_data_leak"]:
+        rm_keys: Set[str] = set(
+            [x[target_text_col] for x in train_samples]
+        )
+        before_test_size: int = len(val_samples)
+        val_samples = Dataset.from_pandas(
+            pd.DataFrame(
+              data=[x for x in val_samples if x[target_text_col] not in rm_keys]
+            )
+        )
+        LOGGER.info("Original val data set: {}".format(len(val_samples)))
     LOGGER.info(
         "Train data size: {}, val data size: {}".format(
             len(train_samples), len(val_samples)
