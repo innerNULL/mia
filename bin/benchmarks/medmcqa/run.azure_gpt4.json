@@ -1,0 +1,9 @@
+{
+  "llm_engine_type": "azure_chat_openai",
+  "llm_engine_api": "https://dg-copilot-ai-service.openai.azure.com/",
+  "llm_api_key": "FULL AZURE AI STUDIO KEY",
+  "llm_engine_version": "2024-02-01",
+  "llm": "gpt-4",
+  "max_data_size": 500,
+  "output_path": "./_medmcqa_benchmark_gpt4.jsonl"
+}
