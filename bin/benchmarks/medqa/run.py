@@ -44,9 +44,6 @@ from langchain_core.callbacks.base import BaseCallbackHandler
 from langchain_openai import AzureChatOpenAI, AzureOpenAIEmbeddings
 
 
-DARASET_NAME: str = "bigbio/med_qa"
-
-
 SUPPORTED_LLMS: Set[str] = {
     "medlm-large", 
     "medlm-medium", 
@@ -55,7 +52,7 @@ SUPPORTED_LLMS: Set[str] = {
 }
 
 
-PROMPT: str = \
+PROMPT_1: str = \
 """
 ## Question
 {question}
@@ -69,6 +66,27 @@ E: {op4}
 
 To answer above question, which option is correct? Only return option ID.
 """.strip("\n")
+
+
+PROMPT_2: str = \
+"""
+## Question
+{question}
+
+## Options
+A: {op0}
+B: {op1}
+C: {op2}
+D: {op3}
+
+To answer above question, which option is correct? Only return option ID.
+""".strip("\n")
+
+
+DATASET_PROMPTS: Dict[str, str] = {
+    "bigbio/med_qa": PROMPT_1,
+    "GBaker/MedQA-USMLE-4-options": PROMPT_2
+}
 
 
 class VertexAIMedLM(LLM):
@@ -230,10 +248,12 @@ def init_llm_client(
 def main() -> None:
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     print(configs)
+    data_path_or_name: str = configs["data_path_or_name"]
     max_data_size: int = configs["max_data_size"]
     output_path: str = configs["output_path"]
+    assert(data_path_or_name in DATASET_PROMPTS) 
     
-    samples: Dataset = load_dataset(DARASET_NAME, split="validation")
+    samples: Dataset = load_dataset(data_path_or_name, split=configs["data_split"])
     llm: Optional[Union[BaseLanguageModel]] = init_llm_client(
         llm_engine_type=configs["llm_engine_type"],
         llm_engine_api=configs["llm_engine_api"],
@@ -241,8 +261,9 @@ def main() -> None:
         llm_engine_version=configs["llm_engine_version"],
         llm_api_key=configs["llm_api_key"],
     )
+    prompt: str = DATASET_PROMPTS[data_path_or_name]
     chain: RunnableSequence = \
-        ChatPromptTemplate.from_messages([("human", PROMPT)]) \
+        ChatPromptTemplate.from_messages([("human", prompt)]) \
         | llm \
         | StrOutputParser()
     
@@ -251,13 +272,22 @@ def main() -> None:
     cnt: int = 0
     for sample in tqdm(samples):
         question: str = sample["question"]
-        options: Dict[int, str] = {
-            0: [x["value"] for x in sample["options"] if x["key"] == "A"],
-            1: [x["value"] for x in sample["options"] if x["key"] == "B"],
-            2: [x["value"] for x in sample["options"] if x["key"] == "C"],
-            3: [x["value"] for x in sample["options"] if x["key"] == "D"],
-            4: [x["value"] for x in sample["options"] if x["key"] == "E"]
-        }
+        options: Dict[int, str] = {}
+        if data_path_or_name == "bigbio/med_qa":
+            options = {
+                0: [x["value"] for x in sample["options"] if x["key"] == "A"][0],
+                1: [x["value"] for x in sample["options"] if x["key"] == "B"][0],
+                2: [x["value"] for x in sample["options"] if x["key"] == "C"][0],
+                3: [x["value"] for x in sample["options"] if x["key"] == "D"][0],
+                4: [x["value"] for x in sample["options"] if x["key"] == "E"][0]
+            }
+        elif data_path_or_name == "GBaker/MedQA-USMLE-4-options":
+            options = {
+                0: sample["options"]["A"],
+                1: sample["options"]["B"],
+                2: sample["options"]["C"],
+                3: sample["options"]["D"]
+            }
         option_correct: int = sample["answer_idx"] 
         option_out: int = ""
         try:
@@ -268,7 +298,7 @@ def main() -> None:
                     "op1": options[1],
                     "op2": options[2],
                     "op3": options[3],
-                    "op4": options[4]
+                    "op4": options.get(4, "")
                 }
             )
             option_out = resp_text.strip(" ").strip("\n").strip(" ").strip("\n")

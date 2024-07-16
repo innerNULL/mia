@@ -1,4 +1,6 @@
 {
+  "data_path_or_name": "GBaker/MedQA-USMLE-4-options",
+  "data_split": "test",
   "llm_engine_type": "",
   "llm_engine_api": "",
   "llm_api_key": "",
