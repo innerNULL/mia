@@ -1,0 +1,12 @@
+{
+  "data_path_or_name": "GBaker/MedQA-USMLE-4-options",
+  "data_split": "test",
+  "llm_engine_type": "azure_chat_openai",
+  "llm_engine_api": "https://dg-copilot-ai-service.openai.azure.com/",
+  "llm_api_key": "",
+  "llm_engine_version": "2024-02-01",
+  "llm": "gpt-4",
+  "max_data_size": 500,
+  "output_path": "./_medqa_benchmark_gpt_4.jsonl",
+  "sleep": 0
+}
