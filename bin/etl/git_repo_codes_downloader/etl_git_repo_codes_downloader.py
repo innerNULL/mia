@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # file: etl_git_repo_codes_downloader.py
 #
-# Main part authored by GPT-4o
+# Main part authored by GPT-4o, here's the prompt history:
+# https://chatgpt.com/share/6fa58122-ed44-4afd-ad63-48acb4ed3e38
 #
 # Usage:
 # python ./bin/etl/git_repo_codes_downloader/etl_git_repo_codes_downloader.py ./bin/etl/git_repo_codes_downloader/etl_git_repo_codes_downloader.json
@@ -16,7 +17,7 @@ from pathlib import Path
 from typing import Dict, List
 
 
-DEFAULT_EXTENSIONS: List[str] = ['.py', '.java', '.cpp', '.js', '.c', '.sh', '.go']
+DEFAULT_EXTENSIONS: List[str] = [".py", ".java", ".cpp", ".js", ".c", ".sh", ".go"]
 
 
 # Function to clone a git repo to the specified workspace
@@ -71,9 +72,13 @@ def main() -> None:
     git_repos: List[str] = config['git_repos']
     output_path: str = config['output_path']
     workspace: str = config['workspace']
+    target_extensions: List[str] = config["target_extensions"]
 
     # Ensure the workspace directory exists
     os.makedirs(workspace, exist_ok=True)
+
+    if len(target_extensions) == 0:
+        target_extensions = DEFAULT_EXTENSIONS
 
     with open(output_path, 'w', encoding='utf-8') as output_file:
         for repo_url in git_repos:
@@ -81,7 +86,7 @@ def main() -> None:
             repo_path: str = clone_repo(repo_url, workspace)
             program_files: List[str] = get_program_files(
                 repo_path, 
-                tuple(DEFAULT_EXTENSIONS)
+                tuple(target_extensions)
             )
             for full_path, relative_path in program_files:
                 process_file(

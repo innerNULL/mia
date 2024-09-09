@@ -2,6 +2,7 @@
   "git_repos": [
     "https://github.com/primefaces/primevue"
   ],
+  "target_extensions": [".py", ".java", ".cpp", ".js", ".c", ".sh", ".go"],
   "output_path": "output.jsonl",
   "workspace": "./_workspace"
 }
