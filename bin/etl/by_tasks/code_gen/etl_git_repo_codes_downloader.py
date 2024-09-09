@@ -13,6 +13,7 @@ import sys
 import os
 import json
 import git
+from tqdm import tqdm
 from pathlib import Path
 from typing import Dict, List
 
@@ -88,7 +89,7 @@ def main() -> None:
                 repo_path, 
                 tuple(target_extensions)
             )
-            for full_path, relative_path in program_files:
+            for full_path, relative_path in tqdm(program_files):
                 process_file(
                     full_path, 
                     relative_path, 
