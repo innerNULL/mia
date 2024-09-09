@@ -1,0 +1,7 @@
+{
+  "git_repos": [
+    "https://github.com/primefaces/primevue"
+  ],
+  "output_path": "output.jsonl",
+  "workspace": "./_workspace"
+}
