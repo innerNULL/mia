@@ -1,0 +1,16 @@
+{
+  "llm_client": {
+    "type": "azure_openai",
+    "api_key": "",
+    "api_endpoint": "https://dg-copilot-ai-service.openai.azure.com/",
+    "deployment": "gpt-4o",
+    "api_version": "2024-02-15-preview",
+    "api_key_env_var": "AZURE_OPENAI_API_KEY"
+  },
+  "llm_params": {
+    "temperature": 0
+  },
+  "lang": "ts",
+  "codes_jsonl_path": "./vue_ts_components.jsonl",
+  "output_path": "./_decomposed_code_units.jsonl" 
+}
