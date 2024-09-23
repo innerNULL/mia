@@ -85,10 +85,12 @@ def llm_gen_output_format_icl_examples(
     if prompt is None:
         prompt: str = (
             "With a given schema, please generate __CNT__ example data. "
-            "Your output have to be a JSON list without anything else.\n"
+            "Your output have to be a JSON array.\n"
             "\n"
             "# Schema\n"
-            "__SCHEMAS__"
+            "__SCHEMAS__\n"
+            "\n"
+            "Must only return JSON array without any words else."
         )
     prompt = prompt\
         .replace("__CNT__", str(cnt))\
@@ -167,14 +169,12 @@ def main() -> None:
         requirements=prompt_configs["requirements"]
     )
     for sample in tqdm(samples):
-        prompt: str = prompt_temp.replace("__DOC__", sample["input_text"]) 
+        prompt: str = prompt_temp.replace("__DOC__", sample[input_text_col]) 
         resp = llm.invoke(prompt)
         json_str: str = llm_resp_json_clean(resp.content)
         try:
-            out: str = json.dumps(
-                json.loads(json_str), indent=2, ensure_ascii=False
-            )
-            print(out)
+            out: Dict = json.loads(json_str)
+            print(json.dumps(out,  indent=2, ensure_ascii=False))
         except Exception as e:
             print(resp.content)
             print(json_str)
