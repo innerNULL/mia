@@ -17,7 +17,8 @@ pip install -r ./bin/poc/auto_structured_prompt.txt
 
 ## Run Examples
 ```shell
-python ./bin/poc/auto_structured_prompt.py ./bin/poc/auto_structured_prompt.progress_note.json
+python ./bin/poc/auto_structured_ie.py ./bin/poc/auto_structured_ie.progress_note.json
+python ./bin/poc/auto_structured_ie.py ./bin/poc/auto_structured_ie.image_report.json
 ```
 """
 
@@ -140,6 +141,52 @@ def prompt_build_temp(
     return out
 
 
+class LlmInfoEctractionAgent:
+    def __init__(self):
+        self.llm: Optional[BaseLanguageModel] = None
+        self.temp: Optional[str] = None
+        self.role: Optional[str] = None
+        self.input_desc: Optional[str] = None
+        self.task: Optional[str] = None
+        self.output_schemas: Optional[List[Dict[str, str]]] = None
+        self.requirements: Optional[List[str]] = None
+        self.prompt_temp: Optional[str] = None
+
+    @classmethod
+    def new(cls, 
+        llm: BaseLanguageModel,
+        temp: Union[str, List[str]],
+        role: str,
+        input_desc: str,
+        task: str,
+        output_schemas: List[Dict[str, str]],
+        requirements: List[str]
+    ):
+        out = cls()
+        out.llm = llm
+        out.prompt_temp = prompt_build_temp(
+            llm, 
+            temp=temp,
+            role=role,
+            input_desc=input_desc,
+            task=task,
+            output_schemas=output_schemas,
+            requirements=requirements
+        )
+        return out
+
+    def run(self, input_text: str) -> Dict:
+        prompt: str = self.prompt_temp.replace("__DOC__", input_text)
+        resp = self.llm.invoke(prompt)
+        json_str: str = llm_resp_json_clean(resp.content)
+        try:
+            return json.loads(json_str)
+        except Exception as e:
+            print(resp.content)
+            print(json_str)
+            raise e
+
+
 def main() -> None:
     configs: Dict = json.loads(open(sys.argv[1], "r").read())
     print(configs)
@@ -151,7 +198,7 @@ def main() -> None:
     samples: List[Dict] = [
         x for x in 
         dataset_load(configs["data_path_or_name"], configs["data_split"])
-    ]
+    ][:configs["max_sample_size"]]
     llm: Optional[Union[BaseLanguageModel]] = ChatOpenAI(
         model=configs["llm"],
         api_key=configs["llm_api_key"],
@@ -159,7 +206,7 @@ def main() -> None:
         temperature=configs["temperature"],
         top_p=0.1
     )
-    prompt_temp: str = prompt_build_temp(
+    ie_agent: LlmInfoEctractionAgent = LlmInfoEctractionAgent.new(
         llm, 
         temp=prompt_configs["template"],
         role=prompt_configs["role_description"],
@@ -169,15 +216,10 @@ def main() -> None:
         requirements=prompt_configs["requirements"]
     )
     for sample in tqdm(samples):
-        prompt: str = prompt_temp.replace("__DOC__", sample[input_text_col]) 
-        resp = llm.invoke(prompt)
-        json_str: str = llm_resp_json_clean(resp.content)
         try:
-            out: Dict = json.loads(json_str)
-            print(json.dumps(out,  indent=2, ensure_ascii=False))
+            out: Dict = ie_agent.run(sample[input_text_col])
+            print(json.dumps(out, indent=2, ensure_ascii=False))
         except Exception as e:
-            print(resp.content)
-            print(json_str)
             print(e)
     return
 
