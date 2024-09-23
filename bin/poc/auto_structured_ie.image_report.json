@@ -1,0 +1,70 @@
+{
+  "llm_engine_api": "http://localhost:11435/v1",
+  "llm_engine_version": "",
+  "llm_api_key": "",
+  "llm": "llama3.1:8b",
+  "data_path_or_name": "/path/to/image/report/jsonl",
+  "data_split": null,
+  "output_path": "./_auto_structured_prompt.image_report.jsonl",
+  "input_text_col": "TXDESCRIPTION", 
+  "target_text_col": null,
+  "prompt": {
+    "template": [
+      "__SYS_PROMPT__\n",
+      "\n",
+      "# Input Document\n",
+      "__DOC__\n",
+      "\n",
+      "# Output Format Examples\n",
+      "__OUTPUT_FMT__\n",
+      "\n",
+      "# Output Schema\n",
+      "__OUTPUT_SCHEMA__\n",
+      "\n",
+      "# Output Requirements\n",
+      "__OUTPUT_REQ__\n",
+      "\n",
+      "You must only return the output JSON without anything else."
+    ],
+    "role_description": "You are a clinical expert.",
+    "input_description": "The given input document is patient's image report under cathedology devision.",
+    "task_description": "With given input document, your task is to summarise some key elements.",
+    "output_schema": [
+      {
+        "field": "topic",
+        "type": "string",
+        "description": "A sentence to description the topic of given input document."
+      },
+      {
+        "field": "abnormals",
+        "type": "list of string",
+        "description": "The abnormals marked in input document."
+      },
+      {
+        "field": "conclusions",
+        "type": "list of string",
+        "description": "The conclusions mentioned in input document.."
+      },
+      {
+        "field": "health_metrics",
+        "type": "list of object, like [{{\"name\": \"...\". \"value\": \"...\"}}]",
+        "description": "Numerical health metrics in input document, the `value` should be numeric values with unit."
+      },
+      {
+        "field": "diagnosis",
+        "type": "list of string",
+        "description": " The diagnosis in latest note."
+      }
+    ],
+    "requirements": [
+      "Never add any markdown formats like bullet point in all output elements.",
+      "Only extract information from input document, do not make any inference",
+      "Try to use terms in input document if you can."
+    ]
+  },
+  "sampling": true, 
+  "temperature": 0.0,
+  "top_k": 1,
+  "max_sample_size": 50,
+  "dbg_mode": true
+}
