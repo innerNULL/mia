@@ -215,12 +215,18 @@ def main() -> None:
         output_schemas=output_schema,
         requirements=prompt_configs["requirements"]
     )
+    out_file = open(configs["output_path"], "w")
     for sample in tqdm(samples):
         try:
             out: Dict = ie_agent.run(sample[input_text_col])
+            out_sample: Dict = sample
+            out_sample["output"] = out
+            out_file.write(json.dumps(out_sample,  ensure_ascii=False) + "\n")
             print(json.dumps(out, indent=2, ensure_ascii=False))
         except Exception as e:
             print(e)
+    out_file.close()
+    print("Inference results are dumped to '%s'" % configs["output_path"])
     return
 
 
