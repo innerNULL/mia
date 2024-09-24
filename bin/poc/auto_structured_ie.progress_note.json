@@ -29,9 +29,14 @@
       "You must only return the output JSON without anything else."
     ],
     "role_description": "You are a clinical expert.",
-    "input_description": "The given input documents are latest and previous progress note.",
-    "task_description": "With given input document, your task is to summarise some key elements.",
+    "input_description": "The given input documents are latest and previous progress notes of a patient in cardiology division.",
+    "task_description": "With given input document, your task is to extract key elements.",
     "output_schema": [
+      {
+        "field": "subjective",
+        "type": "string",
+        "description": "The symptoms or pains mentioned in latest note."
+      },
       {
         "field": "new_abnormals",
         "type": "list of string",
@@ -44,7 +49,7 @@
       },
       {
         "field": "vital_signs",
-        "type": "list of object, like [{{\name\": \"\". \"value\": \"\"}}]",
+        "type": "list of object, like [{{\"name\": \"\". \"value\": \"\"}}]",
         "description": "Vital signs in latest note."
       },
       {

@@ -61,6 +61,9 @@ def dataset_load(
 
 
 def llm_resp_json_clean(llm_json: str) -> str:
+    start_idx: int = min(llm_json.index("{"), llm_json.index("["))
+    end_idx: int = max(llm_json.rindex("}"), llm_json.rindex("]"))
+    llm_json = llm_json[start_idx:(end_idx + 1)]
     return llm_json\
         .replace("```json", "")\
         .replace("```", "")
@@ -128,7 +131,10 @@ def prompt_build_temp(
     )
     out = out.replace(
         "__OUTPUT_FMT__", "\n\n".join([
-            json.dumps(x, indent=2, ensure_ascii=False) for x in out_fmt_examples
+            (
+                "Example Output Format %i:\n" % (i + 1) 
+                + json.dumps(x, indent=2, ensure_ascii=False)
+            ) for i, x in enumerate(out_fmt_examples)
         ])
     )
     out = out.replace(
@@ -217,8 +223,9 @@ def main() -> None:
         output_schemas=output_schema,
         requirements=prompt_configs["requirements"]
     )
+    failed_cnt: int = 0
     out_file = open(configs["output_path"], "w")
-    for sample in tqdm(samples):
+    for i, sample in enumerate(tqdm(samples)):
         try:
             input_text: str = sample[input_text_col]
             target_text: Optional[str] = sample.get(target_text_col, None)
@@ -231,6 +238,8 @@ def main() -> None:
             print(json.dumps(out, indent=2, ensure_ascii=False))
         except Exception as e:
             print(e)
+            failed_cnt += 1
+        print("Failure ratio: %f" % (failed_cnt / (i + 1)))
     out_file.close()
     print("Inference results are dumped to '%s'" % configs["output_path"])
     return
