@@ -192,6 +192,8 @@ def main() -> None:
     print(configs)
     input_text_col: str = configs["input_text_col"]
     target_text_col: str = configs["target_text_col"]
+    out_input_text_col: str = configs["out_input_text_col"]
+    out_target_text_col: str = configs["out_target_text_col"]
     prompt_configs: Dict = configs["prompt"]
     output_schema: List[Dict] = prompt_configs["output_schema"]
     
@@ -218,9 +220,13 @@ def main() -> None:
     out_file = open(configs["output_path"], "w")
     for sample in tqdm(samples):
         try:
-            out: Dict = ie_agent.run(sample[input_text_col])
-            out_sample: Dict = sample
-            out_sample["output"] = out
+            input_text: str = sample[input_text_col]
+            target_text: Optional[str] = sample.get(target_text_col, None)
+            out: Dict = ie_agent.run(input_text)
+            out_sample: Dict = {
+                out_input_text_col: input_text, out_target_text_col: target_text
+            }
+            out_sample["ie_results"] = out
             out_file.write(json.dumps(out_sample,  ensure_ascii=False) + "\n")
             print(json.dumps(out, indent=2, ensure_ascii=False))
         except Exception as e:

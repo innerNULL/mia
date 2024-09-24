@@ -3,11 +3,13 @@
   "llm_engine_version": "",
   "llm_api_key": "",
   "llm": "llama3.1:8b",
-  "data_path_or_name": "./path/to/certain/progress/note/jsonl/data",
+  "data_path_or_name": "/path/to/progress_note/jsonl", 
   "data_split": null,
-  "output_path": "./_auto_structured_prompt.jsonl",
+  "output_path": "./_auto_structured_ie.progress_note.jsonl",
   "input_text_col": "input_text", 
   "target_text_col": null,
+  "out_input_text_col": "input_text",
+  "out_target_text_col": "target_text",
   "prompt": {
     "template": [
       "__SYS_PROMPT__\n",
