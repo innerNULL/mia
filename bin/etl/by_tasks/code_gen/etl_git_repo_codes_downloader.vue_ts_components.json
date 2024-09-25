@@ -1,0 +1,11 @@
+{
+  "git_repos": [
+    "https://github.com/vuetifyjs/vuetify.git",
+    "https://github.com/storybookjs/storybook.git",
+    "https://github.com/tailwindlabs/headlessui.git",
+    "https://github.com/youzan/vant.git"
+  ],
+  "target_extensions": [".ts"],
+  "output_path": "vue_ts_components.jsonl",
+  "workspace": "./_workspace_vue_ts_components"
+}
