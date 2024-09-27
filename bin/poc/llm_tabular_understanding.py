@@ -13,6 +13,7 @@ from pandas import DataFrame
 from openai import OpenAI
 from openai.types.chat.chat_completion import ChatCompletion
 
+
 PROMPT_SYS_TEMP: str = \
 """
 You are a clinical data analyst.
@@ -93,9 +94,16 @@ def tabular_desc_gen(
     for field in tabular_schema:
         name: str = field["name"]
         desc: str = field["description"]
+        knowledges: Optional[List[str]] = field["knowledges"]
         out += "{} {}\n".format(md_level_sign, name)
         out += desc
         out += "\n\n"
+        if knowledges is not None and len(knowledges) > 0:
+            out += "#" * (md_level + 1) + " References of {}".format(name)  
+            for knowledge in knowledges:
+                out += "\n"
+                out += "* {}".format(knowledge)
+            out += "\n\n"
     return out
 
 
