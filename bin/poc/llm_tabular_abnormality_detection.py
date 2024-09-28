@@ -23,7 +23,7 @@ from openai.types.chat.chat_completion import ChatCompletion
 
 PROMPT_SYS_TEMP: str = \
 """
-You are a clinical data analyst.
+You are a data engineer.
 Your task is to write DuckDB SQL to extend original table with new boolean columns. 
 Each column marks one specific abnormality. 
 
