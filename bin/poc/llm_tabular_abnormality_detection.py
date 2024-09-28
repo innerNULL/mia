@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 # file: llm_tabular_abnormality_detection.py
 # date: 2024-09-27
+"""
+## References
+* https://arxiv.org/abs/2308.03188
+"""
 
 
 import pdb
