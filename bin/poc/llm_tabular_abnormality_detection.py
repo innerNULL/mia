@@ -257,10 +257,13 @@ class AgentLlmSqlGen:
         ]
         return cleaned_resp
 
-    def run(self, 
+    def run_sql_gen(self, 
         tabular_json: Dict[str, List[Union[str, int, float]]],
         max_rounds: int=20
-    ) -> DataFrame:
+    ) -> str:
+        if self.usable_sql is not None:
+            return self.usable_sql
+
         gen_sql: str = self.run_init_sql_gen(tabular_json)
         out_df: Optional[DataFrame] = None
         msg: str = ""
@@ -271,9 +274,18 @@ class AgentLlmSqlGen:
             gen_sql = self.fix_sql(msg)
             out_df, msg = self.run_sql(self.df, gen_sql)
             rounds += 1
-        pdb.set_trace()
         self.usable_sql = gen_sql
-        return self.run_sql(self.df, self.usable_sql)[0]
+        return self.usable_sql
+
+    def run(self, 
+        tabular_json: Dict[str, List[Union[str, int, float]]],
+        max_rounds: int=20
+    ) -> DataFrame:
+        gen_sql: str = self.run_sql_gen(tabular_json, max_rounds)
+        df: DataFrame = json2csv_tabular(
+            tabular_json, self.tabular_cols
+        )
+        return self.run_sql(df, gen_sql)[0]
 
 
 def main() -> None:
