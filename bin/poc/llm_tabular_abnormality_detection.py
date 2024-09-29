@@ -322,9 +322,11 @@ def main() -> None:
     ) 
     
     out_file = open(output_data_path, "w")
-    for sample in tqdm(samples):
+    for i, sample in enumerate(tqdm(samples)):
         out_df: str = agent_sql_gen.run(sample)
-        print(out_df)
+        if i == 0:
+            print(agent_sql_gen.usable_sql)
+            print(out_df)
     out_file.close()
     print("Results are dumped to '%s'" % output_data_path)
     return 
