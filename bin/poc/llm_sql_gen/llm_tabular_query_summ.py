@@ -5,7 +5,7 @@
 ## LLM Server Deployment
 ### vLLM
 ```shell
-CUDA_VISIBLE_DEVICES=3 vllm serve meta-llama/Llama-3.2-3B-Instruct --dtype bfloat16 --port 8081
+CUDA_VISIBLE_DEVICES=3 vllm serve NousResearch/Meta-Llama-3.1-8B-Instruct --dtype bfloat16 --port 8081
 ```
 
 ### OLlama
