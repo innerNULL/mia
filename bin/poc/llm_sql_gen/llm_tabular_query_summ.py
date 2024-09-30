@@ -65,7 +65,7 @@ def llm_openai_call(
     msgs: List[Dict],
     model: str="llama3.1:8b",
     temperature: float=0.0,
-    top_p: float=0.1
+    top_p: float=0.05
 ) -> str:
     resp: ChatCompletion = llm.chat.completions.create(
         messages=msgs, 

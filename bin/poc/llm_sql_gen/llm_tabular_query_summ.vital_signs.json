@@ -137,6 +137,7 @@
     }
   ],
   "sth_to_note": [
+    "Do not view any empty values as abnormal",
     "Directly query from input tables, do not create any new table."
   ],
   "llm": {
