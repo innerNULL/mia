@@ -83,7 +83,7 @@
       "descriptions": ["Blood oxygen saturation."]
     },
     {
-      "name": "has_fever", 
+      "name": "fever", 
       "type": "BOOLEAN",
       "descriptions": [
         "Is `true` only if body temperature is larger than 38."
@@ -137,12 +137,12 @@
     }
   ],
   "sth_to_note": [
-    "Do not view any empty values as abnormal",
+    "During query, if related data contains empty or invalid values, then the output should be `NULL`.",
     "Directly query from input tables, do not create any new table."
   ],
   "llm": {
-    "api_url": "http://localhost:11435/v1",
+    "api_url": "http://0.0.0.0:8081/v1",
     "api_key": "null",
-    "model": "llama3.1:8b"
+    "model": "NousResearch/Meta-Llama-3.1-8B-Instruct"
   }
 }
