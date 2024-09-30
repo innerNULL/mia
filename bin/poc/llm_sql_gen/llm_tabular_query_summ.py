@@ -316,6 +316,7 @@ class AgentLlmSqlGen:
         max_rounds: int=20
     ) -> str:
         if self.usable_sql is not None:
+            self.run_tables_register(tabular_jsons)
             return self.usable_sql
 
         gen_sql: str = self.run_init_sql_gen(tabular_jsons)
