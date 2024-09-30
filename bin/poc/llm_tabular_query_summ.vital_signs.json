@@ -1,0 +1,147 @@
+{
+  "input_data_path": "/path/to/vital/signs/jsonl",
+  "output_data_path": "./path.to.vital_signs.jsonl",
+  "max_sample_size": 64, 
+  "global_rules": [
+    "Must view all NULL values as normal.",
+    "All values are in VARCHAR format, which means \"null\" is also VARCHAR."
+  ],
+  "in_table_schemas": {
+    "vital_signs": [
+      {
+        "name": "datetimes",
+        "type": "VARCHAR",
+        "descriptions": ["Datetime of each vital signs record."]
+      },
+      {
+        "name": "body_temperatures",
+        "type": "VARCHAR",
+        "descriptions": ["Body temperature."]
+      },
+      {
+        "name": "heartrates",
+        "type": "VARCHAR",
+        "descriptions": ["Heart rate."]
+      },
+      {
+        "name": "respiratory_rates",
+        "type": "VARCHAR",
+        "descriptions": ["Respiratory rate."]
+      },
+      {
+        "name": "systolic_pressures",
+        "type": "VARCHAR",
+        "descriptions": ["Systolic pressures."]
+      },
+      {
+        "name": "diastolic_pressures",
+        "type": "VARCHAR",
+        "descriptions": ["Diastolic pressures."]
+      },
+      {
+        "name": "oxygen_sats",
+        "type": "VARCHAR",
+        "descriptions": ["Blood oxygen saturation"]
+      }
+    ]
+  },
+
+  "out_table_schema": [
+    {
+      "name": "datetimes",
+      "type": "VARCHAR",
+      "descriptions": ["Datetime of each vital signs record."]
+    },
+    {
+      "name": "body_temperatures",
+      "type": "VARCHAR",
+      "descriptions": ["Body temperature."]
+    },
+    {
+      "name": "heartrates",
+      "type": "VARCHAR",
+      "descriptions": ["Heart rate."]
+    },
+    {
+      "name": "respiratory_rates",
+      "type": "VARCHAR",
+      "descriptions": ["Respiratory rate."]
+    },
+    {
+      "name": "systolic_pressures",
+      "type": "VARCHAR",
+      "descriptions": ["Systolic pressures."]
+    },
+    {
+      "name": "diastolic_pressures",
+      "type": "VARCHAR",
+      "descriptions": ["Diastolic pressures."]
+    },
+    {
+      "name": "oxygen_sats",
+      "type": "VARCHAR",
+      "descriptions": ["Blood oxygen saturation."]
+    },
+    {
+      "name": "has_fever", 
+      "type": "BOOLEAN",
+      "descriptions": [
+        "Is `true` only if body temperature is larger than 38."
+      ]
+    },
+    {
+      "name": "hypothermia",
+      "type": "BOOLEAN",
+      "descriptions": [
+        "Is `true` only if body temperature is lower than 35."
+      ]
+    },
+    {
+      "name": "tachypnea",
+      "type": "BOOLEAN",
+      "descriptions": [
+        "Is `true` only if respiratory rate is higher than 20."
+      ]
+    },
+    {
+      "name": "brachypnea",
+      "type": "BOOLEAN",
+      "descriptions": [
+        "Is `true` only if respiratory rate is lower than 10."
+      ]
+    },
+    {
+      "name": "hypertension",
+      "type": "BOOLEAN",
+      "descriptions": [
+        "Is `true` when systolic pressure is larger than 140.",
+        "Is `true` when diastolic pressure is larger than 90.",
+        "Is `false` for all other cases."
+      ]
+    },
+    {
+      "name": "hypotension",
+      "type": "BOOLEAN",
+      "descriptions": [
+        "Is `true` when systolic pressure is lower than 100.",
+        "Is `true` when diastolic pressure is lower than 60.",
+        "Is `false` for all other cases."
+      ]
+    },
+    {
+      "name": "desaturation",
+      "type": "BOOLEAN",
+      "descriptions": [
+        "Is `true` only if blood oxygen saturation lower than 0.9."
+      ]
+    }
+  ],
+  "sth_to_note": [
+    "Directly query from input tables, do not create any new table."
+  ],
+  "llm": {
+    "api_url": "http://localhost:11435/v1",
+    "api_key": "null",
+    "model": "llama3.1:8b"
+  }
+}
