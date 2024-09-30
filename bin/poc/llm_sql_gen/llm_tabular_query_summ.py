@@ -226,17 +226,9 @@ class AgentLlmSqlGen:
         
         return out
 
-    def run_init_sql_gen(self, 
+    def run_tables_register(self, 
         tabular_jsons: Dict[str, Dict[str, List]]
-  ) -> str:
-        """
-        tabular_json: The format should be like:
-            {
-              "col1": [...],
-              "col2": [...],
-              ...
-            }
-        """
+    ) -> str:
         in_table_strs: str = ""
         for table_name, table_json in tabular_jsons.items():
             table_cols: List[str] = [
@@ -249,7 +241,22 @@ class AgentLlmSqlGen:
             in_table_strs += "\n"
             in_table_strs += table_str
             in_table_strs += "\n\n"
-        in_table_strs = in_table_strs.strip("\n").replace("None", "NULL")
+        in_table_strs = in_table_strs\
+            .strip("\n")#.replace("None", "NULL")
+        return in_table_strs
+
+    def run_init_sql_gen(self, 
+        tabular_jsons: Dict[str, Dict[str, List]]
+  ) -> str:
+        """
+        tabular_json: The format should be like:
+            {
+              "col1": [...],
+              "col2": [...],
+              ...
+            }
+        """
+        in_table_strs: str = self.run_tables_register(tabular_jsons)
         user_msg_sql_gen: Dict = {
             "role": "user", 
             "content": self.sql_gen_prompt_temp\
@@ -349,6 +356,7 @@ def main() -> None:
         if i <= 0:
             print(agent_sql_gen.usable_sql)
             print(out_df)
+            pdb.set_trace()
     out_file.close()
     print("Results are dumped to '%s'" % output_data_path)
     return 
