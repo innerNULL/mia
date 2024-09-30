@@ -2,6 +2,11 @@
 # file: llm_tabular_abnormality_detection.py
 # date: 2024-09-27
 """
+## LLM Server Deployment
+### vLLM
+```shell
+CUDA_VISIBLE_DEVICES=3 vllm serve meta-llama/Llama-3.2-3B-Instruct --dtype bfloat16 --port 8081
+```
 ## References
 * https://arxiv.org/abs/2303.17651
 * https://arxiv.org/abs/2308.03188
