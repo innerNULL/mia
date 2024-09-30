@@ -97,7 +97,10 @@ def json2jsonl_tabular(
     for i in range(cnt):
         out_sample: Dict = {}
         for field in target_cols:
-            out_sample[field] = str(json_obj[field][i])
+            val: str =  str(json_obj[field][i])
+            if val in {"null", "none", "None", "NULL"}:
+                val = "NA"
+            out_sample[field] = val
         out.append(out_sample)
     return out
 
@@ -306,11 +309,12 @@ class AgentLlmSqlGen:
         rounds: int = 0
         out_df, msg = self.run_sql(gen_sql)
         while msg != "success":
-            print("Round %i fix" % rounds)
+            print("==== SQL Self-Refine Round %i fix ====" % rounds)
             gen_sql = self.fix_sql(msg)
             out_df, msg = self.run_sql(gen_sql)
-            print("Err Message: \n%s" % msg)
-            print("\nGenerated SQL: \n%s" % gen_sql)
+            print("* Err Message:\n%s" % msg)
+            print("\n* Generated SQL:\n%s" % gen_sql)
+            print("==== SQL Self-Refine Round %i end ====" % rounds)
             rounds += 1
         self.usable_sql = gen_sql
         return self.usable_sql
@@ -355,8 +359,7 @@ def main() -> None:
         )
         if i <= 0:
             print(agent_sql_gen.usable_sql)
-            print(out_df)
-            pdb.set_trace()
+        print(out_df)
     out_file.close()
     print("Results are dumped to '%s'" % output_data_path)
     return 
