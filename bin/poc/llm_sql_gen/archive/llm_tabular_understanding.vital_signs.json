@@ -1,0 +1,56 @@
+{
+  "input_data_path": "/path/to/vital/signs/jsonl",
+  "output_data_path": "./_llm_tabular_understanding.vital_signs.jsonl",
+  "max_sample_size": 64, 
+  "queries": [
+    "Does patient has any fever or hypothermia? Also give your explanation.",
+    "Does patient has any hypertension or hypotension? Also give your explanation.",
+    "Does patient has any tachypnea or brachypnea? Also give your explanation."
+  ],
+  "tabular_schema": [
+    {
+      "name": "datetimes",
+      "description": "Datetime of each vital signs record.",
+      "knowledges": null
+    },
+    {
+      "name": "body_temperatures",
+      "description": "Body temperature.",
+      "knowledges": [
+        "If body temperature is larger than 38, then the patient has fever.",
+        "If body temperature is lowerer than 35, then the patient has hypothermia."
+      ]
+    },
+    {
+      "name": "heartrates",
+      "description": "Heart rate.",
+      "knowledges": []
+    },
+    {
+      "name": "respiratory_rates",
+      "description": "Respiratory rate.",
+      "knowledges": [
+        "If respiratory rate is higher than 20, then the patient has tachypnea.",
+        "If respiratory rate is lower than 10, then the patient has brachypnea."
+      ]
+    },
+    {
+      "name": "blood_pressures",
+      "description": "Blood pressures.",
+      "knowledges": [
+        "If systolic pressure is larger than 140 or diastolic pressure is larger than 90, then the patient has hypertension.",
+        "If systolic pressure is lower than 100 or diastolic pressure is lower than 60, then the patient has hypotension."
+      ]
+    },
+    {
+      "name": "oxygen_sats",
+      "description": "Blood oxygen saturation",
+      "knowledges": []
+    }
+  ],
+  "llm": {
+    "api_url": "http://localhost:11435/v1",
+    "api_key": "null",
+    "model": "llama3.1:8b"
+  }
+}

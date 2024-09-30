@@ -1,0 +1,97 @@
+{
+  "input_data_path": "/path/to/vital/signs/jsonl",
+  "output_data_path": "./path.to.vital_signs.jsonl",
+  "max_sample_size": 64, 
+  "global_rules": [
+    "Must view all NULL values as normal.",
+    "All values are in VARCHAR format, which means \"null\" is also VARCHAR."
+  ],
+  "target_abnormalities": [
+    {
+      "name": "fever", 
+      "topic": "Fever",
+      "descriptions": [
+        "Body temperature is larger than 38."
+      ]
+    },
+    {
+      "name": "hypothermia",
+      "topic": "Hypothermia",
+      "descriptions": [
+        "Body temperature is lowerer than 35."
+      ]
+    },
+    {
+      "name": "tachypnea",
+      "topic": "Tachypnea",
+      "descriptions": [
+        "Respiratory rate is higher than 20."
+      ]
+    },
+    {
+      "name": "brachypnea",
+      "topic": "Brachypnea",
+      "descriptions": [
+        "Respiratory rate is lower than 10."
+      ]
+    },
+    {
+      "name": "hypertension",
+      "topic": "Hypertension",
+      "descriptions": [
+        "Systolic pressure is larger than 140.",
+        "Diastolic pressure is larger than 90."
+      ]
+    },
+    {
+      "name": "hypotension",
+      "topic": "Hypotension",
+      "descriptions": [
+        "Systolic pressure is lower than 100.",
+        "Diastolic pressure is lower than 60."
+      ]
+    },
+    {
+      "name": "desaturation",
+      "topic": "Desaturation",
+      "descriptions": [
+        "Blood oxygen saturation lower than 0.9."
+      ]
+    }
+  ],
+  "tabular_schema": [
+    {
+      "name": "datetimes",
+      "description": "Datetime of each vital signs record."
+    },
+    {
+      "name": "body_temperatures",
+      "description": "Body temperature."
+    },
+    {
+      "name": "heartrates",
+      "description": "Heart rate."
+    },
+    {
+      "name": "respiratory_rates",
+      "description": "Respiratory rate."
+    },
+    {
+      "name": "systolic_pressures",
+      "description": "Systolic pressures."
+    },
+    {
+      "name": "diastolic_pressures",
+      "description": "Diastolic pressures."
+    },
+    {
+      "name": "oxygen_sats",
+      "description": "Blood oxygen saturation"
+    }
+  ],
+  "llm": {
+    "api_url": "http://localhost:11435/v1",
+    "api_key": "null",
+    "model": "llama3.1:8b"
+  }
+}
