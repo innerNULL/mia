@@ -7,6 +7,13 @@
 ```shell
 CUDA_VISIBLE_DEVICES=3 vllm serve meta-llama/Llama-3.2-3B-Instruct --dtype bfloat16 --port 8081
 ```
+
+### OLlama
+```shell
+OLLAMA_HOST="127.0.0.1:11435" CUDA_VISIBLE_DEVICES=0 ollama serve
+ollama pull ${MODEL_NAME}
+```
+
 ## References
 * https://arxiv.org/abs/2303.17651
 * https://arxiv.org/abs/2308.03188
@@ -179,6 +186,7 @@ def table_schemas_desc_gen(
 class AgentLlmSqlGen:
     def __init__(self): 
         self.llm: Optional[OpenAI] = None
+        self.model: Optional[str] = None
         self.sys_prompt_temp: Optional[str] = None
         self.sql_gen_prompt_temp: Optional[str] = None
         self.sql_fix_prompt_temp: Optional[str] = None
@@ -196,6 +204,7 @@ class AgentLlmSqlGen:
     @classmethod
     def new(cls, 
         llm: OpenAI,
+        model: str,
         in_table_schemas: Dict[str, List[Dict]],
         out_table_schema: List[Dict],  
         sth_to_note: List[str],
@@ -206,6 +215,7 @@ class AgentLlmSqlGen:
         out = cls()
 
         out.llm = llm
+        out.model = model
         out.sys_prompt_temp = sys_prompt_temp
         out.sql_gen_prompt_temp = sql_gen_prompt_temp
         out.sql_fix_prompt_temp = sql_fix_prompt_temp
@@ -271,7 +281,7 @@ class AgentLlmSqlGen:
                 .replace("__IN_TABLES__", in_table_strs)
         }
         self.msgs += [user_msg_sql_gen]
-        resp: str = llm_openai_call(self.llm, self.msgs)
+        resp: str = llm_openai_call(self.llm, self.msgs, self.model)
         cleaned_resp: str = llm_resp_code_clean(resp, "sql") 
         self.msgs += [
             {"role": "assistant", "content": cleaned_resp}
@@ -294,7 +304,7 @@ class AgentLlmSqlGen:
               "content": self.sql_fix_prompt_temp.replace("__ERR__", err_msg)
             }
         )
-        resp: str = llm_openai_call(self.llm, self.msgs)
+        resp: str = llm_openai_call(self.llm, self.msgs, self.model)
         cleaned_resp: str = llm_resp_code_clean(resp, "sql")
         self.msgs += [
             {"role": "assistant", "content": cleaned_resp}
@@ -351,6 +361,7 @@ def main() -> None:
     )
     agent_sql_gen: AgentLlmSqlGen = AgentLlmSqlGen.new(
         llm=llm,
+        model=configs["llm"]["model"],
         in_table_schemas=in_table_schemas,
         out_table_schema=out_table_schema,
         sth_to_note=sth_to_note
