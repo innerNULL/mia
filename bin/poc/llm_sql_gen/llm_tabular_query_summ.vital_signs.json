@@ -1,6 +1,6 @@
 {
   "input_data_path": "/path/to/vital/signs/jsonl",
-  "output_data_path": "./path.to.vital_signs.jsonl",
+  "output_data_path": "./_llm_tabular_query_summ.vital_signs.jsonl",
   "max_sample_size": 64, 
   "global_rules": [
     "Must view all NULL values as normal.",

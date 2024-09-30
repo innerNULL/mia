@@ -371,12 +371,16 @@ def main() -> None:
     out_file = open(output_data_path, "w")
     for i, sample in enumerate(tqdm(samples)):
         # Tmp solution
-        out_df: DataFrame = agent_sql_gen.run(
+        out_df: Optional[DataFrame] = agent_sql_gen.run(
             {"vital_signs": sample}
         )
+        if out_df is None:
+            continue
         if i <= 0:
             print(agent_sql_gen.usable_sql)
         print(out_df)
+        out_sample: Dict = {"out_table": out_df.to_dict(orient="records")}
+        out_file.write(json.dumps(out_sample, ensure_ascii=False) + "\n")
     out_file.close()
     print("Results are dumped to '%s'" % output_data_path)
     return 
