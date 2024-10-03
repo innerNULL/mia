@@ -3,4 +3,4 @@ openai>=1.47.0
 langchain>=0.3.0
 langchain-openai>=0.2.0
 datasets>=3.0.0
-vllm>=0.6.1.dev238+ge2c6e0a82
+vllm>=0.6.1
