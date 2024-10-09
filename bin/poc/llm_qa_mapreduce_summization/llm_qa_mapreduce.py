@@ -94,7 +94,7 @@ def llm_gen_output_format_icl_examples(
             "# Schema\n"
             "__SCHEMAS__\n"
             "\n"
-            "Must only return JSON array without any words else."
+            "Must only return a JSON array string without any words else."
         )
     prompt = prompt\
         .replace("__CNT__", str(cnt))\
@@ -105,7 +105,11 @@ def llm_gen_output_format_icl_examples(
     try:
         return json.loads(cleaned_json)
     except Exception as e:
+        print("Parsing generate ICL output examples failed:")
+        print("Raw LLM response:")
         print(llm_resp.content)
+        print("Cleaned LLM response:")
+        print(cleaned_json)
         raise e
     
 
@@ -212,7 +216,7 @@ def main() -> None:
         api_key=configs["llm_api_key"],
         base_url=configs["llm_engine_api"],
         temperature=configs["temperature"],
-        top_p=0.1
+        top_p=0.01
     )
     ie_agent: LlmInfoEctractionAgent = LlmInfoEctractionAgent.new(
         llm, 
