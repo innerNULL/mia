@@ -4,21 +4,25 @@
 """
 ## Set Python Env
 ```shell
-conda create -p ./_auto_structured_prompt python=3.11
-conda activate ./_auto_structured_prompt
+conda create -p ./_venv python=3.11
+conda activate ./_venv
 ```
 or
 ```
-python3.11 -m auto_structured_prompt ./_auto_structured_prompt --copies
+python3.11 -m venv ./_venv --copies
 source ./_venv/bin/activate
 
-pip install -r ./bin/poc/auto_structured_prompt.txt
+pip install -r ./bin/poc/llm_qa_mapreduce_summization/requirements.txt
+```
+
+## Setup LLMs Server
+```shell
+CUDA_VISIBLE_DEVICES=0 vllm serve NousResearch/Meta-Llama-3.1-8B-Instruct --dtype bfloat16 --max_model_len 10000 --port 8081
 ```
 
 ## Run Examples
 ```shell
-python ./bin/poc/auto_structured_ie.py ./bin/poc/auto_structured_ie.progress_note.json
-python ./bin/poc/auto_structured_ie.py ./bin/poc/auto_structured_ie.image_report.json
+python ./bin/poc/llm_qa_mapreduce_summization/llm_qa_mapreduce.py ./bin/poc/llm_qa_mapreduce_summization/llm_qa_mapreduce.progress_note.json
 ```
 """
 
