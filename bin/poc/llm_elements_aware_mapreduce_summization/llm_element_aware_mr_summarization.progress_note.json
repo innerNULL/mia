@@ -3,9 +3,9 @@
   "llm_engine_version": "",
   "llm_api_key": "",
   "llm": "llama3.1:8b",
-  "data_path_or_name": "/path/to/progress_note/jsonl", 
+  "data_path_or_name": "/path/to/progress_note/jsonl",
   "data_split": null,
-  "output_path": "./_auto_structured_ie.progress_note.jsonl",
+  "output_path": "./_llm_auto_structured_ie.progress_note.jsonl",
   "input_text_col": "input_text", 
   "target_text_col": null,
   "out_input_text_col": "input_text",
@@ -38,14 +38,19 @@
         "description": "The symptoms or pains mentioned in latest note."
       },
       {
-        "field": "new_abnormals",
+        "field": "new_abnormal_findings",
         "type": "list of string",
-        "description": "The abnormals which are new in latest note but not exist in previous note"
+        "description": "The abnormal findings which are new in latest note but not exist in previous note"
       },
       {
-        "field": "resolved_abnormals",
+        "field": "resolved_abnormal_findings",
         "type": "list of string",
-        "description": "The abnormals in previouse note which disappeared in latest note."
+        "description": "The abnormal findings in previouse note which disappeared in latest note."
+      },
+      {
+        "field": "new_normal_findings",
+        "type": "string",
+        "description": "One sentence description of all normal findings in latest note."
       },
       {
         "field": "vital_signs",
