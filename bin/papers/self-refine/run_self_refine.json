@@ -1,0 +1,35 @@
+{
+  "in_data_path": "./run_self_refine-demo_data.jsonl",
+  "out_data_path": "./_run_self_refine-demo_data.jsonl.inf.jsonl",
+  "src_text_col": "in_text",
+  "init_gen_text_col": "init_gen_text",
+  "instruction_col": "prompt",
+  "max_sample_size": 3,
+  "langchain": {
+    "langsmith_tracing": true, 
+    "langsmith_endpoint": "https://api.smith.langchain.com",
+    "langsmith_api_key": "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",
+    "langsmith_project": "instructionspipe-dev"
+  },
+  "max_rounds": 3,
+  "llms": [
+    {
+      "model": "gpt-4o-mini",
+      "model_provider": "azure_openai",
+      "azure_endpoint": "",
+      "openai_api_version": "2024-05-01-preview",
+      "openai_api_key": "",
+      "max_retries": 3,
+      "timeout": 5,
+      "temperature": 0.01,
+      "max_tokens": 1024
+    }
+  ],
+  "agents": {
+    "refine": {
+      "llm": "google/gemma-3-1b-it"
+    },
+    "feedback": {
+    }
+  }
+}
