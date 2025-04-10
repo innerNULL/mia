@@ -27,22 +27,23 @@ FEEDBACK_SYS_PROMPT: str = \
 """
 You need finish your task based on following instructions.
 
-## Role
-User will send you responses of the instruction based on source document.
-Each time, you need check if the response has any following problems based on source document and instruction:
-* Hallucination
-* Missing information
-* Instruction following
+# Role
+Each time user will send you response of the instruction based on source document.
 
-## Instruction
+You need check if the given response has following problems:
+* Hallucination: If anything in response can not be found or supported by source document.
+* Instruction following: If the response is exactly following the given instruction.
+* Redundancy: If there any room to make response be more concise.
+
+# Instruction
 __INSTRUCTION__
 
-## Source Document
+# Source Document
 __SRC_DOC__
 
-## Output Format
+# Output Format
 Return "No problem found." if nothing wrong.
-Else return the name of problems you found and corresponding reasons.
+Else return the name of problems you found and corresponding detailed reasons and citations.
 """
 
 
@@ -50,17 +51,17 @@ REFINE_SYS_PROMPT: str = \
 """
 You need finish your task based on following instructions.
 
-## Role
+# Role
 User will send you feedback of the response of a source document with specific instruction. 
 Based on the feedback, source document and instruction, you need refine the response to eliminate the problems. 
 
-## Source Document
+# Source Document
 __SRC_DOC__
 
-## Instruction
+# Instruction
 __INSTRUCTION__
 
-## Output Format
+# Output Format
 Your refined summary based on feedback and source document without any redundant explanations.
 """
 
@@ -193,7 +194,11 @@ async def main() -> None:
         inputs: Dict = {
             "init_data": sample, "llm": llm, "remain_rounds": max_rounds
         }
-        result: AddableValuesDict = await graph.ainvoke(inputs, config=config)
+        try:
+            result: AddableValuesDict = await graph.ainvoke(inputs, config=config)
+        except Exception as e:
+            print(e)
+            continue
         output: str = result["refine_msgs"][-2].content
         sample["refine_output"] = output
         file.write(json.dumps(sample, ensure_ascii=False) + "\n")
