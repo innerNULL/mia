@@ -1,0 +1,23 @@
+{
+  "out_data_path": "./_etl_tab_qa_synthetic_data.jsonl",
+  "max_sample_size": 3,
+  "langchain": {
+    "langsmith_tracing": true, 
+    "langsmith_endpoint": "https://api.smith.langchain.com",
+    "langsmith_api_key": "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",
+    "langsmith_project": "self_refine4table_qa-synthetic_data"
+  },
+  "example_ids": [0],
+  "sample_size_per_example": 20,
+  "llm": {
+    "model": "gpt-4o-mini",
+    "model_provider": "azure_openai",
+    "azure_endpoint": "",
+    "openai_api_key": "",
+    "openai_api_version": "2024-05-01-preview",
+    "max_retries": 3,          
+    "timeout": 3000,    
+    "temperature": 0.1,   
+    "max_tokens": 16384 
+  }
+}

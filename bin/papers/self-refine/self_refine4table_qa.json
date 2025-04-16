@@ -1,9 +1,9 @@
 {
-  "in_data_path": "./self_refine4tab_understanding.jsonl",
-  "out_data_path": "./_self_refine4tab_understanding.jsonl.results.jsonl",
+  "in_data_path": "./_etl_tab_qa_synthetic_data.jsonl",
+  "out_data_path": "./_etl_tab_qa_synthetic_data.jsonl.results.jsonl",
   "src_data_col": "src_data",
   "query_task_col": "query_task",
-  "max_sample_size": 3,
+  "max_sample_size": 8,
   "langchain": {
     "langsmith_tracing": true, 
     "langsmith_endpoint": "https://api.smith.langchain.com",
