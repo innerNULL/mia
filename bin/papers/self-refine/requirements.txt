@@ -1,6 +1,9 @@
+duckdb
 langchain>=0.3.23
 langchain-azure-ai>=0.1.2
 langgraph>=0.3.25
 openai>=1.57.0
+pandas
 pydantic>=2.10.3
+tabulate
 tqdm>=4.66.1

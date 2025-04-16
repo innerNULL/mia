@@ -1,0 +1,51 @@
+{
+  "in_data_path": "./self_refine4tab_understanding.jsonl",
+  "out_data_path": "./_self_refine4tab_understanding.jsonl.results.jsonl",
+  "src_data_col": "src_data",
+  "query_task_col": "query_task",
+  "max_sample_size": 3,
+  "langchain": {
+    "langsmith_tracing": true, 
+    "langsmith_endpoint": "https://api.smith.langchain.com",
+    "langsmith_api_key": "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",
+    "langsmith_project": "self_refine4tab_understanding-dev"
+  },
+  "max_rounds": 3,
+  "llms": [
+    {
+      "model": "gpt-4o-mini",
+      "model_provider": "azure_openai",
+      "azure_endpoint": "tbd",
+      "openai_api_version": "2024-05-01-preview",
+      "openai_api_key": "tbd",
+      "max_retries": 3,
+      "timeout": 300,
+      "temperature": 0.01,
+      "max_tokens": 1024
+    },
+    {
+      "model": "unsloth/gemma-3-27b-it-bnb-4bit",
+      "model_provider": "openai",
+      "base_url": "https://fcbb3a58f730.ngrok.app/v1/",
+      "api_key": "null",
+      "max_retries": 3,          
+      "timeout": 300,    
+      "temperature": 0.1,   
+      "max_tokens": 1024          
+    }
+  ],
+  "agents": {
+    "data_parser": {
+      "llm": "unsloth/gemma-3-27b-it-bnb-4bit"
+    },
+    "code_gen": {
+      "llm": "unsloth/gemma-3-27b-it-bnb-4bit"
+    },
+    "code_refine": {
+      "llm": "unsloth/gemma-3-27b-it-bnb-4bit"
+    },
+    "code_feedback": {
+      "llm": "unsloth/gemma-3-27b-it-bnb-4bit"
+    }
+  }
+}
